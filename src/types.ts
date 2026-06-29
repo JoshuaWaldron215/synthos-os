@@ -104,10 +104,21 @@ export interface ChatMessage {
   fresh?: boolean;
 }
 
+export interface MessageAttachment {
+  id: string;
+  name: string;
+  kind: string;
+  size: number;
+  path: string;
+  image: boolean;
+}
+
 export interface TeamMessage {
   who: number;
   text: string;
   time: string;
+  attachments?: MessageAttachment[];
+  reactions?: Record<string, number[]>;
 }
 
 export interface Conversation {

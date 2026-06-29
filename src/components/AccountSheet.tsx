@@ -36,7 +36,7 @@ export function AccountSheet() {
       setNotifPermission(perm);
       updatePrefs(currentUserId, { pushEnabled: true });
       if (perm === "granted") {
-        showOSNotification("notifications on", "you'll get live studio updates here ✦", "welcome");
+        showOSNotification("notifications on", "you'll get live updates here ✦", "welcome");
         try {
           await subscribeToPush();
           showToast("push notifications enabled ✦");

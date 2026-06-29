@@ -285,7 +285,7 @@ export function Tasks() {
         tasks, <i style={{ fontWeight: 600 }}>build to ship</i>
       </h1>
       <p style={{ margin: "0 0 16px", fontSize: 14, color: "rgba(11,15,25,.5)" }}>
-        {isMobile ? "tap a card to open & move it" : "drag to move · click a card to open"} · the dot shows priority — <span style={{ color: "#E5484D", fontWeight: 600 }}>red is urgent</span>.
+        {isMobile ? "tap a card to open & move it" : "drag to move · click a card to open"}
       </p>
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>

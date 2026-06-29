@@ -31,7 +31,7 @@ export function Intake() {
         scope in, <i style={{ fontWeight: 600 }}>tasks out</i>
       </h1>
       <p style={{ margin: "0 0 20px", fontSize: 14, color: "rgba(11,15,25,.5)", maxWidth: 540, lineHeight: 1.5 }}>
-        paste a project scope or a call transcript — synthos drafts the tasks and splits them evenly across the studio, by load and skill.
+        paste a project scope or a call transcript — synthos drafts the tasks and splits them evenly across the team, by load and skill.
       </p>
 
       <div style={{ background: "#fff", border: "1px solid rgba(11,15,25,.06)", borderRadius: 18, padding: 16, boxShadow: "0 1px 2px rgba(11,15,25,.04),0 14px 34px -24px rgba(11,15,25,.3)" }}>

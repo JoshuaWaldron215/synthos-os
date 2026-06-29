@@ -146,7 +146,7 @@ export function Projects() {
             your <i style={{ fontWeight: 600 }}>projects</i>, at a glance
           </h1>
           <p style={{ margin: "8px 0 0", fontSize: 14, color: "rgba(11,15,25,.5)", maxWidth: 440, lineHeight: 1.5 }}>
-            {projects.length} active builds across the studio. health is live — green is calm, peach needs you.
+            {projects.length} active builds across your workspace.
           </p>
         </div>
         <button className="hov-soft" onClick={() => setFormOpen(true)} style={{ display: "flex", alignItems: "center", gap: 7, background: "#0B0F19", color: "#fff", border: "none", borderRadius: 12, padding: "10px 15px", fontSize: 13.5, fontWeight: 600 }}>

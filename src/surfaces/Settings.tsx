@@ -91,7 +91,7 @@ export function Settings() {
       setNotifPermission(perm);
       updatePrefs(currentUserId, { pushEnabled: true });
       if (perm === "granted") {
-        showOSNotification("notifications on", "you'll get live studio updates here ✦", "welcome");
+        showOSNotification("notifications on", "you'll get live updates here ✦", "welcome");
         try {
           await subscribeToPush();
           showToast("push enabled · subscribed to live push ✦");
@@ -171,7 +171,7 @@ export function Settings() {
           </div>
         </Card>
 
-        <Card title="notifications" desc="live studio updates — task assignments, mentions, ships and content.">
+        <Card title="notifications" desc="live updates — task assignments, mentions, ships and content.">
           <Toggle
             on={myPrefs.pushEnabled}
             onClick={togglePush}

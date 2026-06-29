@@ -77,7 +77,6 @@ export function Login({ local, onSignIn }: LoginProps) {
               <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-.03em" }}>synthos</span>
               <span style={{ fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(11,15,25,.4)", fontWeight: 700 }}>os</span>
             </div>
-            <div style={{ fontSize: 12.5, color: "rgba(11,15,25,.5)" }}>the studio workspace</div>
           </div>
         </div>
 
@@ -85,7 +84,7 @@ export function Login({ local, onSignIn }: LoginProps) {
           welcome <i style={{ fontWeight: 600 }}>back</i>
         </h1>
         <p style={{ margin: "0 0 22px", fontSize: 13.5, color: "rgba(11,15,25,.5)", lineHeight: 1.5 }}>
-          sign in to your studio. projects, tasks, the vault and files — all in one place.
+          sign in to your workspace. projects, tasks, the vault and files — all in one place.
         </p>
 
         <form onSubmit={submit}>

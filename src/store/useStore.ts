@@ -8,6 +8,7 @@ import type {
   ContentItem,
   Conversation,
   DraftTask,
+  MessageAttachment,
   NotifItem,
   Prefs,
   Priority,
@@ -202,7 +203,8 @@ interface StoreState {
   // team actions
   selectConvo: (id: string) => void;
   setTeamInput: (v: string) => void;
-  teamSend: () => void;
+  teamSend: (attachments?: MessageAttachment[]) => void;
+  toggleReaction: (convoId: string, index: number, emoji: string) => void;
   createConversation: (input: { name: string; members: number[]; proj?: string; guests?: string[] }) => string;
   renameConversation: (id: string, name: string) => void;
   setConversationMembers: (id: string, members: number[]) => void;
@@ -648,14 +650,37 @@ export const useStore = create<StoreState>()(
 
       selectConvo: (id) => set({ activeConvo: id }),
       setTeamInput: (v) => set({ teamInput: v }),
-      teamSend: () => {
+      teamSend: (attachments) => {
         const t = (get().teamInput || "").trim();
-        if (!t) return;
+        const atts = attachments && attachments.length ? attachments : undefined;
+        if (!t && !atts) return;
         const { activeConvo, currentUserId } = get();
         set((s) => {
           const msgs = { ...s.teamMsgs };
-          msgs[activeConvo] = (msgs[activeConvo] || []).concat([{ who: currentUserId, text: t, time: "now" }]);
+          const msg: TeamMessage = { who: currentUserId, text: t, time: "now" };
+          if (atts) msg.attachments = atts;
+          msgs[activeConvo] = (msgs[activeConvo] || []).concat([msg]);
           return { teamMsgs: msgs, teamInput: "" };
+        });
+      },
+      toggleReaction: (convoId, index, emoji) => {
+        const me = get().currentUserId;
+        set((s) => {
+          const list = s.teamMsgs[convoId];
+          if (!list || !list[index]) return {};
+          const msgs = { ...s.teamMsgs };
+          msgs[convoId] = list.map((m, i) => {
+            if (i !== index) return m;
+            const reactions = { ...(m.reactions || {}) };
+            const users = reactions[emoji] ? [...reactions[emoji]] : [];
+            const at = users.indexOf(me);
+            if (at >= 0) users.splice(at, 1);
+            else users.push(me);
+            if (users.length) reactions[emoji] = users;
+            else delete reactions[emoji];
+            return { ...m, reactions };
+          });
+          return { teamMsgs: msgs };
         });
       },
       createConversation: ({ name, members, proj, guests }) => {

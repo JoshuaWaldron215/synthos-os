@@ -37,6 +37,8 @@ export type IconName =
   | "download"
   | "github"
   | "mail"
+  | "paperclip"
+  | "image"
   | "trash";
 
 interface IconProps {
@@ -150,6 +152,10 @@ export function Icon({ name, size = 20, sw = 1.7, color = "currentColor", style 
       );
     case "mail":
       return svg(r(2.8, 5.5, 18.4, 13, 2.4), p("M3.4 7l8.6 5.6L20.6 7"));
+    case "paperclip":
+      return svg(p("M20.4 11.2l-8 8a5 5 0 0 1-7.1-7.1l8.2-8.2a3.3 3.3 0 0 1 4.7 4.7l-8.2 8.2a1.6 1.6 0 0 1-2.3-2.3l7.4-7.4"));
+    case "image":
+      return svg(r(3.5, 4.5, 17, 15, 3), ci(9, 10, 1.6), p("M5 18l4.5-4.5a2 2 0 0 1 2.8 0L19 20"));
     case "trash":
       return svg(p("M4.5 6.5h15"), p("M9 6.5V5A1.5 1.5 0 0 1 10.5 3.5h3A1.5 1.5 0 0 1 15 5v1.5"), p("M6.5 6.5l.8 12A1.5 1.5 0 0 0 8.8 20h6.4a1.5 1.5 0 0 0 1.5-1.4l.8-12"));
     default:

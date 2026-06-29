@@ -1,5 +1,6 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { USERS } from "../data/seed";
+import { burstConfetti } from "../lib/confetti";
 import { useStore } from "../store/useStore";
 import { Avatar } from "./Avatar";
 import { ResponsiveModal } from "./ResponsiveModal";
@@ -53,7 +54,10 @@ export function WinFormModal({ open, onClose, win }: { open: boolean; onClose: (
   const save = () => {
     if (!title.trim()) return;
     if (win) updateWin(win.id, { title: title.trim(), who, tag: tag.trim(), amount: amount.trim(), proj, note: note.trim() });
-    else addWin({ title, who, tag, amount, proj, note });
+    else {
+      addWin({ title, who, tag, amount, proj, note });
+      burstConfetti();
+    }
     onClose();
   };
 

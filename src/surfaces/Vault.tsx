@@ -70,7 +70,7 @@ function AddKeyModal({ open, onClose }: { open: boolean; onClose: () => void }) 
       <div style={{ marginBottom: 18 }}>
         <label style={lbl}>project</label>
         <select value={proj} onChange={(e) => setProj(e.target.value)} style={field}>
-          <option value="shared">shared (studio-wide)</option>
+          <option value="shared">shared (team-wide)</option>
           {projects.map((p) => (
             <option key={p.id} value={p.id}>{p.client}</option>
           ))}
