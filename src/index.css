@@ -1,0 +1,242 @@
+:root {
+  /* Brand palette */
+  --ink: #0b0f19;
+  --deep-blue: #283149;
+  --deep-blue-2: #525a76;
+  --cloud: #f6f8fa;
+  --white: #ffffff;
+
+  /* Status / accent dots + tints */
+  --sky-dot: #33adee;
+  --sky-tint: rgba(96, 200, 255, 0.16);
+  --mint-dot: #2fc197;
+  --mint-tint: rgba(126, 230, 193, 0.2);
+  --blush-dot: #ff8a63;
+  --blush-tint: rgba(255, 150, 120, 0.16);
+  --lav-dot: #8a84f0;
+  --lav-tint: rgba(200, 198, 255, 0.28);
+
+  /* Priority */
+  --pri-high: #e5484d;
+  --pri-med: #f5a524;
+  --pri-low: #98a0b0;
+
+  /* Gradients */
+  --grad-nav: linear-gradient(
+    95deg,
+    rgba(96, 200, 255, 0.2) 0%,
+    rgba(200, 198, 255, 0.17) 54%,
+    rgba(126, 230, 193, 0.12) 100%
+  );
+  --grad-drawer: linear-gradient(
+    150deg,
+    #fbf3ec 0%,
+    #eaf2ff 42%,
+    #f1ecff 78%,
+    #e9fbf3 100%
+  );
+
+  /* Hairlines & shadows */
+  --hairline: 1px solid rgba(11, 15, 25, 0.06);
+  --shadow-card: 0 1px 2px rgba(11, 15, 25, 0.04);
+  --shadow-task: 0 1px 2px rgba(11, 15, 25, 0.05),
+    0 8px 20px -16px rgba(11, 15, 25, 0.3);
+  --shadow-modal: 0 30px 70px -20px rgba(11, 15, 25, 0.45);
+
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  color: var(--ink);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: var(--ink);
+  background: var(--cloud);
+}
+
+input,
+button,
+textarea {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+  /* removes the 300ms tap delay + grey tap flash on touch devices */
+  touch-action: manipulation;
+}
+
+/* No grey highlight box when tapping interactive elements on mobile */
+button,
+a,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(11, 15, 25, 0.13);
+  border-radius: 20px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Keyframes (ported from prototype) */
+@keyframes scIn {
+  from {
+    opacity: 0.6;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes msgIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+@keyframes drawerIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes drawerLeftIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes sheetUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+.anim-sc {
+  animation: scIn 0.25s ease;
+}
+
+/* Generic hover helpers (inline styles can't do :hover) */
+.hov-soft:hover {
+  background: rgba(11, 15, 25, 0.03);
+}
+.hov-sky:hover {
+  background: rgba(96, 200, 255, 0.12);
+}
+.hov-row:hover {
+  background: rgba(11, 15, 25, 0.04);
+}
+.hov-lift {
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.hov-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 1px 2px rgba(11, 15, 25, 0.04),
+    0 22px 44px -22px rgba(11, 15, 25, 0.34);
+}
+.hov-task {
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+.hov-task:hover {
+  box-shadow: 0 1px 2px rgba(11, 15, 25, 0.05),
+    0 14px 26px -16px rgba(11, 15, 25, 0.34);
+  border-color: rgba(96, 200, 255, 0.45) !important;
+}
+.hov-assist:hover {
+  background: rgba(200, 198, 255, 0.4) !important;
+}
+.hov-rename:hover {
+  color: #2a78a8;
+}
+.hov-link:hover {
+  background: rgba(11, 15, 25, 0.03);
+  border-color: rgba(11, 15, 25, 0.14) !important;
+}
+.hov-dashed:hover {
+  background: rgba(96, 200, 255, 0.08) !important;
+  border-color: rgba(96, 200, 255, 0.45) !important;
+  color: var(--ink) !important;
+}
+
+/* Mobile: 16px form controls prevent iOS focus-zoom; smoother momentum scroll */
+@media (max-width: 760px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+  section {
+    -webkit-overflow-scrolling: touch;
+    /* keep scroll momentum inside the main area — no page rubber-banding */
+    overscroll-behavior-y: contain;
+  }
+  /* avoid the whole shell bouncing / accidental pull-to-refresh in standalone */
+  body {
+    overscroll-behavior: none;
+  }
+  /* hide scrollbars on the horizontal kanban boards for a cleaner touch feel */
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}
