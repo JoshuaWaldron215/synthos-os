@@ -164,6 +164,30 @@ export function Projects() {
           <ProjectCard key={p.id} p={p} />
         ))}
       </div>
+
+      {projects.length === 0 && (
+        <div style={{ background: "#fff", border: "1px dashed rgba(11,15,25,.14)", borderRadius: 18, padding: "48px 24px", textAlign: "center" }}>
+          {allProjects.length === 0 ? (
+            <>
+              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>no projects yet</div>
+              <p style={{ margin: "0 0 16px", fontSize: 13.5, color: "rgba(11,15,25,.5)" }}>create your first project to start tracking tasks, keys, files and revenue.</p>
+              <button className="hov-soft" onClick={() => setFormOpen(true)} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#0B0F19", color: "#fff", border: "none", borderRadius: 12, padding: "10px 16px", fontSize: 13.5, fontWeight: 600, fontFamily: "inherit" }}>
+                <Icon name="plus" size={15} sw={2.2} color="#fff" /> create your first project
+              </button>
+            </>
+          ) : (
+            <>
+              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>nothing {fStatus}</div>
+              <p style={{ margin: 0, fontSize: 13.5, color: "rgba(11,15,25,.5)" }}>
+                no projects match this filter —{" "}
+                <button onClick={() => setFilter("status", "all")} style={{ background: "transparent", border: "none", padding: 0, fontSize: 13.5, fontWeight: 600, color: "#0B0F19", textDecoration: "underline", fontFamily: "inherit", cursor: "pointer" }}>
+                  show all
+                </button>
+              </p>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }

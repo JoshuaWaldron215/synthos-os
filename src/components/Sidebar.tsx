@@ -39,7 +39,7 @@ export function Sidebar() {
       <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 4px 18px" }}>
         <button
           onClick={logoClick}
-          title="synthos"
+          title={collapsed ? "expand sidebar" : "synthos"}
           style={{
             display: "flex",
             alignItems: "center",
@@ -92,6 +92,8 @@ export function Sidebar() {
               key={item.key}
               className={active ? undefined : "hov-sky"}
               onClick={() => navigate(item.path)}
+              title={collapsed ? item.label : undefined}
+              aria-label={item.label}
               style={{
                 display: "flex",
                 alignItems: "center",

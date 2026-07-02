@@ -111,7 +111,8 @@ function useResults(query: string, onPicked: () => void): Result[] {
           title: k.label,
           sub: nameOf(k.proj),
           go: () => {
-            navigate("/vault");
+            // the vault scrolls to and flashes the matched row
+            navigate("/vault", { state: { highlight: k.id } });
             onPicked();
           },
         });

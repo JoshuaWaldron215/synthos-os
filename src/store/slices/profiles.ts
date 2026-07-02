@@ -1,12 +1,13 @@
 import { currentPermission } from "../../lib/notifications";
 import { defaultPrefs, defaultProfiles, seedNotifications } from "../../lib/profile";
+import { playNotifySound } from "../../lib/sound";
 import type { NotifItem, Prefs, Profile } from "../../types";
 import type { StoreGet, StoreSet } from "../types";
 
 const MAX_NOTIFS = 40;
 
 // Per-user profiles, notification preferences and the in-app notification feed.
-export const createProfilesSlice = (set: StoreSet, _get: StoreGet) => ({
+export const createProfilesSlice = (set: StoreSet, get: StoreGet) => ({
   profiles: defaultProfiles(),
   prefs: defaultPrefs(),
   notifications: seedNotifications(),
@@ -19,13 +20,16 @@ export const createProfilesSlice = (set: StoreSet, _get: StoreGet) => ({
   updatePrefs: (id: number, patch: Partial<Prefs>) =>
     set((s) => ({ prefs: { ...s.prefs, [id]: { ...s.prefs[id], ...patch } } })),
   setNotifPermission: (p: NotificationPermission) => set({ notifPermission: p }),
-  pushNotification: (n: Omit<NotifItem, "id" | "read" | "time" | "at">) =>
+  pushNotification: (n: Omit<NotifItem, "id" | "read" | "time" | "at">) => {
     set((s) => ({
       notifications: [
         { ...n, id: "n" + Date.now() + Math.random().toString(36).slice(2, 6), read: false, at: Date.now() },
         ...s.notifications,
       ].slice(0, MAX_NOTIFS),
-    })),
+    }));
+    const st = get();
+    if (st.prefs[st.currentUserId]?.sound) playNotifySound();
+  },
   markAllNotifsRead: () =>
     set((s) => ({ notifications: s.notifications.map((n) => ({ ...n, read: true })) })),
   clearNotifs: () => set({ notifications: [] }),

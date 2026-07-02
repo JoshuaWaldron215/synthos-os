@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Eyebrow } from "../components/Eyebrow";
 import { Icon } from "../lib/Icon";
 import { fieldLabelStyle, fieldStyle } from "../lib/fields";
@@ -8,17 +9,26 @@ import { ConfirmDialog } from "../components/ConfirmDialog";
 import { ResponsiveModal } from "../components/ResponsiveModal";
 import type { VaultKey } from "../types";
 
-function KeyRow({ k, projName }: { k: VaultKey; projName: string }) {
+function KeyRow({ k, projName, flash }: { k: VaultKey; projName: string; flash?: boolean }) {
   const revealed = useStore((s) => s.revealed);
   const reveal = useStore((s) => s.reveal);
   const hide = useStore((s) => s.hide);
   const copy = useStore((s) => s.copy);
   const deleteKey = useStore((s) => s.deleteKey);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const rowRef = useRef<HTMLDivElement>(null);
   const isRevealed = !!revealed[k.id];
 
+  // arriving from global search: scroll to and briefly flash this row
+  useEffect(() => {
+    if (flash) rowRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [flash]);
+
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "15px 18px", borderBottom: "1px solid rgba(11,15,25,.05)" }}>
+    <div
+      ref={rowRef}
+      style={{ display: "flex", alignItems: "center", gap: 14, padding: "15px 18px", borderBottom: "1px solid rgba(11,15,25,.05)", animation: flash ? "rowFlash 1.6s ease 1" : undefined }}
+    >
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: ".02em", fontFamily: "ui-monospace,SFMono-Regular,Menlo,monospace", color: "#0B0F19", display: "flex", alignItems: "center", gap: 8 }}>
           {k.label}
@@ -101,6 +111,8 @@ export function Vault() {
   const openAudit = useStore((s) => s.openAudit);
   const copyEnv = useStore((s) => s.copyEnv);
   const [addOpen, setAddOpen] = useState(false);
+  const location = useLocation();
+  const highlightId = (location.state as { highlight?: string } | null)?.highlight;
 
   const nameOf = (proj: string) => (proj === "shared" ? "shared" : projects.find((p) => p.id === proj)?.client ?? proj);
 
@@ -155,11 +167,20 @@ export function Vault() {
             </div>
             <div style={{ background: "#fff", border: "1px solid rgba(11,15,25,.06)", borderRadius: 18, overflow: "hidden", boxShadow: "0 1px 2px rgba(11,15,25,.04),0 18px 40px -28px rgba(11,15,25,.3)" }}>
               {g.keys.map((k) => (
-                <KeyRow key={k.id} k={k} projName={g.name} />
+                <KeyRow key={k.id} k={k} projName={g.name} flash={k.id === highlightId} />
               ))}
             </div>
           </div>
         ))}
+        {keys.length === 0 && (
+          <div style={{ background: "#fff", border: "1px dashed rgba(11,15,25,.14)", borderRadius: 18, padding: "44px 24px", textAlign: "center" }}>
+            <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>the vault is empty</div>
+            <p style={{ margin: "0 0 16px", fontSize: 13.5, color: "rgba(11,15,25,.5)" }}>store API keys and secrets here — shared team-wide or scoped to a project.</p>
+            <button className="hov-soft" onClick={() => setAddOpen(true)} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#0B0F19", color: "#fff", border: "none", borderRadius: 12, padding: "10px 16px", fontSize: 13.5, fontWeight: 600, fontFamily: "inherit" }}>
+              <Icon name="plus" size={15} sw={2.2} color="#fff" /> add your first key
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

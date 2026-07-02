@@ -1,14 +1,17 @@
+import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
 
 export function Toast() {
   const toast = useStore((s) => s.toast);
+  const isMobile = useIsMobile();
   if (!toast) return null;
   return (
     <div
       style={{
         position: "absolute",
         left: "50%",
-        bottom: 26,
+        // on mobile, float above the bottom tab bar instead of under it
+        bottom: isMobile ? "calc(74px + env(safe-area-inset-bottom))" : 26,
         transform: "translateX(-50%)",
         background: "#0B0F19",
         color: "#fff",

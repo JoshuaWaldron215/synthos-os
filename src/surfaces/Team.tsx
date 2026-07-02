@@ -200,7 +200,7 @@ export function Team() {
   }
 
   const teamWrapStyle: CSSProperties = isMobile
-    ? { display: "flex", flexDirection: "column", gap: 12 }
+    ? { display: "flex", flexDirection: "column", gap: 12, flex: 1, minHeight: 0 }
     : { display: "flex", gap: 16, alignItems: "stretch" };
 
   const newBtnStyle: CSSProperties = {
@@ -216,13 +216,27 @@ export function Team() {
     flex: "0 0 auto",
   };
 
+  // On mobile the page becomes an app-like, full-height chat: heading and
+  // channel chips keep their natural size, the conversation fills the rest,
+  // and the composer stays pinned above the tab bar.
+  const rootStyle: CSSProperties = isMobile
+    ? {
+        display: "flex",
+        flexDirection: "column",
+        height: "calc(100dvh - 175px - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
+        minHeight: 380,
+      }
+    : { maxWidth: 1080, margin: "0 auto" };
+
   return (
-    <div style={{ maxWidth: 1080, margin: "0 auto" }} className="anim-sc">
+    <div style={rootStyle} className="anim-sc">
       <Eyebrow index="06" label="team" />
-      <h1 style={{ margin: "0 0 4px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
+      <h1 style={{ margin: isMobile ? "0 0 10px" : "0 0 4px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
         team <i style={{ fontWeight: 600 }}>chat</i>
       </h1>
-      <p style={{ margin: "0 0 20px", fontSize: 14, color: "rgba(11,15,25,.5)" }}>channels, project group chats, and dms — fast, quiet, in one place.</p>
+      {!isMobile && (
+        <p style={{ margin: "0 0 20px", fontSize: 14, color: "rgba(11,15,25,.5)" }}>channels, project group chats, and dms — fast, quiet, in one place.</p>
+      )}
 
       <div style={teamWrapStyle}>
         {!isMobile && (
@@ -251,7 +265,7 @@ export function Team() {
         )}
 
         {isMobile && (
-          <div style={{ display: "flex", gap: 7, overflowX: "auto", paddingBottom: 4 }}>
+          <div style={{ display: "flex", gap: 7, overflowX: "auto", paddingBottom: 4, flex: "0 0 auto" }}>
             <button onClick={openNew} title="new group chat" style={{ border: "none", borderRadius: 999, padding: "7px 12px", fontSize: 12.5, fontWeight: 700, whiteSpace: "nowrap", fontFamily: "inherit", background: "rgba(11,15,25,.05)", color: "rgba(11,15,25,.6)", display: "flex", alignItems: "center", gap: 4, flex: "0 0 auto" }}>
               <Icon name="plus" size={13} sw={2.2} color="rgba(11,15,25,.6)" /> new
             </button>
@@ -295,7 +309,7 @@ export function Team() {
             setDragOver(false);
             handleFiles(e.dataTransfer.files);
           }}
-          style={{ position: "relative", flex: 1, minWidth: 0, background: "#fff", border: "1px solid rgba(11,15,25,.06)", borderRadius: 18, boxShadow: "0 1px 2px rgba(11,15,25,.04),0 14px 34px -22px rgba(11,15,25,.3)", display: "flex", flexDirection: "column", overflow: "hidden" }}
+          style={{ position: "relative", flex: 1, minWidth: 0, minHeight: 0, background: "#fff", border: "1px solid rgba(11,15,25,.06)", borderRadius: 18, boxShadow: "0 1px 2px rgba(11,15,25,.04),0 14px 34px -22px rgba(11,15,25,.3)", display: "flex", flexDirection: "column", overflow: "hidden" }}
         >
           {dragOver && (
             <div style={{ position: "absolute", inset: 6, zIndex: 8, borderRadius: 14, border: "2px dashed rgba(96,200,255,.8)", background: "rgba(96,200,255,.1)", backdropFilter: "blur(1px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, pointerEvents: "none" }}>
@@ -332,7 +346,7 @@ export function Team() {
             )}
           </div>
 
-          <div ref={scrollRef} style={{ flex: 1, overflowY: "auto", padding: 16, display: "flex", flexDirection: "column", gap: 7, minHeight: isMobile ? 200 : 300, maxHeight: isMobile ? "56vh" : "52vh" }}>
+          <div ref={scrollRef} style={{ flex: 1, overflowY: "auto", padding: 16, display: "flex", flexDirection: "column", gap: 7, minHeight: isMobile ? 120 : 300, maxHeight: isMobile ? undefined : "52vh" }}>
             {messages.length === 0 && (
               <div style={{ margin: "auto", textAlign: "center", color: "rgba(11,15,25,.4)", fontSize: 13.5, padding: 20 }}>
                 no messages yet — say hello 👋

@@ -121,10 +121,15 @@ export function ProjectDetail() {
   const setProjectImage = useStore((s) => s.setProjectImage);
   const deleteProject = useStore((s) => s.deleteProject);
 
-  const initialTab = (params.get("tab") as Tab) || "overview";
-  const [tab, setTab] = useState<Tab>(TABS.includes(initialTab) ? initialTab : "overview");
+  // the tab lives in the URL, so back/forward and shared links stay in sync
+  const rawTab = params.get("tab") as Tab | null;
+  const tab: Tab = rawTab && TABS.includes(rawTab) ? rawTab : "overview";
   const imgInput = useRef<HTMLInputElement>(null);
   const [confirmProjDelete, setConfirmProjDelete] = useState(false);
+
+  const taskCount = useStore((s) => s.tasks.reduce((n, t) => n + (t.proj === id && t.col !== "done" ? 1 : 0), 0));
+  const keyCount = useStore((s) => s.keys.reduce((n, k) => n + (k.proj === id ? 1 : 0), 0));
+  const fileCount = useStore((s) => s.files.reduce((n, f) => n + (f.proj === id ? 1 : 0), 0));
 
   if (!project) return <Navigate to="/projects" replace />;
   const pid = project.id;
@@ -132,7 +137,6 @@ export function ProjectDetail() {
   const sm = SM[statusKey(project.status)];
 
   const pickTab = (t: Tab) => {
-    setTab(t);
     params.set("tab", t);
     setParams(params, { replace: true });
   };
@@ -161,15 +165,24 @@ export function ProjectDetail() {
     if (v && !project.stack.includes(v)) updateProject(pid, { stack: project.stack.concat(v) });
   };
 
+  // glanceable counts next to the data-bearing tabs
+  const tabCounts: Partial<Record<Tab, number>> = { tasks: taskCount, vault: keyCount, files: fileCount };
+
   const tabBtn = (t: Tab) => {
     const active = tab === t;
+    const count = tabCounts[t];
     return (
       <button
         key={t}
         onClick={() => pickTab(t)}
-        style={{ border: "none", background: "transparent", padding: "10px 14px", fontSize: 14, fontWeight: 600, fontFamily: "inherit", color: active ? "#0B0F19" : "rgba(11,15,25,.45)", borderBottom: active ? "2px solid #0B0F19" : "2px solid transparent", marginBottom: -1, whiteSpace: "nowrap" }}
+        style={{ display: "flex", alignItems: "center", gap: 6, border: "none", background: "transparent", padding: "10px 14px", fontSize: 14, fontWeight: 600, fontFamily: "inherit", color: active ? "#0B0F19" : "rgba(11,15,25,.45)", borderBottom: active ? "2px solid #0B0F19" : "2px solid transparent", marginBottom: -1, whiteSpace: "nowrap" }}
       >
         {t}
+        {count !== undefined && count > 0 && (
+          <span style={{ fontSize: 11, fontWeight: 700, color: active ? "#0B0F19" : "rgba(11,15,25,.4)", background: "rgba(11,15,25,.06)", borderRadius: 999, padding: "1px 7px" }}>
+            {count}
+          </span>
+        )}
       </button>
     );
   };
@@ -341,10 +354,11 @@ export function ProjectDetail() {
 // ---- links -----------------------------------------------------------------
 
 function LinksRow({ projId }: { projId: string }) {
-  const project = useStore((s) => s.projects.find((p) => p.id === projId))!;
+  const project = useStore((s) => s.projects.find((p) => p.id === projId));
   const updateProject = useStore((s) => s.updateProject);
   const showToast = useStore((s) => s.showToast);
   const [editing, setEditing] = useState(false);
+  if (!project) return null;
 
   const setLink = (lid: string, patch: { label?: string; url?: string }) =>
     updateProject(projId, { links: project.links.map((l) => (l.id === lid ? { ...l, ...patch } : l)) });
@@ -353,8 +367,14 @@ function LinksRow({ projId }: { projId: string }) {
     updateProject(projId, { links: project.links.concat({ id: "l" + Date.now(), label: "link", url: "" }) });
 
   const open = (url: string) => {
-    if (url) window.open(url, "_blank", "noopener");
-    else showToast("add a url first");
+    const v = url.trim();
+    if (!v) {
+      showToast("add a url first");
+      return;
+    }
+    // saved values like "github.com/acme/site" should still open correctly
+    const full = /^[a-z][a-z0-9+.-]*:/i.test(v) ? v : "https://" + v;
+    window.open(full, "_blank", "noopener");
   };
 
   if (editing) {

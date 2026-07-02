@@ -195,6 +195,15 @@ a {
   animation: scIn 0.25s ease;
 }
 
+@keyframes rowFlash {
+  0% {
+    background: rgba(96, 200, 255, 0.22);
+  }
+  100% {
+    background: transparent;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
