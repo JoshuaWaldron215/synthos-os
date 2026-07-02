@@ -8,7 +8,7 @@ import { Icon } from "../lib/Icon";
 import { SM } from "../lib/style";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
-import type { ContentItem } from "../types";
+import type { ContentItem, ContentLane } from "../types";
 
 const ASSISTS = ["hook", "script", "repurpose"];
 
@@ -80,7 +80,7 @@ function ContentCard({ item }: { item: ContentItem }) {
   );
 }
 
-function Lane({ laneKey, label, accentKey, isMobile }: { laneKey: string; label: string; accentKey: keyof typeof SM; isMobile: boolean }) {
+function Lane({ laneKey, label, accentKey, isMobile }: { laneKey: ContentLane; label: string; accentKey: keyof typeof SM; isMobile: boolean }) {
   const content = useStore((s) => s.content);
   const dragOver = useStore((s) => s.contentDragOver);
   const setDragOver = useStore((s) => s.setContentDragOver);
@@ -203,7 +203,7 @@ export function Content() {
 
   return (
     <div className="anim-sc">
-      <Eyebrow index="03" label="marketing" />
+      <Eyebrow index="07" label="marketing" />
       <h1 style={{ margin: "0 0 4px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
         content <i style={{ fontWeight: 600 }}>pipeline</i>
       </h1>

@@ -4,27 +4,13 @@ import { Eyebrow } from "../components/Eyebrow";
 import { Avatar } from "../components/Avatar";
 import { ProjectThumb } from "../components/ProjectThumb";
 import { ProjectFormModal } from "../components/ProjectFormModal";
-import { SM, statusKey } from "../lib/style";
+import { Icon } from "../lib/Icon";
+import { SM, filterPill, statusKey } from "../lib/style";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
 import type { Project } from "../types";
 
 const STATUS_OPTS = ["all", "in progress", "in qa", "blocked", "shipped"];
-
-function pillStyle(active: boolean): CSSProperties {
-  return {
-    border: "none",
-    background: active ? "#fff" : "transparent",
-    color: active ? "#0B0F19" : "rgba(11,15,25,.5)",
-    fontSize: 12.5,
-    fontWeight: 600,
-    padding: "5px 11px",
-    borderRadius: 8,
-    fontFamily: "inherit",
-    boxShadow: active ? "0 1px 2px rgba(11,15,25,.1)" : "none",
-    whiteSpace: "nowrap",
-  };
-}
 
 function FilterGroup({
   label,
@@ -55,7 +41,7 @@ function FilterGroup({
       <span style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.38)", fontWeight: 600 }}>{label}</span>
       <div style={pillsStyle}>
         {options.map((o) => (
-          <button key={o} onClick={() => onPick(o)} style={pillStyle(value === o)}>
+          <button key={o} onClick={() => onPick(o)} style={filterPill(value === o)}>
             {o}
           </button>
         ))}
@@ -159,11 +145,11 @@ export function Projects() {
             your <i style={{ fontWeight: 600 }}>projects</i>, at a glance
           </h1>
           <p style={{ margin: "8px 0 0", fontSize: 14, color: "rgba(11,15,25,.5)", maxWidth: 440, lineHeight: 1.5 }}>
-            {projects.length} active builds across your workspace.
+            {projects.length} build{projects.length === 1 ? "" : "s"} across your workspace.
           </p>
         </div>
         <button className="hov-soft" onClick={() => setFormOpen(true)} style={{ display: "flex", alignItems: "center", gap: 7, background: "#0B0F19", color: "#fff", border: "none", borderRadius: 12, padding: "10px 15px", fontSize: 13.5, fontWeight: 600 }}>
-          new project <span style={{ fontSize: 14 }}>↗</span>
+          <Icon name="plus" size={15} sw={2.2} color="#fff" /> new project
         </button>
       </div>
 

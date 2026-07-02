@@ -134,7 +134,7 @@ export function Login({ local, onSignIn }: LoginProps) {
               opacity: busy ? 0.7 : 1,
             }}
           >
-            {busy ? "signing in…" : "sign in ↗"}
+            {busy ? "signing in…" : "sign in"}
           </button>
         </form>
 

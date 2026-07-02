@@ -1,8 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { statusMeta } from "../lib/profile";
 import { Icon } from "../lib/Icon";
-import { requestNotificationPermission, showOSNotification } from "../lib/notifications";
-import { subscribeToPush, unsubscribeFromPush } from "../lib/push";
+import { usePushToggle } from "../lib/usePushToggle";
 import { useStore } from "../store/useStore";
 import { useUser } from "../lib/useUser";
 import { useAuthContext } from "../lib/authContext";
@@ -15,46 +14,15 @@ export function AccountSheet() {
   const close = useStore((s) => s.closeAccountSheet);
   const openProfile = useStore((s) => s.openProfile);
   const currentUserId = useStore((s) => s.currentUserId);
-  const prefs = useStore((s) => s.prefs);
-  const updatePrefs = useStore((s) => s.updatePrefs);
-  const setNotifPermission = useStore((s) => s.setNotifPermission);
-  const showToast = useStore((s) => s.showToast);
 
   const { signOut } = useAuthContext();
   const me = useUser(currentUserId);
-  const myPrefs = prefs[currentUserId];
+  const { enabled: pushEnabled, toggle: togglePush } = usePushToggle();
   const status = statusMeta(me.status);
 
   const goto = (path: string) => {
     close();
     navigate(path);
-  };
-
-  const togglePush = async () => {
-    if (!myPrefs.pushEnabled) {
-      const perm = await requestNotificationPermission();
-      setNotifPermission(perm);
-      updatePrefs(currentUserId, { pushEnabled: true });
-      if (perm === "granted") {
-        showOSNotification("notifications on", "you'll get live updates here ✦", "welcome");
-        try {
-          await subscribeToPush();
-          showToast("push notifications enabled ✦");
-        } catch {
-          showToast("push on (local). run the push server for real delivery");
-        }
-      } else {
-        showToast("enable notifications in your browser to get push");
-      }
-    } else {
-      updatePrefs(currentUserId, { pushEnabled: false });
-      try {
-        await unsubscribeFromPush();
-      } catch {
-        /* noop */
-      }
-      showToast("push paused");
-    }
   };
 
   const rowBtn = (icon: Parameters<typeof Icon>[0]["name"], label: string, onClick: () => void) => (
@@ -95,13 +63,13 @@ export function AccountSheet() {
 
         <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 12px" }}>
           <span style={{ display: "flex", width: 34, height: 34, alignItems: "center", justifyContent: "center", borderRadius: 10, background: "rgba(11,15,25,.05)" }}>
-            <Icon name={myPrefs.pushEnabled ? "bell" : "belloff"} size={18} color="rgba(11,15,25,.6)" />
+            <Icon name={pushEnabled ? "bell" : "belloff"} size={18} color="rgba(11,15,25,.6)" />
           </span>
           <span style={{ flex: 1, fontSize: 14.5, fontWeight: 500 }}>push notifications</span>
           <button
             onClick={togglePush}
             aria-label="toggle push"
-            style={{ width: 44, height: 26, borderRadius: 999, border: "none", padding: 3, background: myPrefs.pushEnabled ? "#2FC197" : "rgba(11,15,25,.18)", display: "flex", justifyContent: myPrefs.pushEnabled ? "flex-end" : "flex-start", transition: "background .15s" }}
+            style={{ width: 44, height: 26, borderRadius: 999, border: "none", padding: 3, background: pushEnabled ? "#2FC197" : "rgba(11,15,25,.18)", display: "flex", justifyContent: pushEnabled ? "flex-end" : "flex-start", transition: "background .15s" }}
           >
             <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 3px rgba(11,15,25,.3)" }} />
           </button>

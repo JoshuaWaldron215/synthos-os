@@ -106,7 +106,7 @@ export function Wins() {
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 22 }}>
         <StatCard label="monthly retainers" value={showRevenue ? mrr + " / mo" : "•••"} />
         <StatCard label="total earned" value={showRevenue ? earned : "•••"} />
-        <StatCard label="active projects" value={String(projects.length)} />
+        <StatCard label="active projects" value={String(projects.filter((p) => p.status !== "shipped").length)} />
       </div>
 
       <WinFormModal open={formOpen} onClose={() => setFormOpen(false)} win={editing} />

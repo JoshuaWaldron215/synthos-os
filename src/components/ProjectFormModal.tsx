@@ -1,30 +1,14 @@
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { fieldLabelStyle, fieldStyle } from "../lib/fields";
 import { useStore } from "../store/useStore";
 import type { ProjectStatus } from "../types";
 import { ResponsiveModal } from "./ResponsiveModal";
 
 const STATUS: ProjectStatus[] = ["in progress", "in qa", "blocked", "shipped"];
 
-const field: CSSProperties = {
-  width: "100%",
-  border: "1px solid rgba(11,15,25,.1)",
-  borderRadius: 12,
-  padding: "11px 13px",
-  fontSize: 16,
-  fontFamily: "inherit",
-  color: "#0B0F19",
-  boxSizing: "border-box",
-};
-const labelStyle: CSSProperties = {
-  fontSize: 11,
-  letterSpacing: ".12em",
-  textTransform: "uppercase",
-  color: "rgba(11,15,25,.45)",
-  fontWeight: 700,
-  display: "block",
-  marginBottom: 7,
-};
+const field = fieldStyle;
+const labelStyle = fieldLabelStyle;
 
 export function ProjectFormModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const navigate = useNavigate();
@@ -86,7 +70,7 @@ export function ProjectFormModal({ open, onClose }: { open: boolean; onClose: ()
           cancel
         </button>
         <button onClick={create} disabled={!client.trim()} style={{ background: "#0B0F19", color: "#fff", border: "none", borderRadius: 11, padding: "10px 18px", fontSize: 14, fontWeight: 600, fontFamily: "inherit", opacity: client.trim() ? 1 : 0.5 }}>
-          create project ↗
+          create project ✦
         </button>
       </div>
     </ResponsiveModal>

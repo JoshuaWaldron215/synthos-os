@@ -1,5 +1,5 @@
 import { USERS } from "../data/seed";
-import type { NotifItem, Prefs, Profile } from "../types";
+import type { NotifItem, Prefs, Profile, UserStatus } from "../types";
 
 export function computeInitials(name: string): string {
   const parts = (name || "").trim().split(/\s+/).filter(Boolean);
@@ -29,7 +29,7 @@ export function defaultProfiles(): Record<number, Profile> {
   return out;
 }
 
-export const STATUS_OPTIONS = ["online", "focusing", "away"] as const;
+export const STATUS_OPTIONS: readonly UserStatus[] = ["online", "focusing", "away"];
 
 export function statusMeta(status: string): { color: string; label: string } {
   if (status === "focusing") return { color: "#F5A524", label: "focusing" };
@@ -64,11 +64,12 @@ export interface EffectiveUser {
   bio: string;
   tone: string;
   avatarUrl: string | null;
-  status: string;
+  status: UserStatus;
 }
 
 export function effectiveUser(id: number, profiles: Record<number, Profile>): EffectiveUser {
-  const base = USERS[id];
+  // guard against ids outside the team roster (stale persisted state)
+  const base = USERS[id] ?? USERS[0];
   const p = profiles[id];
   const name = p?.name ?? base.name;
   return {

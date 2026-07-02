@@ -44,8 +44,24 @@ export function priDot(pri: Priority): CSSProperties {
   };
 }
 
+/** Segmented filter pill (projects status filter, tasks project filter). */
+export function filterPill(active: boolean): CSSProperties {
+  return {
+    border: "none",
+    background: active ? "#fff" : "transparent",
+    color: active ? "#0B0F19" : "rgba(11,15,25,.5)",
+    fontSize: 12.5,
+    fontWeight: 600,
+    padding: "5px 11px",
+    borderRadius: 8,
+    fontFamily: "inherit",
+    boxShadow: active ? "0 1px 2px rgba(11,15,25,.1)" : "none",
+    whiteSpace: "nowrap",
+  };
+}
+
 export function avatarStyle(id: number, i = 0, size = 26): CSSProperties {
-  const u = USERS[id];
+  const u = USERS[id] ?? USERS[0];
   return {
     width: size,
     height: size,

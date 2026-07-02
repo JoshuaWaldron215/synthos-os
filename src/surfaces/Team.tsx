@@ -5,29 +5,18 @@ import { ConversationModal } from "../components/ConversationModal";
 import { USERS } from "../data/seed";
 import * as repo from "../data/repo";
 import { Icon } from "../lib/Icon";
+import { fmtSize, kindOf } from "../lib/format";
 import { effectiveUser, statusMeta } from "../lib/profile";
 import { whenLabel } from "../lib/time";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
 import type { Conversation, MessageAttachment } from "../types";
 
-function fmtSize(bytes: number): string {
-  if (bytes < 1024) return bytes + " B";
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + " KB";
-  return (bytes / (1024 * 1024)).toFixed(1) + " MB";
-}
-
-function kindOf(file: File): string {
-  if (file.type) return file.type.split("/").pop() || file.type;
-  const ext = file.name.split(".").pop();
-  return ext ? ext.toLowerCase() : "file";
-}
-
 const QUICK_EMOJIS = ["👍", "❤️", "🎉", "✅", "😂", "👀"];
 
 function MentionText({ text, me, usernameMap }: { text: string; me: boolean; usernameMap: Map<string, number> }) {
   const parts = text.split(/(@\w+)/g);
-  const color = me ? "#7FD0FF" : "#1E7FC4";
+  const color = me ? "var(--mention-on-dark)" : "var(--mention)";
   return (
     <>
       {parts.map((part, i) => {
@@ -229,7 +218,7 @@ export function Team() {
 
   return (
     <div style={{ maxWidth: 1080, margin: "0 auto" }} className="anim-sc">
-      <Eyebrow index="07" label="team" />
+      <Eyebrow index="06" label="team" />
       <h1 style={{ margin: "0 0 4px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
         team <i style={{ fontWeight: 600 }}>chat</i>
       </h1>

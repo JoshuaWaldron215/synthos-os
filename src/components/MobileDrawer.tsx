@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { Icon } from "../lib/Icon";
-import { NAV_ITEMS, activeKeyFor } from "../lib/nav";
+import { BOTTOM_TABS, NAV_ITEMS, activeKeyFor } from "../lib/nav";
 import { useStore } from "../store/useStore";
 import { useUser } from "../lib/useUser";
 import { Avatar } from "./Avatar";
@@ -117,7 +117,7 @@ export function BottomTabs() {
   const location = useLocation();
   const activeKey = activeKeyFor(location.pathname);
   // bottom tabs imported lazily to avoid circular import noise
-  const tabs = NAV_ITEMS.filter((n) => ["projects", "tasks", "intake", "vault", "team", "ask"].includes(n.key));
+  const tabs = BOTTOM_TABS;
 
   return (
     <nav

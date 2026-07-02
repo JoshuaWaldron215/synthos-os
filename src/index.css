@@ -21,6 +21,12 @@
   --pri-med: #f5a524;
   --pri-low: #98a0b0;
 
+  /* Semantic */
+  --danger: #c5343a;
+  --link-hover: #2a78a8;
+  --mention: #1e7fc4;
+  --mention-on-dark: #7fd0ff;
+
   /* Gradients */
   --grad-nav: linear-gradient(
     95deg,
@@ -229,7 +235,7 @@ a {
   background: rgba(200, 198, 255, 0.4) !important;
 }
 .hov-rename:hover {
-  color: #2a78a8;
+  color: var(--link-hover);
 }
 .hov-link:hover {
   background: rgba(11, 15, 25, 0.03);

@@ -2,6 +2,8 @@ export type StatusKey = "sky" | "mint" | "blush" | "lav";
 export type Priority = "low" | "med" | "high";
 export type ProjectStatus = "in progress" | "blocked" | "in qa" | "shipped";
 export type ColKey = "build" | "qa" | "ship" | "done";
+export type ContentLane = "idea" | "scripting" | "filming" | "editing" | "scheduled" | "posted";
+export type UserStatus = "online" | "focusing" | "away";
 
 export interface User {
   id: number;
@@ -76,8 +78,9 @@ export interface AuditEntry {
 
 export interface ContentItem {
   id: string;
-  lane: string;
+  lane: ContentLane;
   title: string;
+  /** free-form: one of CONTENT_KINDS or a custom format typed by the user */
   kind: string;
   who: number;
 }
@@ -145,7 +148,7 @@ export interface Profile {
   github: string;
   bio: string;
   avatarUrl: string | null;
-  status: string;
+  status: UserStatus;
 }
 
 export interface Prefs {

@@ -1,6 +1,7 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState } from "react";
 import { USERS } from "../data/seed";
 import { burstConfetti } from "../lib/confetti";
+import { fieldLabelStyle, fieldStyle } from "../lib/fields";
 import { useStore } from "../store/useStore";
 import { Avatar } from "./Avatar";
 import { ResponsiveModal } from "./ResponsiveModal";
@@ -8,25 +9,8 @@ import type { Win } from "../types";
 
 const TAGS = ["shipped", "milestone", "performance", "kudos", "revenue", "launch"];
 
-const field: CSSProperties = {
-  width: "100%",
-  border: "1px solid rgba(11,15,25,.1)",
-  borderRadius: 12,
-  padding: "11px 13px",
-  fontSize: 16,
-  fontFamily: "inherit",
-  color: "#0B0F19",
-  boxSizing: "border-box",
-};
-const labelStyle: CSSProperties = {
-  fontSize: 11,
-  letterSpacing: ".12em",
-  textTransform: "uppercase",
-  color: "rgba(11,15,25,.45)",
-  fontWeight: 700,
-  display: "block",
-  marginBottom: 7,
-};
+const field = fieldStyle;
+const labelStyle = fieldLabelStyle;
 
 export function WinFormModal({ open, onClose, win }: { open: boolean; onClose: () => void; win?: Win | null }) {
   const projects = useStore((s) => s.projects);

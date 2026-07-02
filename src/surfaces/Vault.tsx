@@ -1,6 +1,7 @@
-import { useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useState } from "react";
 import { Eyebrow } from "../components/Eyebrow";
 import { Icon } from "../lib/Icon";
+import { fieldLabelStyle, fieldStyle } from "../lib/fields";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
 import { ConfirmDialog } from "../components/ConfirmDialog";
@@ -54,8 +55,8 @@ function AddKeyModal({ open, onClose }: { open: boolean; onClose: () => void }) 
   const [val, setVal] = useState("");
   const [proj, setProj] = useState("shared");
 
-  const field: CSSProperties = { width: "100%", border: "1px solid rgba(11,15,25,.1)", borderRadius: 12, padding: "11px 13px", fontSize: 16, fontFamily: "inherit", color: "#0B0F19", boxSizing: "border-box" };
-  const lbl: CSSProperties = { fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.45)", fontWeight: 700, display: "block", marginBottom: 7 };
+  const field = fieldStyle;
+  const lbl = fieldLabelStyle;
 
   const submit = () => {
     if (!label.trim() || !val.trim()) return;
@@ -125,7 +126,7 @@ export function Vault() {
     <div style={{ maxWidth: 880, margin: "0 auto" }} className="anim-sc">
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 14, flexWrap: "wrap", marginBottom: 22 }}>
         <div>
-          <Eyebrow index="04" label="secrets" />
+          <Eyebrow index="03" label="secrets" />
           <h1 style={{ margin: 0, fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
             the <i style={{ fontWeight: 600 }}>vault</i>
           </h1>
@@ -133,7 +134,7 @@ export function Vault() {
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <button className="hov-soft" onClick={openAudit} style={{ display: "flex", alignItems: "center", gap: 7, background: "#fff", border: "1px solid rgba(11,15,25,.1)", borderRadius: 12, padding: "9px 14px", fontSize: 13, fontWeight: 600, color: "#0B0F19", whiteSpace: "nowrap" }}>
-            audit log ↗
+            audit log
           </button>
           <button className="hov-soft" onClick={() => setAddOpen(true)} style={{ display: "flex", alignItems: "center", gap: 7, background: "#fff", border: "1px solid rgba(11,15,25,.1)", borderRadius: 12, padding: "9px 14px", fontSize: 13, fontWeight: 600, color: "#0B0F19", whiteSpace: "nowrap" }}>
             <Icon name="plus" size={15} sw={2} /> new key

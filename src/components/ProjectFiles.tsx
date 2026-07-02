@@ -1,21 +1,10 @@
 import { useRef, useState } from "react";
 import { Avatar } from "./Avatar";
 import { Icon } from "../lib/Icon";
+import { fmtSize, kindOf } from "../lib/format";
 import * as repo from "../data/repo";
 import { useStore } from "../store/useStore";
 import type { ProjectFile } from "../types";
-
-function fmtSize(bytes: number): string {
-  if (bytes < 1024) return bytes + " B";
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + " KB";
-  return (bytes / (1024 * 1024)).toFixed(1) + " MB";
-}
-
-function kindOf(file: File): string {
-  if (file.type) return file.type.split("/").pop() || file.type;
-  const ext = file.name.split(".").pop();
-  return ext ? ext.toLowerCase() : "file";
-}
 
 function fmtDate(ms: number): string {
   try {

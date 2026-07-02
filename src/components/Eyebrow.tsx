@@ -2,9 +2,10 @@ interface EyebrowProps {
   index: string;
   label: string;
   color?: string;
+  center?: boolean;
 }
 
-export function Eyebrow({ index, label, color = "#33ADEE" }: EyebrowProps) {
+export function Eyebrow({ index, label, color = "#33ADEE", center = false }: EyebrowProps) {
   return (
     <div
       style={{
@@ -15,6 +16,7 @@ export function Eyebrow({ index, label, color = "#33ADEE" }: EyebrowProps) {
         fontWeight: 600,
         display: "flex",
         alignItems: "center",
+        justifyContent: center ? "center" : "flex-start",
         gap: 8,
         marginBottom: 10,
       }}

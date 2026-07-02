@@ -21,12 +21,12 @@ export function Intake() {
   const addDrafts = useStore((s) => s.addDrafts);
   const profiles = useStore((s) => s.profiles);
 
-  const count = [0, 0, 0];
+  const count = USERS.map(() => 0);
   (draftTasks || []).forEach((t) => count[t.who]++);
 
   return (
     <div style={{ maxWidth: 860, margin: "0 auto" }} className="anim-sc">
-      <Eyebrow index="06" label="intake" />
+      <Eyebrow index="04" label="intake" />
       <h1 style={{ margin: "0 0 4px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
         scope in, <i style={{ fontWeight: 600 }}>tasks out</i>
       </h1>
@@ -44,10 +44,10 @@ export function Intake() {
         />
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
           <button onClick={fillSample} style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "none", padding: "6px 2px", fontSize: 13, fontWeight: 600, color: "rgba(11,15,25,.6)" }}>
-            use a sample transcript ↗
+            use a sample transcript
           </button>
           <button onClick={analyzeIntake} style={{ display: "flex", alignItems: "center", gap: 7, background: "#0B0F19", color: "#fff", border: "none", borderRadius: 12, padding: "10px 16px", fontSize: 13.5, fontWeight: 600 }}>
-            {intakeBusy ? "analyzing…" : "analyze & assign ↗"}
+            {intakeBusy ? "analyzing…" : "analyze & assign ✦"}
           </button>
         </div>
       </div>

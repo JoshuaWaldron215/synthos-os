@@ -1,3 +1,4 @@
+import { Eyebrow } from "../components/Eyebrow";
 import { Icon } from "../lib/Icon";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
@@ -22,7 +23,7 @@ export function Ask() {
     <div style={{ maxWidth: 720, margin: "0 auto", display: "flex", flexDirection: "column", minHeight: "62vh" }} className="anim-sc">
       <div style={{ textAlign: "center", marginBottom: 22 }}>
         <img src={platesImg} alt="" style={{ width: 120, height: "auto", marginBottom: 2 }} />
-        <div style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(11,15,25,.4)", fontWeight: 600, marginBottom: 8 }}>08 · ask ai</div>
+        <Eyebrow index="08" label="ask ai" center />
         <h1 style={{ margin: 0, fontSize: isMobile ? 21 : 26, fontWeight: 700, letterSpacing: "-.02em", lineHeight: 1.12 }}>
           what do you want to <i style={{ fontWeight: 600 }}>know?</i>
         </h1>

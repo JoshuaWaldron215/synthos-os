@@ -5,7 +5,7 @@ import { Eyebrow } from "../components/Eyebrow";
 import { Avatar } from "../components/Avatar";
 import { Icon } from "../lib/Icon";
 import { COLS } from "../lib/board";
-import { SM, priDot } from "../lib/style";
+import { SM, filterPill, priDot } from "../lib/style";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
 import type { ColKey, Task } from "../types";
@@ -267,21 +267,6 @@ function Column({ colKey, accent, isMobile }: { colKey: ColKey; accent: (typeof 
   );
 }
 
-function pillStyle(active: boolean): CSSProperties {
-  return {
-    border: "none",
-    background: active ? "#fff" : "transparent",
-    color: active ? "#0B0F19" : "rgba(11,15,25,.5)",
-    fontSize: 12.5,
-    fontWeight: 600,
-    padding: "5px 11px",
-    borderRadius: 8,
-    fontFamily: "inherit",
-    boxShadow: active ? "0 1px 2px rgba(11,15,25,.1)" : "none",
-    whiteSpace: "nowrap",
-  };
-}
-
 export function Tasks() {
   const isMobile = useIsMobile();
   const projects = useStore((s) => s.projects);
@@ -301,9 +286,9 @@ export function Tasks() {
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
         <span style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.38)", fontWeight: 600 }}>project</span>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 4, background: "rgba(11,15,25,.04)", borderRadius: 10, padding: 3 }}>
-          <button onClick={() => setBoardProj("all")} style={pillStyle(boardProj === "all")}>all</button>
+          <button onClick={() => setBoardProj("all")} style={filterPill(boardProj === "all")}>all</button>
           {projects.map((p) => (
-            <button key={p.id} onClick={() => setBoardProj(p.id)} style={pillStyle(boardProj === p.id)}>{p.client}</button>
+            <button key={p.id} onClick={() => setBoardProj(p.id)} style={filterPill(boardProj === p.id)}>{p.client}</button>
           ))}
         </div>
       </div>

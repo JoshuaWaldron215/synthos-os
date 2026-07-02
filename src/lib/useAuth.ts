@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { isSupabaseConfigured, supabase } from "./supabase";
+import { getSupabase, isSupabaseConfigured } from "./supabase";
 
 export interface Session {
   email: string;
@@ -31,22 +31,27 @@ export function useAuth(): AuthApi {
 
   useEffect(() => {
     let active = true;
-    if (!supabase) {
+    let unsubscribe: (() => void) | undefined;
+    if (!isSupabaseConfigured) {
       setSession(readLocal());
       setLoading(false);
       return;
     }
-    supabase.auth.getSession().then(({ data }) => {
-      if (!active) return;
-      setSession(data.session ? { email: data.session.user.email ?? "" } : null);
-      setLoading(false);
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
-      setSession(s ? { email: s.user.email ?? "" } : null);
+    getSupabase().then((sb) => {
+      if (!sb || !active) return;
+      sb.auth.getSession().then(({ data }) => {
+        if (!active) return;
+        setSession(data.session ? { email: data.session.user.email ?? "" } : null);
+        setLoading(false);
+      });
+      const { data: sub } = sb.auth.onAuthStateChange((_e, s) => {
+        setSession(s ? { email: s.user.email ?? "" } : null);
+      });
+      unsubscribe = () => sub.subscription.unsubscribe();
     });
     return () => {
       active = false;
-      sub.subscription.unsubscribe();
+      unsubscribe?.();
     };
   }, []);
 
@@ -54,24 +59,26 @@ export function useAuth(): AuthApi {
     const trimmed = email.trim();
     if (!trimmed || !password) return { error: "enter your email and password" };
 
-    if (!supabase) {
+    const sb = await getSupabase();
+    if (!sb) {
       const s = { email: trimmed };
       localStorage.setItem(LOCAL_KEY, JSON.stringify(s));
       setSession(s);
       return {};
     }
-    const { error } = await supabase.auth.signInWithPassword({ email: trimmed, password });
+    const { error } = await sb.auth.signInWithPassword({ email: trimmed, password });
     if (error) return { error: error.message };
     return {};
   };
 
   const signOut = async () => {
-    if (!supabase) {
+    const sb = await getSupabase();
+    if (!sb) {
       localStorage.removeItem(LOCAL_KEY);
       setSession(null);
       return;
     }
-    await supabase.auth.signOut();
+    await sb.auth.signOut();
     setSession(null);
   };
 

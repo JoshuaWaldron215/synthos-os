@@ -1,3 +1,4 @@
+import { USERS } from "../data/seed";
 import type { DraftTask, Priority, Task } from "../types";
 
 function cleanTitle(input: string): string {
@@ -48,7 +49,7 @@ export function generateTasks(text: string, tasks: Task[]): DraftTask[] {
   items = items.slice(0, 8);
 
   // base load from current open tasks
-  const load = [0, 0, 0];
+  const load = USERS.map(() => 0);
   tasks.forEach((t) => {
     if (t.col !== "done") load[t.who]++;
   });
@@ -57,7 +58,7 @@ export function generateTasks(text: string, tasks: Task[]): DraftTask[] {
     const pref = categorize(title);
     let best = 0;
     let bestScore = Infinity;
-    [0, 1, 2].forEach((u) => {
+    USERS.forEach((_u, u) => {
       const score = load[u] * 10 + (u === pref ? 0 : 3) + u * 0.1;
       if (score < bestScore) {
         bestScore = score;

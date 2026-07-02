@@ -1,4 +1,4 @@
-import type { ColKey, StatusKey } from "../types";
+import type { ColKey, ContentLane, StatusKey } from "../types";
 
 export const COLS: { key: ColKey; accent: StatusKey }[] = [
   { key: "build", accent: "sky" },
@@ -7,7 +7,7 @@ export const COLS: { key: ColKey; accent: StatusKey }[] = [
   { key: "done", accent: "mint" },
 ];
 
-export const CONTENT_LANES: { key: string; label: string; accent: StatusKey }[] = [
+export const CONTENT_LANES: { key: ContentLane; label: string; accent: StatusKey }[] = [
   { key: "idea", label: "idea", accent: "sky" },
   { key: "scripting", label: "scripting", accent: "lav" },
   { key: "filming", label: "filming", accent: "blush" },

@@ -4,9 +4,11 @@ import { Eyebrow } from "../components/Eyebrow";
 import { Avatar } from "../components/Avatar";
 import { Icon } from "../lib/Icon";
 import { fileToAvatarDataUrl } from "../lib/image";
-import { requestNotificationPermission, showOSNotification } from "../lib/notifications";
-import { sendServerPush, subscribeToPush, unsubscribeFromPush } from "../lib/push";
+import { STATUS_OPTIONS } from "../lib/profile";
+import { showOSNotification } from "../lib/notifications";
+import { sendServerPush } from "../lib/push";
 import { useDraft } from "../lib/useDraft";
+import { usePushToggle } from "../lib/usePushToggle";
 import { useInstallPrompt } from "../lib/useInstallPrompt";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
@@ -88,7 +90,6 @@ export function Settings() {
   const showRevenue = useStore((s) => s.showRevenue);
   const setShowRevenue = useStore((s) => s.setShowRevenue);
   const notifPermission = useStore((s) => s.notifPermission);
-  const setNotifPermission = useStore((s) => s.setNotifPermission);
   const showToast = useStore((s) => s.showToast);
 
   const p = profiles[currentUserId];
@@ -106,32 +107,7 @@ export function Settings() {
     }
   };
 
-  const togglePush = async () => {
-    if (!myPrefs.pushEnabled) {
-      const perm = await requestNotificationPermission();
-      setNotifPermission(perm);
-      updatePrefs(currentUserId, { pushEnabled: true });
-      if (perm === "granted") {
-        showOSNotification("notifications on", "you'll get live updates here ✦", "welcome");
-        try {
-          await subscribeToPush();
-          showToast("push enabled · subscribed to live push ✦");
-        } catch {
-          showToast("push on (local). start the push server for real delivery");
-        }
-      } else {
-        showToast("allow notifications in your browser to receive push");
-      }
-    } else {
-      updatePrefs(currentUserId, { pushEnabled: false });
-      try {
-        await unsubscribeFromPush();
-      } catch {
-        /* noop */
-      }
-      showToast("push paused");
-    }
-  };
+  const { toggle: togglePush } = usePushToggle();
 
   const setPref = (k: keyof Prefs, v: boolean) => updatePrefs(currentUserId, { [k]: v });
 
@@ -171,7 +147,7 @@ export function Settings() {
           <div style={{ marginBottom: 0 }}>
             <span style={{ display: "block", fontSize: 12, fontWeight: 600, color: "rgba(11,15,25,.55)", marginBottom: 6 }}>status</span>
             <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
-              {["online", "focusing", "away"].map((st) => {
+              {STATUS_OPTIONS.map((st) => {
                 const on = p.status === st;
                 return (
                   <button key={st} onClick={() => updateProfile(currentUserId, { status: st })} style={{ border: on ? "1px solid rgba(96,200,255,.55)" : "1px solid rgba(11,15,25,.1)", background: on ? "rgba(96,200,255,.12)" : "#fff", borderRadius: 999, padding: "7px 14px", fontSize: 13, fontWeight: 600, color: "#0B0F19", fontFamily: "inherit" }}>
