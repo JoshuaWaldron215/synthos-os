@@ -5,7 +5,9 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const SRC = resolve(here, "../src/assets/app-icon.png");
+// Full-resolution canonical logo. src/assets/app-icon.png is a small (128px)
+// derivative that ships in the JS bundle — never generate from that one.
+const SRC = resolve(here, "../assets-src/app-icon.png");
 const OUT = resolve(here, "../public");
 
 // Light lavender sampled from the logo — only used to flatten any residual

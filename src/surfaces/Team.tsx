@@ -6,6 +6,7 @@ import { USERS } from "../data/seed";
 import * as repo from "../data/repo";
 import { Icon } from "../lib/Icon";
 import { effectiveUser, statusMeta } from "../lib/profile";
+import { whenLabel } from "../lib/time";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
 import type { Conversation, MessageAttachment } from "../types";
@@ -368,7 +369,7 @@ export function Team() {
                   <div style={{ display: "flex", flexDirection: "column", alignItems: me ? "flex-end" : "flex-start", maxWidth: "80%" }}>
                     {!me && (
                       <button onClick={() => openProfile(m.who)} title="view profile" style={{ border: "none", background: "transparent", padding: 0, cursor: "pointer", fontFamily: "inherit", fontSize: 11.5, fontWeight: 600, color: "rgba(11,15,25,.5)", margin: "0 0 3px 2px" }}>
-                        {u.name} · {m.time}
+                        {u.name} · {whenLabel(m.at, m.time)}
                       </button>
                     )}
                     <div style={{ display: "flex", flexDirection: me ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>

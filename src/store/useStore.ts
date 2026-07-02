@@ -342,7 +342,7 @@ export const useStore = create<StoreState>()(
       pushNotification: (n) =>
         set((s) => ({
           notifications: [
-            { ...n, id: "n" + Date.now() + Math.random().toString(36).slice(2, 6), read: false, time: "now" },
+            { ...n, id: "n" + Date.now() + Math.random().toString(36).slice(2, 6), read: false, at: Date.now() },
             ...s.notifications,
           ].slice(0, MAX_NOTIFS),
         })),
@@ -376,7 +376,7 @@ export const useStore = create<StoreState>()(
           who: get().currentUserId,
           action,
           target,
-          time: "now",
+          at: Date.now(),
           proj,
         };
         set((s) => ({ activity: [entry, ...s.activity].slice(0, 80) }));
@@ -657,7 +657,7 @@ export const useStore = create<StoreState>()(
         const { activeConvo, currentUserId } = get();
         set((s) => {
           const msgs = { ...s.teamMsgs };
-          const msg: TeamMessage = { who: currentUserId, text: t, time: "now" };
+          const msg: TeamMessage = { who: currentUserId, text: t, at: Date.now() };
           if (atts) msg.attachments = atts;
           msgs[activeConvo] = (msgs[activeConvo] || []).concat([msg]);
           return { teamMsgs: msgs, teamInput: "" };
@@ -742,7 +742,7 @@ export const useStore = create<StoreState>()(
       receiveTeamMessage: (convoId, who, text) => {
         set((s) => {
           const msgs = { ...s.teamMsgs };
-          msgs[convoId] = (msgs[convoId] || []).concat([{ who, text, time: "now" }]);
+          msgs[convoId] = (msgs[convoId] || []).concat([{ who, text, at: Date.now() }]);
           return { teamMsgs: msgs };
         });
         const st = get();

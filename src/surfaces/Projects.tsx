@@ -70,10 +70,21 @@ function ProjectCard({ p }: { p: Project }) {
   const sm = SM[statusKey(p.status)];
   const healthDot = SM[p.health].dot;
 
+  const open = () => navigate("/project/" + p.id);
+
   return (
     <div
       className="hov-lift"
-      onClick={() => navigate("/project/" + p.id)}
+      role="button"
+      tabIndex={0}
+      aria-label={"open project " + p.client}
+      onClick={open}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          open();
+        }
+      }}
       style={{
         background: "#fff",
         border: "1px solid rgba(11,15,25,.06)",

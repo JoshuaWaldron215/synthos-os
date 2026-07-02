@@ -1,6 +1,7 @@
 import { Icon } from "../lib/Icon";
 import { useStore } from "../store/useStore";
 import { effectiveUser } from "../lib/profile";
+import { whenLabel } from "../lib/time";
 import { Avatar } from "./Avatar";
 
 export function AuditDrawer() {
@@ -50,7 +51,7 @@ export function AuditDrawer() {
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "rgba(11,15,25,.38)", whiteSpace: "nowrap" }}>
                 <Icon name="clock" size={15} sw={1.6} color="rgba(11,15,25,.4)" />
-                {a.time}
+                {whenLabel(a.at, a.time)}
               </div>
             </div>
           ))}

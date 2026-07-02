@@ -36,6 +36,14 @@ function ContentCard({ item }: { item: ContentItem }) {
         setDragOver(null);
       }}
       onClick={() => openContent(item.id)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openContent(item.id);
+        }
+      }}
       className="hov-task"
       style={{
         background: "#fff",

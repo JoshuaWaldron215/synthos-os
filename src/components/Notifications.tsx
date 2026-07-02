@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Icon } from "../lib/Icon";
+import { whenLabel } from "../lib/time";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
 import { ResponsiveModal } from "./ResponsiveModal";
@@ -24,7 +25,7 @@ function List({ items, onClear }: { items: NotifItem[]; onClear: () => void }) {
               <div style={{ fontSize: 12.5, lineHeight: 1.4 }}>
                 <b style={{ fontWeight: 600 }}>{n.title}</b> {n.body}
               </div>
-              <div style={{ fontSize: 11, color: "rgba(11,15,25,.4)", marginTop: 2 }}>{n.time}</div>
+              <div style={{ fontSize: 11, color: "rgba(11,15,25,.4)", marginTop: 2 }}>{whenLabel(n.at, n.time)}</div>
             </div>
           </div>
         ))

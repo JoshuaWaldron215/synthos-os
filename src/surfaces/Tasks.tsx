@@ -44,6 +44,14 @@ function TaskCard({ task }: { task: Task }) {
         setDragOver(null);
       }}
       onClick={() => openTask(task.id)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openTask(task.id);
+        }
+      }}
       className="hov-task"
       style={{
         background: "#fff",

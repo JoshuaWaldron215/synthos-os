@@ -1,5 +1,9 @@
 /// <reference lib="webworker" />
-import { precacheAndRoute } from "workbox-precaching";
+import { createHandlerBoundToURL, precacheAndRoute } from "workbox-precaching";
+import { NavigationRoute, registerRoute } from "workbox-routing";
+import { CacheFirst } from "workbox-strategies";
+import { CacheableResponsePlugin } from "workbox-cacheable-response";
+import { ExpirationPlugin } from "workbox-expiration";
 
 declare const self: ServiceWorkerGlobalScope & {
   __WB_MANIFEST: Array<{ url: string; revision: string | null }>;
@@ -7,6 +11,29 @@ declare const self: ServiceWorkerGlobalScope & {
 
 // Precache the built app shell for offline use.
 precacheAndRoute(self.__WB_MANIFEST);
+
+// SPA navigation fallback: any deep link (/tasks, /project/x, …) opened
+// offline is served the precached shell instead of failing.
+registerRoute(new NavigationRoute(createHandlerBoundToURL("index.html")));
+
+// Google Fonts: cache-first so the installed PWA keeps its typeface offline.
+registerRoute(
+  ({ url }) => url.origin === "https://fonts.googleapis.com",
+  new CacheFirst({
+    cacheName: "google-fonts-styles",
+    plugins: [new ExpirationPlugin({ maxEntries: 8, maxAgeSeconds: 60 * 60 * 24 * 365 })],
+  })
+);
+registerRoute(
+  ({ url }) => url.origin === "https://fonts.gstatic.com",
+  new CacheFirst({
+    cacheName: "google-fonts-files",
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new ExpirationPlugin({ maxEntries: 24, maxAgeSeconds: 60 * 60 * 24 * 365 }),
+    ],
+  })
+);
 
 self.addEventListener("install", () => {
   self.skipWaiting();

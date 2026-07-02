@@ -68,7 +68,9 @@ export interface AuditEntry {
   who: number;
   action: string;
   target: string;
-  time: string;
+  /** legacy display string kept for entries persisted before real timestamps */
+  time?: string;
+  at?: number;
   proj: string;
 }
 
@@ -116,7 +118,9 @@ export interface MessageAttachment {
 export interface TeamMessage {
   who: number;
   text: string;
-  time: string;
+  /** legacy display string kept for messages persisted before real timestamps */
+  time?: string;
+  at?: number;
   attachments?: MessageAttachment[];
   reactions?: Record<string, number[]>;
 }
@@ -160,7 +164,9 @@ export interface NotifItem {
   dot: string;
   title: string;
   body: string;
-  time: string;
+  /** legacy display string kept for items persisted before real timestamps */
+  time?: string;
+  at?: number;
   read: boolean;
   category: NotifCategory;
 }

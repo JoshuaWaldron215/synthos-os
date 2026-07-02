@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useRef } from "react";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { Icon } from "../lib/Icon";
 
@@ -29,6 +30,31 @@ export function ResponsiveModal({
   maxHeight = "88vh",
 }: ResponsiveModalProps) {
   const isMobile = useIsMobile();
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // close on Escape while open
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
+  // move focus into the dialog unless a child (e.g. an autoFocus input) already has it
+  useEffect(() => {
+    if (!open) return;
+    const t = setTimeout(() => {
+      const panel = panelRef.current;
+      if (panel && !panel.contains(document.activeElement)) panel.focus();
+    }, 0);
+    return () => clearTimeout(t);
+  }, [open]);
+
   if (!open) return null;
 
   const overlayStyle: CSSProperties = {
@@ -71,7 +97,15 @@ export function ResponsiveModal({
 
   return (
     <div onClick={onClose} style={overlayStyle}>
-      <div onClick={(e) => e.stopPropagation()} style={panelStyle}>
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
+        style={panelStyle}
+      >
         {isMobile && showHandle && (
           <div style={{ display: "flex", justifyContent: "center", padding: "2px 0 12px", flex: "0 0 auto" }}>
             <span style={{ width: 38, height: 4, borderRadius: 999, background: "rgba(11,15,25,.16)" }} />

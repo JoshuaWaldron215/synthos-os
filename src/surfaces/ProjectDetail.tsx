@@ -7,6 +7,7 @@ import { Icon } from "../lib/Icon";
 import { fileToAvatarDataUrl } from "../lib/image";
 import { USERS } from "../data/seed";
 import { SM, priDot, statusKey } from "../lib/style";
+import { whenLabel } from "../lib/time";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
 import { useUser } from "../lib/useUser";
@@ -454,7 +455,20 @@ function ProjectTasks({ projId }: { projId: string }) {
         <div style={{ fontSize: 13.5, color: "rgba(11,15,25,.45)", textAlign: "center", padding: "16px 0" }}>no tasks yet — add the first one below.</div>
       )}
       {tasks.map((t) => (
-        <div key={t.id} onClick={() => openTask(t.id)} className="hov-row" style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 12px", borderBottom: "1px solid rgba(11,15,25,.05)", cursor: "pointer", borderRadius: 10 }}>
+        <div
+          key={t.id}
+          role="button"
+          tabIndex={0}
+          onClick={() => openTask(t.id)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              openTask(t.id);
+            }
+          }}
+          className="hov-row"
+          style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 12px", borderBottom: "1px solid rgba(11,15,25,.05)", cursor: "pointer", borderRadius: 10 }}
+        >
           <span style={priDot(t.pri)} />
           <span style={{ fontSize: 14, flex: 1 }}>{t.title}</span>
           {t.blocked && <span style={{ fontSize: 10.5, fontWeight: 600, color: "#B5462A", background: "rgba(255,150,120,.18)", padding: "2px 8px", borderRadius: 6 }}>blocked</span>}
@@ -540,7 +554,7 @@ function ProjectVault({ projId }: { projId: string }) {
 
 // ---- activity tab ----------------------------------------------------------
 
-function ActivityRow({ who, action, target, time }: { who: number; action: string; target: string; time: string }) {
+function ActivityRow({ who, action, target, when }: { who: number; action: string; target: string; when: string }) {
   const u = useUser(who);
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "12px 0", borderBottom: "1px solid rgba(11,15,25,.05)" }}>
@@ -548,7 +562,7 @@ function ActivityRow({ who, action, target, time }: { who: number; action: strin
       <span style={{ fontSize: 13.5, flex: 1 }}>
         <b style={{ fontWeight: 600 }}>{u.name}</b> {action} <span style={{ color: "rgba(11,15,25,.5)" }}>{target}</span>
       </span>
-      <span style={{ fontSize: 12, color: "rgba(11,15,25,.38)" }}>{time}</span>
+      <span style={{ fontSize: 12, color: "rgba(11,15,25,.38)" }}>{when}</span>
     </div>
   );
 }
@@ -561,7 +575,7 @@ function ProjectActivity({ projId }: { projId: string }) {
       {activity.length === 0 ? (
         <div style={{ fontSize: 13.5, color: "rgba(11,15,25,.45)", textAlign: "center", padding: "14px 0" }}>no activity yet for this project.</div>
       ) : (
-        activity.map((a) => <ActivityRow key={a.id} who={a.who} action={a.action} target={a.target} time={a.time} />)
+        activity.map((a) => <ActivityRow key={a.id} who={a.who} action={a.action} target={a.target} when={whenLabel(a.at, a.time)} />)
       )}
     </div>
   );

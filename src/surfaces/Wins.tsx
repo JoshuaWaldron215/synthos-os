@@ -5,6 +5,7 @@ import { Avatar } from "../components/Avatar";
 import { WinFormModal } from "../components/WinFormModal";
 import { Icon } from "../lib/Icon";
 import { sumMoney } from "../lib/money";
+import { timeAgo } from "../lib/time";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
 import type { Win } from "../types";
@@ -16,17 +17,6 @@ function StatCard({ label, value }: { label: string; value: string }) {
       <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-.02em", fontVariantNumeric: "tabular-nums", marginTop: 4 }}>{value}</div>
     </div>
   );
-}
-
-function timeAgo(ms: number): string {
-  const d = Math.floor((Date.now() - ms) / 1000);
-  if (d < 60) return "just now";
-  if (d < 3600) return Math.floor(d / 60) + "m ago";
-  if (d < 86400) return Math.floor(d / 3600) + "h ago";
-  const days = Math.floor(d / 86400);
-  if (days === 1) return "yesterday";
-  if (days < 7) return days + "d ago";
-  return Math.floor(days / 7) + "w ago";
 }
 
 function WinRow({ win, num, onEdit }: { win: Win; num: number; onEdit: (w: Win) => void }) {
