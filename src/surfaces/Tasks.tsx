@@ -15,7 +15,8 @@ function TaskCard({ task }: { task: Task }) {
   const editingId = useStore((s) => s.editingId);
   const editText = useStore((s) => s.editText);
   const dragId = useStore((s) => s.dragId);
-  const projName = useStore((s) => s.projects.find((p) => p.id === task.proj)?.client ?? task.proj);
+  const projExists = useStore((s) => s.projects.some((p) => p.id === task.proj));
+  const projName = useStore((s) => s.projects.find((p) => p.id === task.proj)?.client ?? (task.proj || "unassigned"));
   const startEdit = useStore((s) => s.startEdit);
   const setEditText = useStore((s) => s.setEditText);
   const saveEdit = useStore((s) => s.saveEdit);
@@ -99,13 +100,14 @@ function TaskCard({ task }: { task: Task }) {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
           <span
-            className="hov-rename"
-            title={"go to " + projName}
+            className={projExists ? "hov-rename" : undefined}
+            title={projExists ? "go to " + projName : "no project — assign one from the card"}
             onClick={(e) => {
+              if (!projExists) return;
               e.stopPropagation();
               navigate("/project/" + task.proj);
             }}
-            style={{ fontSize: 10.5, color: "rgba(11,15,25,.5)", fontWeight: 600, textTransform: "uppercase", letterSpacing: ".06em", cursor: "pointer", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 130 }}
+            style={{ fontSize: 10.5, color: projExists ? "rgba(11,15,25,.5)" : "rgba(11,15,25,.32)", fontWeight: 600, textTransform: "uppercase", letterSpacing: ".06em", cursor: projExists ? "pointer" : "default", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 130 }}
           >
             {projName}
           </span>

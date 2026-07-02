@@ -3,6 +3,7 @@ import { USERS } from "../data/seed";
 import { useStore } from "../store/useStore";
 import { Avatar } from "./Avatar";
 import { Icon } from "../lib/Icon";
+import { ConfirmDialog } from "./ConfirmDialog";
 import { ResponsiveModal } from "./ResponsiveModal";
 import type { Conversation } from "../types";
 
@@ -50,6 +51,7 @@ export function ConversationModal({ open, onClose, convo }: { open: boolean; onC
   const [proj, setProj] = useState("");
   const [guests, setGuests] = useState<string[]>([]);
   const [guestInput, setGuestInput] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -175,13 +177,10 @@ export function ConversationModal({ open, onClose, convo }: { open: boolean; onC
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
         {editing && !convo!.system ? (
           <button
-            onClick={() => {
-              deleteConversation(convo!.id);
-              onClose();
-            }}
-            style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "1px solid rgba(224,74,74,.3)", color: "#e04a4a", borderRadius: 11, padding: "10px 14px", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}
+            onClick={() => setConfirmDelete(true)}
+            style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "1px solid rgba(197,52,58,.3)", color: "#C5343A", borderRadius: 11, padding: "10px 14px", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}
           >
-            <Icon name="trash" size={15} sw={1.8} color="#e04a4a" /> delete
+            <Icon name="trash" size={15} sw={1.8} color="#C5343A" /> delete
           </button>
         ) : (
           <span />
@@ -193,6 +192,17 @@ export function ConversationModal({ open, onClose, convo }: { open: boolean; onC
           </button>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        title="delete group chat"
+        body={editing ? "#" + (convo!.name || "chat") + " and its messages will be removed for everyone." : undefined}
+        onConfirm={() => {
+          deleteConversation(convo!.id);
+          onClose();
+        }}
+        onClose={() => setConfirmDelete(false)}
+      />
     </ResponsiveModal>
   );
 }

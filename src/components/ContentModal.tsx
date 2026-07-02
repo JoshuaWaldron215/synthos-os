@@ -1,41 +1,52 @@
+import { useState } from "react";
 import { Icon } from "../lib/Icon";
 import { CONTENT_KINDS, CONTENT_LANES } from "../lib/board";
 import { SM } from "../lib/style";
+import { useDraft } from "../lib/useDraft";
 import { useUser } from "../lib/useUser";
 import { useStore } from "../store/useStore";
+import type { ContentItem } from "../types";
 import { Avatar } from "./Avatar";
+import { ConfirmDialog } from "./ConfirmDialog";
 import { ResponsiveModal } from "./ResponsiveModal";
 
 export function ContentModal() {
-  const openContentId = useStore((s) => s.openContentId);
-  const content = useStore((s) => s.content);
+  const item = useStore((s) => s.content.find((x) => x.id === s.openContentId));
+  if (!item) return null;
+  // key by id so drafts reset when a different card is opened in-place
+  return <ContentModalInner key={item.id} c={item} />;
+}
+
+function ContentModalInner({ c }: { c: ContentItem }) {
   const closeContent = useStore((s) => s.closeContent);
   const patchContent = useStore((s) => s.patchContent);
   const cycleContentAssignee = useStore((s) => s.cycleContentAssignee);
   const deleteContent = useStore((s) => s.deleteContent);
+  const assignee = useUser(c.who);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const c = content.find((x) => x.id === openContentId);
-  const assignee = useUser(c ? c.who : 0);
-  if (!c) return null;
+  const title = useDraft(c.title, (v) => patchContent(c.id, { title: v }));
+  const kind = useDraft(c.kind, (v) => patchContent(c.id, { kind: v }));
 
   const laneDef = CONTENT_LANES.find((l) => l.key === c.lane) || CONTENT_LANES[0];
   const accent = SM[laneDef.accent];
 
   return (
-    <ResponsiveModal open={!!c} onClose={closeContent} width={480} showHandle>
+    <ResponsiveModal open onClose={closeContent} width={480} showHandle>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 13 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: accent.dot }} />
           <span style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.4)", fontWeight: 600 }}>{laneDef.label}</span>
         </div>
-        <button onClick={closeContent} style={{ display: "flex", background: "transparent", border: "none", padding: 2 }}>
+        <button onClick={closeContent} aria-label="close" style={{ display: "flex", background: "transparent", border: "none", padding: 2 }}>
           <Icon name="close" size={18} sw={1.8} color="rgba(11,15,25,.5)" />
         </button>
       </div>
 
       <textarea
-        value={c.title}
-        onChange={(e) => patchContent(c.id, { title: e.target.value })}
+        value={title.draft}
+        onChange={(e) => title.onChange(e.target.value)}
+        onBlur={title.flush}
         rows={2}
         placeholder="content idea / title…"
         style={{ width: "100%", border: "none", resize: "none", fontSize: 19, fontWeight: 700, letterSpacing: "-.012em", lineHeight: 1.25, fontFamily: "inherit", color: "#0B0F19", background: "transparent", marginBottom: 4, padding: 0 }}
@@ -64,8 +75,9 @@ export function ContentModal() {
         })}
       </div>
       <input
-        value={c.kind}
-        onChange={(e) => patchContent(c.id, { kind: e.target.value })}
+        value={kind.draft}
+        onChange={(e) => kind.onChange(e.target.value)}
+        onBlur={kind.flush}
         placeholder="or type a custom format…"
         style={{ width: "100%", border: "1px solid rgba(11,15,25,.1)", borderRadius: 12, padding: "10px 12px", fontSize: 16, fontFamily: "inherit", color: "#0B0F19", marginBottom: 18, background: "#fff", boxSizing: "border-box" }}
       />
@@ -88,13 +100,21 @@ export function ContentModal() {
       </div>
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 4 }}>
-        <button onClick={() => deleteContent(c.id)} style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "none", fontSize: 13, fontWeight: 600, color: "#B5462A", fontFamily: "inherit", padding: "6px 2px" }}>
+        <button onClick={() => setConfirmDelete(true)} style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "none", fontSize: 13, fontWeight: 600, color: "#B5462A", fontFamily: "inherit", padding: "6px 2px" }}>
           <Icon name="trash" size={16} sw={1.7} color="#B5462A" /> delete
         </button>
         <button onClick={closeContent} style={{ background: "#0B0F19", color: "#fff", border: "none", borderRadius: 12, padding: "10px 20px", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}>
           done
         </button>
       </div>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        title="delete content"
+        body={'"' + c.title + '" will be removed from the pipeline.'}
+        onConfirm={() => deleteContent(c.id)}
+        onClose={() => setConfirmDelete(false)}
+      />
     </ResponsiveModal>
   );
 }

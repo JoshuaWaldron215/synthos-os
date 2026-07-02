@@ -538,10 +538,11 @@ export const useStore = create<StoreState>()(
       openComposer: (col) => set({ composerCol: col, composerText: "" }),
       setComposerText: (v) => set({ composerText: v }),
       saveComposer: () => {
-        const { composerCol, composerText, boardProj, projects } = get();
+        const { composerCol, composerText, boardProj } = get();
         const v = (composerText || "").trim();
         if (composerCol && v) {
-          const proj = boardProj !== "all" ? boardProj : projects[0]?.id ?? "unassigned";
+          // on the "all" board the task starts without a project ("" = none)
+          const proj = boardProj !== "all" ? boardProj : "";
           get().addTask({ title: v, proj, col: composerCol });
           set({ composerText: "" });
         }
@@ -822,7 +823,8 @@ export const useStore = create<StoreState>()(
       addDrafts: () => {
         const d = get().draftTasks || [];
         if (!d.length) return;
-        const proj = get().projects[0]?.id ?? "unassigned";
+        // drafts land without a project; assign from the task modal afterwards
+        const proj = "";
         const nw: Task[] = d.map((t) => ({
           id: t.id,
           title: t.title,

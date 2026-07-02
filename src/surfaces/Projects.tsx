@@ -67,6 +67,8 @@ function FilterGroup({
 function ProjectCard({ p }: { p: Project }) {
   const navigate = useNavigate();
   const showRevenue = useStore((s) => s.showRevenue);
+  // derived live from tasks — the stored `open` field goes stale
+  const openCount = useStore((s) => s.tasks.reduce((n, t) => n + (t.proj === p.id && t.col !== "done" ? 1 : 0), 0));
   const sm = SM[statusKey(p.status)];
   const healthDot = SM[p.health].dot;
 
@@ -122,7 +124,7 @@ function ProjectCard({ p }: { p: Project }) {
               <Avatar key={b} id={b} size={28} i={i} />
             ))}
           </span>
-          <span style={{ fontSize: 12.5, color: "rgba(11,15,25,.55)", fontWeight: 500 }}>{p.open} open</span>
+          <span style={{ fontSize: 12.5, color: "rgba(11,15,25,.55)", fontWeight: 500 }}>{openCount} open</span>
         </div>
         <span style={{ fontSize: 12.5, color: "rgba(11,15,25,.34)", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>
           {showRevenue ? p.rev + " / mo" : "•••"}

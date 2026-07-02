@@ -6,6 +6,7 @@ import { Icon } from "../lib/Icon";
 import { fileToAvatarDataUrl } from "../lib/image";
 import { requestNotificationPermission, showOSNotification } from "../lib/notifications";
 import { sendServerPush, subscribeToPush, unsubscribeFromPush } from "../lib/push";
+import { useDraft } from "../lib/useDraft";
 import { useInstallPrompt } from "../lib/useInstallPrompt";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
@@ -22,15 +23,35 @@ function Card({ title, desc, children }: { title: string; desc?: string; childre
 }
 
 function Field({ label, value, onChange, placeholder, type = "text" }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string }) {
+  // commit on blur, not per keystroke — profile edits re-serialize the whole persisted store
+  const draft = useDraft(value, onChange);
   return (
     <label style={{ display: "block", marginBottom: 14 }}>
       <span style={{ display: "block", fontSize: 12, fontWeight: 600, color: "rgba(11,15,25,.55)", marginBottom: 6 }}>{label}</span>
       <input
         type={type}
-        value={value}
+        value={draft.draft}
         placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => draft.onChange(e.target.value)}
+        onBlur={draft.flush}
         style={{ width: "100%", border: "1px solid rgba(11,15,25,.12)", borderRadius: 11, padding: "11px 13px", fontSize: 16, color: "#0B0F19", background: "#fff" }}
+      />
+    </label>
+  );
+}
+
+function BioField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const draft = useDraft(value, onChange);
+  return (
+    <label style={{ display: "block", marginBottom: 14 }}>
+      <span style={{ display: "block", fontSize: 12, fontWeight: 600, color: "rgba(11,15,25,.55)", marginBottom: 6 }}>bio</span>
+      <textarea
+        value={draft.draft}
+        placeholder="a line about what you do — shown on your profile"
+        onChange={(e) => draft.onChange(e.target.value)}
+        onBlur={draft.flush}
+        rows={2}
+        style={{ width: "100%", border: "1px solid rgba(11,15,25,.12)", borderRadius: 11, padding: "11px 13px", fontSize: 16, color: "#0B0F19", background: "#fff", resize: "vertical", lineHeight: 1.5, fontFamily: "inherit", boxSizing: "border-box" }}
       />
     </label>
   );
@@ -146,16 +167,7 @@ export function Settings() {
           <Field label="role" value={p.role} onChange={(v) => updateProfile(currentUserId, { role: v })} placeholder="e.g. engineering" />
           <Field label="email" type="email" value={p.email} onChange={(v) => updateProfile(currentUserId, { email: v })} placeholder="you@synthos.dev" />
           <Field label="github" value={p.github} onChange={(v) => updateProfile(currentUserId, { github: v })} placeholder="e.g. joshwaldron or github.com/joshwaldron" />
-          <label style={{ display: "block", marginBottom: 14 }}>
-            <span style={{ display: "block", fontSize: 12, fontWeight: 600, color: "rgba(11,15,25,.55)", marginBottom: 6 }}>bio</span>
-            <textarea
-              value={p.bio}
-              placeholder="a line about what you do — shown on your profile"
-              onChange={(e) => updateProfile(currentUserId, { bio: e.target.value })}
-              rows={2}
-              style={{ width: "100%", border: "1px solid rgba(11,15,25,.12)", borderRadius: 11, padding: "11px 13px", fontSize: 16, color: "#0B0F19", background: "#fff", resize: "vertical", lineHeight: 1.5, fontFamily: "inherit", boxSizing: "border-box" }}
-            />
-          </label>
+          <BioField value={p.bio} onChange={(v) => updateProfile(currentUserId, { bio: v })} />
           <div style={{ marginBottom: 0 }}>
             <span style={{ display: "block", fontSize: 12, fontWeight: 600, color: "rgba(11,15,25,.55)", marginBottom: 6 }}>status</span>
             <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>

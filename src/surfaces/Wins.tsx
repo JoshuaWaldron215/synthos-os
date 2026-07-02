@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eyebrow } from "../components/Eyebrow";
 import { Avatar } from "../components/Avatar";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 import { WinFormModal } from "../components/WinFormModal";
 import { Icon } from "../lib/Icon";
 import { sumMoney } from "../lib/money";
@@ -24,6 +25,7 @@ function WinRow({ win, num, onEdit }: { win: Win; num: number; onEdit: (w: Win) 
   const projName = useStore((s) => s.projects.find((p) => p.id === win.proj)?.client);
   const deleteWin = useStore((s) => s.deleteWin);
   const showRevenue = useStore((s) => s.showRevenue);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const meta = [win.note, projName].filter(Boolean).join(" · ");
 
@@ -52,9 +54,16 @@ function WinRow({ win, num, onEdit }: { win: Win; num: number; onEdit: (w: Win) 
       <button className="hov-soft" onClick={() => onEdit(win)} title="edit" style={{ display: "flex", background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 9, padding: 8 }}>
         <Icon name="note" size={15} color="rgba(11,15,25,.5)" />
       </button>
-      <button className="hov-soft" onClick={() => deleteWin(win.id)} title="delete" style={{ display: "flex", background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 9, padding: 8 }}>
+      <button className="hov-soft" onClick={() => setConfirmDelete(true)} title="delete" style={{ display: "flex", background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 9, padding: 8 }}>
         <Icon name="trash" size={15} color="rgba(11,15,25,.5)" />
       </button>
+      <ConfirmDialog
+        open={confirmDelete}
+        title="delete win"
+        body={'"' + win.title + '" will be removed from the list.'}
+        onConfirm={() => deleteWin(win.id)}
+        onClose={() => setConfirmDelete(false)}
+      />
     </div>
   );
 }

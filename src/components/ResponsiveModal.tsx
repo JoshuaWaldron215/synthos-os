@@ -16,6 +16,11 @@ interface ResponsiveModalProps {
   maxHeight?: string;
 }
 
+// Stack of open modal ids so Escape only dismisses the top-most one
+// (e.g. a ConfirmDialog nested inside the task modal).
+const modalStack: number[] = [];
+let nextModalId = 0;
+
 /**
  * Centered card on desktop, bottom sheet on mobile.
  * Used for quick capture, task detail, account, etc.
@@ -31,18 +36,23 @@ export function ResponsiveModal({
 }: ResponsiveModalProps) {
   const isMobile = useIsMobile();
   const panelRef = useRef<HTMLDivElement>(null);
+  const idRef = useRef(0);
 
-  // close on Escape while open
+  // close on Escape while open — but only the top-most open modal
   useEffect(() => {
     if (!open) return;
+    const id = ++nextModalId;
+    idRef.current = id;
+    modalStack.push(id);
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.stopPropagation();
-        onClose();
-      }
+      if (e.key === "Escape" && modalStack[modalStack.length - 1] === id) onClose();
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      const at = modalStack.indexOf(id);
+      if (at >= 0) modalStack.splice(at, 1);
+    };
   }, [open, onClose]);
 
   // move focus into the dialog unless a child (e.g. an autoFocus input) already has it

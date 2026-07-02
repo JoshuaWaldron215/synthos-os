@@ -403,7 +403,10 @@ export function Team() {
                         <button
                           onClick={() => setPickerFor((p) => (p === i ? null : i))}
                           title="react"
-                          style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 26, height: 26, borderRadius: 999, border: "1px solid rgba(11,15,25,.08)", background: "#fff", cursor: "pointer", opacity: showReact ? 1 : 0, transition: "opacity .12s", fontSize: 13 }}
+                          aria-label="add reaction"
+                          // no hover on touch: keep the button visible (dimmed) on mobile,
+                          // and non-interactive while invisible on desktop
+                          style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 26, height: 26, borderRadius: 999, border: "1px solid rgba(11,15,25,.08)", background: "#fff", cursor: "pointer", opacity: showReact ? 1 : isMobile ? 0.45 : 0, pointerEvents: showReact || isMobile ? "auto" : "none", transition: "opacity .12s", fontSize: 13 }}
                         >
                           🙂
                         </button>

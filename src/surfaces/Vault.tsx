@@ -3,6 +3,7 @@ import { Eyebrow } from "../components/Eyebrow";
 import { Icon } from "../lib/Icon";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 import { ResponsiveModal } from "../components/ResponsiveModal";
 import type { VaultKey } from "../types";
 
@@ -12,6 +13,7 @@ function KeyRow({ k, projName }: { k: VaultKey; projName: string }) {
   const hide = useStore((s) => s.hide);
   const copy = useStore((s) => s.copy);
   const deleteKey = useStore((s) => s.deleteKey);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const isRevealed = !!revealed[k.id];
 
   return (
@@ -31,9 +33,16 @@ function KeyRow({ k, projName }: { k: VaultKey; projName: string }) {
       <button className="hov-soft" onClick={() => copy(k.val, "copied " + k.label)} title="copy" style={{ display: "flex", background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 9, padding: 8 }}>
         <Icon name="copy" size={16} color="rgba(11,15,25,.55)" />
       </button>
-      <button className="hov-soft" onClick={() => deleteKey(k.id)} title="delete" style={{ display: "flex", background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 9, padding: 8 }}>
+      <button className="hov-soft" onClick={() => setConfirmDelete(true)} title="delete" style={{ display: "flex", background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 9, padding: 8 }}>
         <Icon name="trash" size={16} color="rgba(11,15,25,.55)" />
       </button>
+      <ConfirmDialog
+        open={confirmDelete}
+        title="delete key"
+        body={k.label + " will be permanently removed from the vault. its value cannot be recovered."}
+        onConfirm={() => deleteKey(k.id)}
+        onClose={() => setConfirmDelete(false)}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useRef, useState, type CSSProperties } from "react";
 import { Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Avatar } from "../components/Avatar";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 import { ProjectThumb } from "../components/ProjectThumb";
 import { ProjectFiles } from "../components/ProjectFiles";
 import { Icon } from "../lib/Icon";
@@ -11,7 +12,7 @@ import { whenLabel } from "../lib/time";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
 import { useUser } from "../lib/useUser";
-import type { ProjectStatus } from "../types";
+import type { ProjectStatus, VaultKey } from "../types";
 
 type Tab = "overview" | "tasks" | "vault" | "activity" | "files";
 const TABS: Tab[] = ["overview", "tasks", "vault", "activity", "files"];
@@ -123,6 +124,7 @@ export function ProjectDetail() {
   const initialTab = (params.get("tab") as Tab) || "overview";
   const [tab, setTab] = useState<Tab>(TABS.includes(initialTab) ? initialTab : "overview");
   const imgInput = useRef<HTMLInputElement>(null);
+  const [confirmProjDelete, setConfirmProjDelete] = useState(false);
 
   if (!project) return <Navigate to="/projects" replace />;
   const pid = project.id;
@@ -213,18 +215,24 @@ export function ProjectDetail() {
 
         <button
           className="hov-soft"
-          onClick={() => {
-            if (confirm("delete " + project.client + "? this removes its tasks, keys and files.")) {
-              deleteProject(pid);
-              navigate("/projects");
-            }
-          }}
+          onClick={() => setConfirmProjDelete(true)}
           title="delete project"
           style={{ display: "flex", alignItems: "center", gap: 6, background: "#fff", border: "1px solid rgba(229,72,77,.3)", color: "#C5343A", borderRadius: 11, padding: "8px 12px", fontSize: 13, fontWeight: 600, fontFamily: "inherit" }}
         >
           <Icon name="trash" size={15} color="#C5343A" /> delete
         </button>
       </div>
+
+      <ConfirmDialog
+        open={confirmProjDelete}
+        title="delete project"
+        body={"delete " + project.client + "? this also removes its tasks, keys and files."}
+        onConfirm={() => {
+          deleteProject(pid);
+          navigate("/projects");
+        }}
+        onClose={() => setConfirmProjDelete(false)}
+      />
 
       {/* links */}
       <LinksRow projId={pid} />
@@ -505,6 +513,7 @@ function ProjectVault({ projId }: { projId: string }) {
   const deleteKey = useStore((s) => s.deleteKey);
   const [label, setLabel] = useState("");
   const [val, setVal] = useState("");
+  const [pendingDelete, setPendingDelete] = useState<VaultKey | null>(null);
 
   const submit = () => {
     if (!label.trim() || !val.trim()) return;
@@ -536,7 +545,7 @@ function ProjectVault({ projId }: { projId: string }) {
               <Icon name="copy" size={15} color="rgba(11,15,25,.55)" />
             </button>
             {k.proj !== "shared" && (
-              <button className="hov-soft" onClick={() => deleteKey(k.id)} title="delete" style={{ display: "flex", background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 9, padding: 8 }}>
+              <button className="hov-soft" onClick={() => setPendingDelete(k)} title="delete" style={{ display: "flex", background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 9, padding: 8 }}>
                 <Icon name="trash" size={15} color="rgba(11,15,25,.55)" />
               </button>
             )}
@@ -548,6 +557,13 @@ function ProjectVault({ projId }: { projId: string }) {
         <input value={val} onChange={(e) => setVal(e.target.value)} onKeyDown={(e) => e.key === "Enter" && submit()} placeholder="value" style={{ flex: "2 1 180px", minWidth: 0, border: "1px solid rgba(11,15,25,.12)", borderRadius: 10, padding: "10px 12px", fontFamily: "ui-monospace,Menlo,monospace", fontSize: 13 }} />
         <button onClick={submit} style={{ background: "#0B0F19", color: "#fff", border: "none", borderRadius: 10, padding: "0 16px", fontSize: 13, fontWeight: 600, fontFamily: "inherit" }}>add key</button>
       </div>
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="delete key"
+        body={pendingDelete ? pendingDelete.label + " will be permanently removed. its value cannot be recovered." : undefined}
+        onConfirm={() => pendingDelete && deleteKey(pendingDelete.id)}
+        onClose={() => setPendingDelete(null)}
+      />
     </div>
   );
 }
