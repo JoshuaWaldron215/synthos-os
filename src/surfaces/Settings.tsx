@@ -1,8 +1,10 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { Eyebrow } from "../components/Eyebrow";
 import { Avatar } from "../components/Avatar";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 import { Icon } from "../lib/Icon";
+import { exportWorkspace, importWorkspace, parseWorkspaceBackup } from "../lib/backup";
 import { fileToAvatarDataUrl } from "../lib/image";
 import { STATUS_OPTIONS } from "../lib/profile";
 import { showOSNotification } from "../lib/notifications";
@@ -80,6 +82,8 @@ function Toggle({ on, onClick, label, sub }: { on: boolean; onClick: () => void;
 export function Settings() {
   const isMobile = useIsMobile();
   const fileRef = useRef<HTMLInputElement>(null);
+  const backupRef = useRef<HTMLInputElement>(null);
+  const [pendingImport, setPendingImport] = useState<ReturnType<typeof parseWorkspaceBackup> | null>(null);
 
   const currentUserId = useStore((s) => s.currentUserId);
   const profiles = useStore((s) => s.profiles);
@@ -108,6 +112,16 @@ export function Settings() {
   };
 
   const { toggle: togglePush } = usePushToggle();
+
+  const onPickBackup = async (file: File | null | undefined) => {
+    if (!file) return;
+    try {
+      setPendingImport(parseWorkspaceBackup(await file.text()));
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : "couldn't read that backup");
+    }
+    if (backupRef.current) backupRef.current.value = "";
+  };
 
   const setPref = (k: keyof Prefs, v: boolean) => updatePrefs(currentUserId, { [k]: v });
 
@@ -206,6 +220,28 @@ export function Settings() {
           <Toggle on={showRevenue} onClick={() => setShowRevenue(!showRevenue)} label="show revenue" sub="display $/mo on projects and wins" />
         </Card>
 
+        <Card title="workspace data" desc="download a JSON backup of everything on this device — projects, tasks, chat, vault, profiles — or restore one.">
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button
+              onClick={() => {
+                exportWorkspace();
+                showToast("backup downloaded ✦");
+              }}
+              style={{ display: "flex", alignItems: "center", gap: 8, background: "#0B0F19", color: "#fff", border: "none", borderRadius: 11, padding: "10px 14px", fontSize: 13.5, fontWeight: 600 }}
+            >
+              <Icon name="download" size={16} sw={1.7} color="#fff" /> export backup
+            </button>
+            <button
+              onClick={() => backupRef.current?.click()}
+              className="hov-soft"
+              style={{ background: "#fff", border: "1px solid rgba(11,15,25,.1)", borderRadius: 11, padding: "10px 14px", fontSize: 13.5, fontWeight: 600, color: "#0B0F19" }}
+            >
+              import backup…
+            </button>
+            <input ref={backupRef} type="file" accept="application/json,.json" hidden onChange={(e) => onPickBackup(e.target.files?.[0])} />
+          </div>
+        </Card>
+
         <Card title="install app" desc="add Synthos OS to your home screen for a full-screen, app-like experience with notifications.">
           {installed ? (
             <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#2FC197", fontWeight: 600 }}>
@@ -228,6 +264,20 @@ export function Settings() {
           )}
         </Card>
       </div>
+
+      <ConfirmDialog
+        open={pendingImport !== null}
+        title="restore this backup?"
+        body="everything on this device — projects, tasks, chat, vault, profiles — will be replaced with the backup's contents. in shared mode, the server reconciles on next load."
+        confirmLabel="restore"
+        onConfirm={() => {
+          if (pendingImport) {
+            importWorkspace(pendingImport);
+            showToast("workspace restored ✦");
+          }
+        }}
+        onClose={() => setPendingImport(null)}
+      />
     </div>
   );
 }
