@@ -117,6 +117,7 @@ export interface StoreState {
   // profile / prefs / notifications
   updateProfile: (id: number, patch: Partial<Profile>) => void;
   setAvatar: (id: number, url: string | null) => void;
+  syncProfile: (id: number) => void;
   updatePrefs: (id: number, patch: Partial<Prefs>) => void;
   setNotifPermission: (p: NotificationPermission) => void;
   pushNotification: (n: Omit<NotifItem, "id" | "read" | "time" | "at">) => void;
@@ -125,6 +126,7 @@ export interface StoreState {
 
   // data sync + activity
   hydrate: () => Promise<void>;
+  startRealtime: () => void;
   logActivity: (action: string, target: string, proj: string) => void;
 
   // projects
@@ -197,8 +199,9 @@ export interface StoreState {
   setConversationProject: (id: string, proj: string | undefined) => void;
   addGuest: (id: string, contact: string) => void;
   removeGuest: (id: string, contact: string) => void;
+  syncConversation: (id: string) => void;
   deleteConversation: (id: string) => void;
-  receiveTeamMessage: (convoId: string, who: number, text: string) => void;
+  receiveTeamMessage: (convoId: string, msg: TeamMessage) => void;
 
   // content actions
   setContentDragId: (id: string | null) => void;
@@ -213,6 +216,7 @@ export interface StoreState {
   closeContent: () => void;
   patchContent: (id: string, patch: Partial<ContentItem>) => void;
   cycleContentAssignee: (id: string) => void;
+  syncContent: (id: string) => void;
   deleteContent: (id: string) => void;
 
   // intake actions

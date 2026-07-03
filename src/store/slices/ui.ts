@@ -42,7 +42,7 @@ export const createUiSlice = (set: StoreSet, get: StoreGet) => ({
   syncCatch: (context: string) => (err: unknown) => {
     console.warn(`[sync] ${context} failed`, err);
     clearTimeout(syncErrorTimer);
-    set({ syncError: "couldn’t sync to the server — your changes are saved on this device and will retry on reload" });
+    set({ syncError: "couldn’t sync to the server — your changes are saved on this device only" });
     syncErrorTimer = setTimeout(() => set({ syncError: null }), 9000);
   },
   dismissSyncError: () => {

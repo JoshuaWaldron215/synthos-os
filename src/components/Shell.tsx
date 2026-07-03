@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import { useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useLiveNotifications } from "../lib/useLiveNotifications";
 import { currentPermission } from "../lib/notifications";
@@ -16,9 +16,11 @@ import { AccountSheet } from "./AccountSheet";
 import { ProfileCard } from "./ProfileCard";
 import { Notifications } from "./Notifications";
 import { SyncBanner } from "./SyncBanner";
+import { ErrorBoundary } from "./ErrorBoundary";
 
 export function Shell() {
   const isMobile = useIsMobile();
+  const location = useLocation();
   const collapsed = useStore((s) => s.sidebarCollapsed);
   const mobileNavOpen = useStore((s) => s.mobileNavOpen);
   const openTaskId = useStore((s) => s.openTaskId);
@@ -87,7 +89,10 @@ export function Shell() {
 
       <section style={{ gridArea: "main", overflowY: "auto", overflowX: "hidden", position: "relative" }}>
         <div style={{ padding: screenPad }}>
-          <Outlet />
+          {/* keyed by path: a crashed surface resets when the user navigates away */}
+          <ErrorBoundary scope="surface" key={location.pathname}>
+            <Outlet />
+          </ErrorBoundary>
         </div>
       </section>
 

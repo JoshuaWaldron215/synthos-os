@@ -119,6 +119,8 @@ export interface MessageAttachment {
 }
 
 export interface TeamMessage {
+  /** stable id for sync/dedupe; absent on messages persisted before shared chat */
+  id?: string;
   who: number;
   text: string;
   /** legacy display string kept for messages persisted before real timestamps */

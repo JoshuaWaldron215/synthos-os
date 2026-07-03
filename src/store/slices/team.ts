@@ -1,3 +1,4 @@
+import * as repo from "../../data/repo";
 import { seedConversations, seedTeam } from "../../data/seed";
 import { effectiveUser } from "../../lib/profile";
 import { showOSNotification } from "../../lib/notifications";
@@ -18,13 +19,19 @@ export const createTeamSlice = (set: StoreSet, get: StoreGet) => ({
     const atts = attachments && attachments.length ? attachments : undefined;
     if (!t && !atts) return;
     const { activeConvo, currentUserId } = get();
+    const msg: TeamMessage = {
+      id: "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      who: currentUserId,
+      text: t,
+      at: Date.now(),
+    };
+    if (atts) msg.attachments = atts;
     set((s) => {
       const msgs = { ...s.teamMsgs };
-      const msg: TeamMessage = { who: currentUserId, text: t, at: Date.now() };
-      if (atts) msg.attachments = atts;
       msgs[activeConvo] = (msgs[activeConvo] || []).concat([msg]);
       return { teamMsgs: msgs, teamInput: "" };
     });
+    repo.saveMessage(activeConvo, msg).catch(get().syncCatch("message send"));
   },
   toggleReaction: (convoId: string, index: number, emoji: string) => {
     const me = get().currentUserId;
@@ -45,6 +52,8 @@ export const createTeamSlice = (set: StoreSet, get: StoreGet) => ({
       });
       return { teamMsgs: msgs };
     });
+    const updated = get().teamMsgs[convoId]?.[index];
+    if (updated?.id) repo.saveMessage(convoId, updated).catch(get().syncCatch("reaction"));
   },
   createConversation: ({ name, members, proj, guests }: { name: string; members: number[]; proj?: string; guests?: string[] }) => {
     const id = "c" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
@@ -57,21 +66,28 @@ export const createTeamSlice = (set: StoreSet, get: StoreGet) => ({
       guests: guests ?? [],
     };
     set((s) => ({ conversations: s.conversations.concat([convo]), activeConvo: id }));
+    repo.saveConversation(convo).catch(get().syncCatch("chat create"));
     get().showToast("group chat created");
     return id;
   },
-  renameConversation: (id: string, name: string) =>
+  renameConversation: (id: string, name: string) => {
     set((s) => ({
       conversations: s.conversations.map((c) => (c.id === id ? { ...c, name: name.trim().toLowerCase() || c.name } : c)),
-    })),
-  setConversationMembers: (id: string, members: number[]) =>
+    }));
+    get().syncConversation(id);
+  },
+  setConversationMembers: (id: string, members: number[]) => {
     set((s) => ({
       conversations: s.conversations.map((c) => (c.id === id ? { ...c, members } : c)),
-    })),
-  setConversationProject: (id: string, proj: string | undefined) =>
+    }));
+    get().syncConversation(id);
+  },
+  setConversationProject: (id: string, proj: string | undefined) => {
     set((s) => ({
       conversations: s.conversations.map((c) => (c.id === id ? { ...c, proj } : c)),
-    })),
+    }));
+    get().syncConversation(id);
+  },
   addGuest: (id: string, contact: string) => {
     const v = contact.trim();
     if (!v) return;
@@ -80,14 +96,22 @@ export const createTeamSlice = (set: StoreSet, get: StoreGet) => ({
         c.id === id && !c.guests.includes(v) ? { ...c, guests: c.guests.concat([v]) } : c,
       ),
     }));
+    get().syncConversation(id);
     get().showToast("guest invited · " + v);
   },
-  removeGuest: (id: string, contact: string) =>
+  removeGuest: (id: string, contact: string) => {
     set((s) => ({
       conversations: s.conversations.map((c) =>
         c.id === id ? { ...c, guests: c.guests.filter((g) => g !== contact) } : c,
       ),
-    })),
+    }));
+    get().syncConversation(id);
+  },
+  // push the current state of a conversation to the backend
+  syncConversation: (id: string) => {
+    const convo = get().conversations.find((c) => c.id === id);
+    if (convo) repo.saveConversation(convo).catch(get().syncCatch("chat update"));
+  },
   deleteConversation: (id: string) => {
     const convo = get().conversations.find((c) => c.id === id);
     if (!convo || convo.system) return;
@@ -100,25 +124,31 @@ export const createTeamSlice = (set: StoreSet, get: StoreGet) => ({
         activeConvo: s.activeConvo === id ? "general" : s.activeConvo,
       };
     });
+    repo.removeConversation(id).catch(get().syncCatch("chat delete"));
     get().showToast("group chat deleted");
   },
-  // Seam for realtime delivery (e.g. Supabase Realtime): appends an inbound
-  // message and raises in-app / OS notifications for the recipient.
-  receiveTeamMessage: (convoId: string, who: number, text: string) => {
+  // Seam for realtime delivery: upserts an inbound message by id (so echoes of
+  // our own sends and reaction updates are applied in place, not duplicated)
+  // and raises in-app / OS notifications for genuinely new messages.
+  receiveTeamMessage: (convoId: string, msg: TeamMessage) => {
+    const existed = !!msg.id && (get().teamMsgs[convoId] || []).some((m) => m.id === msg.id);
     set((s) => {
+      const list = s.teamMsgs[convoId] || [];
       const msgs = { ...s.teamMsgs };
-      msgs[convoId] = (msgs[convoId] || []).concat([{ who, text, at: Date.now() }]);
+      msgs[convoId] = existed ? list.map((m) => (m.id === msg.id ? msg : m)) : list.concat([msg]);
       return { teamMsgs: msgs };
     });
+    if (existed) return; // reaction/edit update — no notification
     const st = get();
-    if (who === st.currentUserId) return;
+    if (msg.who === st.currentUserId) return;
     const convo = st.conversations.find((c) => c.id === convoId);
     const label = convo ? "#" + convo.name : "team chat";
-    const sender = effectiveUser(who, st.profiles).name;
-    st.pushNotification({ dot: "#8A84F0", title: sender, body: label + ": " + text, category: "mentions" });
+    const sender = effectiveUser(msg.who, st.profiles).name;
+    const body = label + ": " + (msg.text || "sent an attachment");
+    st.pushNotification({ dot: "#8A84F0", title: sender, body, category: "mentions" });
     const prefs = st.prefs[st.currentUserId];
     if (prefs?.pushEnabled && prefs.mentions && st.notifPermission === "granted") {
-      showOSNotification(sender, label + ": " + text, "msg-" + convoId);
+      showOSNotification(sender, body, "msg-" + convoId);
     }
   },
 });

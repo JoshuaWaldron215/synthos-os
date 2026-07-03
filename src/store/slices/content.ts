@@ -1,3 +1,4 @@
+import * as repo from "../../data/repo";
 import { CONTENT, USERS } from "../../data/seed";
 import type { ContentItem, ContentLane } from "../../types";
 import type { StoreGet, StoreSet } from "../types";
@@ -16,8 +17,16 @@ export const createContentSlice = (set: StoreSet, get: StoreGet) => ({
     set((s) => (s.contentDragOver === lane ? {} : { contentDragOver: lane })),
   dropContentOnLane: (lane: ContentLane) => {
     const id = get().contentDragId;
-    if (id) set((s) => ({ content: s.content.map((c) => (c.id === id ? { ...c, lane } : c)) }));
+    if (id) {
+      set((s) => ({ content: s.content.map((c) => (c.id === id ? { ...c, lane } : c)) }));
+      get().syncContent(id);
+    }
     set({ contentDragId: null, contentDragOver: null });
+  },
+  // push the current state of a content item to the backend
+  syncContent: (id: string) => {
+    const item = get().content.find((c) => c.id === id);
+    if (item) repo.saveContent(item).catch(get().syncCatch("content write"));
   },
   openContentComposer: (lane: ContentLane) => set({ contentComposerLane: lane, contentComposerText: "" }),
   setContentComposerText: (v: string) => set({ contentComposerText: v }),
@@ -39,16 +48,22 @@ export const createContentSlice = (set: StoreSet, get: StoreGet) => ({
       who: input.who ?? get().currentUserId,
     };
     set((s) => ({ content: s.content.concat(item) }));
+    repo.saveContent(item).catch(get().syncCatch("content write"));
     get().showToast("content added");
   },
   openContent: (id: string) => set({ openContentId: id }),
   closeContent: () => set({ openContentId: null }),
-  patchContent: (id: string, patch: Partial<ContentItem>) =>
-    set((s) => ({ content: s.content.map((c) => (c.id === id ? { ...c, ...patch } : c)) })),
-  cycleContentAssignee: (id: string) =>
-    set((s) => ({ content: s.content.map((c) => (c.id === id ? { ...c, who: (c.who + 1) % USERS.length } : c)) })),
+  patchContent: (id: string, patch: Partial<ContentItem>) => {
+    set((s) => ({ content: s.content.map((c) => (c.id === id ? { ...c, ...patch } : c)) }));
+    get().syncContent(id);
+  },
+  cycleContentAssignee: (id: string) => {
+    set((s) => ({ content: s.content.map((c) => (c.id === id ? { ...c, who: (c.who + 1) % USERS.length } : c)) }));
+    get().syncContent(id);
+  },
   deleteContent: (id: string) => {
     set((s) => ({ content: s.content.filter((c) => c.id !== id), openContentId: null }));
+    repo.removeContent(id).catch(get().syncCatch("content delete"));
     get().showToast("content deleted");
   },
 });

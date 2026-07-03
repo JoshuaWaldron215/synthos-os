@@ -6,12 +6,12 @@
  * sends a message. There is intentionally no fabricated/demo event generator:
  * a real workspace should only surface real events.
  *
- * When a realtime backend (e.g. Supabase Realtime) is wired up, subscribe to
- * the relevant channels here and route inbound events through the store's
- * `receiveTeamMessage` / `pushNotification` actions so the rest of the app
- * lights up automatically.
+ * Realtime delivery is wired in the store: `hydrate()` calls `startRealtime()`
+ * (src/store/slices/data.ts), which subscribes to Supabase Realtime via the
+ * repo and routes inbound rows through `receiveTeamMessage` and the other
+ * store actions — so the rest of the app lights up automatically.
  */
 export function useLiveNotifications() {
   // No-op today: live events flow through store actions triggered by real
-  // activity. Realtime subscriptions can be attached here later.
+  // activity (see startRealtime in the data slice).
 }

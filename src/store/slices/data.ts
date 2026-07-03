@@ -1,7 +1,50 @@
 import * as repo from "../../data/repo";
 import { AUDIT, KEYS, PROJECTS, WINS } from "../../data/seed";
-import type { AuditEntry, Project, ProjectFile, ProjectStatus, VaultKey, Win } from "../../types";
+import type {
+  AuditEntry,
+  ContentItem,
+  Conversation,
+  Profile,
+  Project,
+  ProjectFile,
+  ProjectStatus,
+  Task,
+  TeamMessage,
+  VaultKey,
+  Win,
+} from "../../types";
 import type { StoreGet, StoreSet, StoreState } from "../types";
+
+// replace-or-append by id — realtime events and hydrate merges are idempotent
+const upsertBy = <T extends { id: string }>(list: T[], item: T): T[] =>
+  list.some((x) => x.id === item.id) ? list.map((x) => (x.id === item.id ? item : x)) : list.concat(item);
+
+// Server messages win per id; locally-persisted messages the server has never
+// seen (offline sends, pre-sync history) are kept rather than dropped.
+const mergeTeamMsgs = (
+  local: Record<string, TeamMessage[]>,
+  server: Record<string, TeamMessage[]>,
+): Record<string, TeamMessage[]> => {
+  const out = { ...local };
+  for (const convo of Object.keys(server)) {
+    const remote = server[convo];
+    const ids = new Set(remote.map((m) => m.id));
+    const localOnly = (local[convo] || []).filter((m) => !m.id || !ids.has(m.id));
+    out[convo] = remote.concat(localOnly).sort((a, b) => (a.at ?? 0) - (b.at ?? 0));
+  }
+  return out;
+};
+
+const mergeProfiles = (
+  local: Record<number, Profile>,
+  server: Record<number, Partial<Profile>>,
+): Record<number, Profile> => {
+  const out = { ...local };
+  for (const id of Object.keys(server).map(Number)) {
+    if (out[id]) out[id] = { ...out[id], ...server[id] };
+  }
+  return out;
+};
 
 // Shared workspace data: projects, vault keys, files, wins, activity log,
 // plus the Supabase hydration entry point. Every write goes through the repo
@@ -29,7 +72,12 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
           files: data.files,
           wins: data.wins.length ? data.wins : get().wins,
           tasks: data.tasks.length ? data.tasks : get().tasks,
+          conversations: data.conversations.length ? data.conversations : get().conversations,
+          teamMsgs: mergeTeamMsgs(get().teamMsgs, data.teamMsgs),
+          content: data.content.length ? data.content : get().content,
+          profiles: mergeProfiles(get().profiles, data.profiles),
         });
+        get().startRealtime();
       }
     } catch (e) {
       // stay on local cache, but let the user know the shared copy didn't load
@@ -37,6 +85,68 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
     } finally {
       set({ hydrated: true });
     }
+  },
+
+  // Live cross-client sync. Handlers are idempotent (upsert/remove by id), so
+  // echoes of this client's own optimistic writes apply harmlessly.
+  startRealtime: () => {
+    repo
+      .subscribeRealtime({
+        project: (ev, data) =>
+          set((s) => ({
+            projects: ev === "delete" ? s.projects.filter((p) => p.id !== data) : upsertBy(s.projects, data as Project),
+          })),
+        task: (ev, data) =>
+          set((s) => ({
+            tasks: ev === "delete" ? s.tasks.filter((t) => t.id !== data) : upsertBy(s.tasks, data as Task),
+          })),
+        key: (ev, data) =>
+          set((s) => ({
+            keys: ev === "delete" ? s.keys.filter((k) => k.id !== data) : upsertBy(s.keys, data as VaultKey),
+          })),
+        win: (ev, data) =>
+          set((s) => ({
+            wins: ev === "delete" ? s.wins.filter((w) => w.id !== data) : upsertBy(s.wins, data as Win),
+          })),
+        file: (ev, data) =>
+          set((s) => ({
+            files: ev === "delete" ? s.files.filter((f) => f.id !== data) : upsertBy(s.files, data as ProjectFile),
+          })),
+        activity: (entry) =>
+          set((s) =>
+            s.activity.some((a) => a.id === entry.id) ? {} : { activity: [entry, ...s.activity].slice(0, 80) },
+          ),
+        convo: (ev, data) => {
+          if (ev === "delete") {
+            set((s) => {
+              const msgs = { ...s.teamMsgs };
+              delete msgs[data as string];
+              return {
+                conversations: s.conversations.filter((c) => c.id !== data),
+                teamMsgs: msgs,
+                activeConvo: s.activeConvo === data ? "general" : s.activeConvo,
+              };
+            });
+          } else {
+            set((s) => ({ conversations: upsertBy(s.conversations, data as Conversation) }));
+          }
+        },
+        message: (convoId, msg) => get().receiveTeamMessage(convoId, msg),
+        content: (ev, data) =>
+          set((s) => ({
+            content:
+              ev === "delete" ? s.content.filter((c) => c.id !== data) : upsertBy(s.content, data as ContentItem),
+          })),
+        profile: (builderId, patch) =>
+          set((s) => ({
+            profiles: s.profiles[builderId]
+              ? { ...s.profiles, [builderId]: { ...s.profiles[builderId], ...patch } }
+              : s.profiles,
+          })),
+      })
+      .catch(() => {
+        /* local mode or subscribe failure — polling-free local UX still works */
+      });
   },
 
   logActivity: (action: string, target: string, proj: string) => {

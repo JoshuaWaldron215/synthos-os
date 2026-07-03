@@ -1,6 +1,18 @@
 import { FILES_BUCKET, getSupabase, isSupabaseConfigured } from "../lib/supabase";
 import { deleteBlob, getBlob, putBlob } from "../lib/fileStore";
-import type { AuditEntry, Project, ProjectFile, Task, VaultKey, Win } from "../types";
+import type {
+  AuditEntry,
+  ContentItem,
+  Conversation,
+  MessageAttachment,
+  Profile,
+  Project,
+  ProjectFile,
+  Task,
+  TeamMessage,
+  VaultKey,
+  Win,
+} from "../types";
 
 // The repo is the single seam between the app and its backend. Components and
 // the store never touch Supabase directly. In local mode every read returns
@@ -15,6 +27,11 @@ export interface Dataset {
   activity: AuditEntry[];
   files: ProjectFile[];
   wins: Win[];
+  conversations: Conversation[];
+  teamMsgs: Record<string, TeamMessage[]>;
+  content: ContentItem[];
+  /** per-builder profile fields that have been saved to the server */
+  profiles: Record<number, Partial<Profile>>;
 }
 
 export const usingSupabase = isSupabaseConfigured;
@@ -150,19 +167,132 @@ const fromWin = (w: Win): WinRow => ({
   created_at: w.createdAt,
 });
 
+interface ConvoRow {
+  id: string;
+  type: string;
+  name: string;
+  proj: string | null;
+  members: number[] | null;
+  guests: string[] | null;
+  system: boolean;
+}
+const toConvo = (r: ConvoRow): Conversation => ({
+  id: r.id,
+  type: "channel",
+  name: r.name,
+  proj: r.proj ?? undefined,
+  members: r.members ?? [],
+  guests: r.guests ?? [],
+  system: r.system || undefined,
+});
+const fromConvo = (c: Conversation): ConvoRow => ({
+  id: c.id,
+  type: c.type,
+  name: c.name,
+  proj: c.proj ?? null,
+  members: c.members,
+  guests: c.guests,
+  system: !!c.system,
+});
+
+interface MessageRow {
+  id: string;
+  convo: string;
+  who: number;
+  text: string;
+  at: number | null;
+  attachments: MessageAttachment[] | null;
+  reactions: Record<string, number[]> | null;
+}
+const toMessage = (r: MessageRow): TeamMessage => {
+  const m: TeamMessage = { id: r.id, who: r.who, text: r.text, at: r.at ?? undefined };
+  if (r.attachments?.length) m.attachments = r.attachments;
+  if (r.reactions && Object.keys(r.reactions).length) m.reactions = r.reactions;
+  return m;
+};
+const fromMessage = (convo: string, m: TeamMessage, id: string): MessageRow => ({
+  id,
+  convo,
+  who: m.who,
+  text: m.text,
+  at: m.at ?? null,
+  attachments: m.attachments ?? null,
+  reactions: m.reactions ?? null,
+});
+
+interface ContentRow {
+  id: string;
+  lane: ContentItem["lane"];
+  title: string;
+  kind: string;
+  who: number;
+}
+const toContent = (r: ContentRow): ContentItem => ({
+  id: r.id,
+  lane: r.lane,
+  title: r.title,
+  kind: r.kind,
+  who: r.who,
+});
+const fromContent = (c: ContentItem): ContentRow => ({
+  id: c.id,
+  lane: c.lane,
+  title: c.title,
+  kind: c.kind,
+  who: c.who,
+});
+
+interface ProfileRow {
+  builder_id: number | null;
+  name: string | null;
+  role: string | null;
+  email: string | null;
+  avatar_url: string | null;
+  status: string | null;
+  username: string | null;
+  github: string | null;
+  bio: string | null;
+}
+// Empty/null server fields are "never saved" — the local defaults win, so a
+// freshly-provisioned backend doesn't blank out seeded roles and usernames.
+const toProfilePatch = (r: ProfileRow): Partial<Profile> => {
+  const p: Partial<Profile> = {};
+  if (r.name) p.name = r.name;
+  if (r.username) p.username = r.username;
+  if (r.role) p.role = r.role;
+  if (r.email) p.email = r.email;
+  if (r.github) p.github = r.github;
+  if (r.bio) p.bio = r.bio;
+  if (r.avatar_url) p.avatarUrl = r.avatar_url;
+  if (r.status) p.status = r.status as Profile["status"];
+  return p;
+};
+
 // ---- reads ------------------------------------------------------------------
 
 export async function fetchAll(): Promise<Dataset | null> {
   const sb = await getSupabase();
   if (!sb) return null;
-  const [projects, tasks, keys, activity, files, wins] = await Promise.all([
+  const [projects, tasks, keys, activity, files, wins, convos, messages, content, profiles] = await Promise.all([
     sb.from("projects").select("*"),
     sb.from("tasks").select("*"),
     sb.from("vault_keys").select("*"),
     sb.from("activity").select("*"),
     sb.from("project_files").select("*"),
     sb.from("wins").select("*"),
+    sb.from("conversations").select("*"),
+    sb.from("messages").select("*").order("at", { ascending: true }),
+    sb.from("content_items").select("*"),
+    sb.from("profiles").select("*"),
   ]);
+  const teamMsgs: Record<string, TeamMessage[]> = {};
+  for (const r of (messages.data ?? []) as MessageRow[]) {
+    (teamMsgs[r.convo] ??= []).push(toMessage(r));
+  }
+  const profilePatches: Record<number, Partial<Profile>> = {};
+  for (const r of (profiles.data ?? []) as ProfileRow[]) {
+    if (r.builder_id !== null) profilePatches[r.builder_id] = toProfilePatch(r);
+  }
   return {
     projects: ((projects.data ?? []) as ProjectRow[]).map(toProject),
     tasks: ((tasks.data ?? []) as TaskRow[]).map(toTask),
@@ -170,6 +300,10 @@ export async function fetchAll(): Promise<Dataset | null> {
     activity: (activity.data ?? []) as AuditEntry[],
     files: ((files.data ?? []) as FileRow[]).map(toFile),
     wins: ((wins.data ?? []) as WinRow[]).map(toWin),
+    conversations: ((convos.data ?? []) as ConvoRow[]).map(toConvo),
+    teamMsgs,
+    content: ((content.data ?? []) as ContentRow[]).map(toContent),
+    profiles: profilePatches,
   };
 }
 
@@ -219,6 +353,121 @@ export async function removeWin(id: string): Promise<void> {
   const sb = await getSupabase();
   if (!sb) return;
   await sb.from("wins").delete().eq("id", id);
+}
+
+export async function saveConversation(c: Conversation): Promise<void> {
+  const sb = await getSupabase();
+  if (!sb) return;
+  await sb.from("conversations").upsert(fromConvo(c));
+}
+export async function removeConversation(id: string): Promise<void> {
+  const sb = await getSupabase();
+  if (!sb) return;
+  // messages cascade server-side
+  await sb.from("conversations").delete().eq("id", id);
+}
+export async function saveMessage(convo: string, m: TeamMessage): Promise<void> {
+  if (!m.id) return; // legacy local messages predate shared chat
+  const sb = await getSupabase();
+  if (!sb) return;
+  await sb.from("messages").upsert(fromMessage(convo, m, m.id));
+}
+export async function saveContent(c: ContentItem): Promise<void> {
+  const sb = await getSupabase();
+  if (!sb) return;
+  await sb.from("content_items").upsert(fromContent(c));
+}
+export async function removeContent(id: string): Promise<void> {
+  const sb = await getSupabase();
+  if (!sb) return;
+  await sb.from("content_items").delete().eq("id", id);
+}
+export async function saveProfile(builderId: number, p: Profile): Promise<void> {
+  const sb = await getSupabase();
+  if (!sb) return;
+  // rows are provisioned with the auth users; update by the stable builder slot
+  await sb
+    .from("profiles")
+    .update({
+      name: p.name,
+      username: p.username,
+      role: p.role,
+      email: p.email,
+      github: p.github,
+      bio: p.bio,
+      avatar_url: p.avatarUrl,
+      status: p.status,
+    })
+    .eq("builder_id", builderId);
+}
+
+// ---- realtime ----------------------------------------------------------------
+
+// Callbacks the store wires into its state. "upsert" carries the mapped model;
+// "delete" carries the row id (Postgres delete payloads only include the PK).
+export interface RealtimeHandlers {
+  project: (ev: "upsert" | "delete", data: Project | string) => void;
+  task: (ev: "upsert" | "delete", data: Task | string) => void;
+  key: (ev: "upsert" | "delete", data: VaultKey | string) => void;
+  win: (ev: "upsert" | "delete", data: Win | string) => void;
+  file: (ev: "upsert" | "delete", data: ProjectFile | string) => void;
+  activity: (entry: AuditEntry) => void;
+  convo: (ev: "upsert" | "delete", data: Conversation | string) => void;
+  message: (convoId: string, msg: TeamMessage) => void;
+  content: (ev: "upsert" | "delete", data: ContentItem | string) => void;
+  profile: (builderId: number, patch: Partial<Profile>) => void;
+}
+
+interface ChangePayload<Row> {
+  eventType: "INSERT" | "UPDATE" | "DELETE";
+  new: Row;
+  old: { id?: string };
+}
+
+let liveChannel: { unsubscribe: () => void } | null = null;
+
+// One channel, one postgres_changes listener per synced table. Events are
+// idempotent on the store side (upsert-by-id / remove-by-id), so receiving an
+// echo of our own optimistic write is harmless.
+export async function subscribeRealtime(h: RealtimeHandlers): Promise<void> {
+  const sb = await getSupabase();
+  if (!sb) return;
+  if (liveChannel) liveChannel.unsubscribe(); // e.g. re-hydrate under StrictMode
+  const ch = sb.channel("synthos-sync");
+  const on = <Row,>(table: string, cb: (e: ChangePayload<Row>) => void) => {
+    ch.on(
+      "postgres_changes" as never,
+      { event: "*", schema: "public", table } as never,
+      cb as never,
+    );
+  };
+  const crud = <Row, Model>(mapper: (r: Row) => Model, cb: (ev: "upsert" | "delete", data: Model | string) => void) =>
+    (e: ChangePayload<Row>) => {
+      if (e.eventType === "DELETE") {
+        if (e.old.id) cb("delete", e.old.id);
+      } else {
+        cb("upsert", mapper(e.new));
+      }
+    };
+  on<ProjectRow>("projects", crud(toProject, h.project));
+  on<TaskRow>("tasks", crud(toTask, h.task));
+  on<VaultKey>("vault_keys", crud((r) => ({ id: r.id, label: r.label, val: r.val, proj: r.proj }), h.key));
+  on<WinRow>("wins", crud(toWin, h.win));
+  on<FileRow>("project_files", crud(toFile, h.file));
+  on<AuditEntry>("activity", (e) => {
+    if (e.eventType !== "DELETE") h.activity({ id: e.new.id, who: e.new.who, action: e.new.action, target: e.new.target, at: e.new.at, proj: e.new.proj });
+  });
+  on<ConvoRow>("conversations", crud(toConvo, h.convo));
+  on<MessageRow>("messages", (e) => {
+    // deletes only happen via conversation cascade; the convo handler clears them
+    if (e.eventType !== "DELETE") h.message(e.new.convo, toMessage(e.new));
+  });
+  on<ContentRow>("content_items", crud(toContent, h.content));
+  on<ProfileRow>("profiles", (e) => {
+    if (e.eventType !== "DELETE" && e.new.builder_id !== null) h.profile(e.new.builder_id, toProfilePatch(e.new));
+  });
+  ch.subscribe();
+  liveChannel = ch;
 }
 
 // ---- files (Supabase Storage, IndexedDB fallback) ---------------------------

@@ -14,8 +14,13 @@ create table if not exists public.profiles (
   email text,
   avatar_url text,
   status text default 'online',
+  username text,
+  github text,
+  bio text,
   created_at timestamptz not null default now()
 );
+create unique index if not exists profiles_builder_id_key
+  on public.profiles (builder_id) where builder_id is not null;
 
 -- ---------------------------------------------------------------------------
 -- projects
@@ -109,6 +114,56 @@ create table if not exists public.project_files (
 );
 
 -- ---------------------------------------------------------------------------
+-- conversations (channels / group chats / project chats)
+-- ---------------------------------------------------------------------------
+create table if not exists public.conversations (
+  id text primary key,
+  type text not null default 'channel',
+  name text not null,
+  proj text,
+  members jsonb not null default '[]',
+  guests jsonb not null default '[]',
+  system boolean not null default false,
+  updated_at timestamptz not null default now()
+);
+
+-- ---------------------------------------------------------------------------
+-- messages (attachments/reactions ride along as jsonb)
+-- ---------------------------------------------------------------------------
+create table if not exists public.messages (
+  id text primary key,
+  convo text not null references public.conversations (id) on delete cascade,
+  who int not null default 0,
+  text text not null default '',
+  at bigint,
+  attachments jsonb,
+  reactions jsonb,
+  created_at timestamptz not null default now()
+);
+create index if not exists messages_convo_at_idx on public.messages (convo, at);
+
+-- ---------------------------------------------------------------------------
+-- content_items (marketing pipeline kanban)
+-- ---------------------------------------------------------------------------
+create table if not exists public.content_items (
+  id text primary key,
+  lane text not null default 'idea',
+  title text not null,
+  kind text not null default 'post',
+  who int not null default 0,
+  updated_at timestamptz not null default now()
+);
+
+-- ---------------------------------------------------------------------------
+-- seed system channels so every client agrees on their ids
+-- ---------------------------------------------------------------------------
+insert into public.conversations (id, type, name, members, guests, system) values
+  ('general', 'channel', 'general', '[0,1,2]', '[]', true),
+  ('builds',  'channel', 'builds',  '[0,1,2]', '[]', true),
+  ('clients', 'channel', 'clients', '[0,1,2]', '[]', true)
+on conflict (id) do nothing;
+
+-- ---------------------------------------------------------------------------
 -- Row Level Security: any authenticated team member has full access
 -- ---------------------------------------------------------------------------
 alter table public.profiles      enable row level security;
@@ -118,16 +173,37 @@ alter table public.vault_keys    enable row level security;
 alter table public.activity      enable row level security;
 alter table public.wins          enable row level security;
 alter table public.project_files enable row level security;
+alter table public.conversations enable row level security;
+alter table public.messages      enable row level security;
+alter table public.content_items enable row level security;
 
 do $$
 declare t text;
 begin
-  foreach t in array array['profiles','projects','tasks','vault_keys','activity','wins','project_files']
+  foreach t in array array['profiles','projects','tasks','vault_keys','activity','wins','project_files','conversations','messages','content_items']
   loop
+    execute format('drop policy if exists %I on public.%I;', t || '_team_rw', t);
     execute format(
       'create policy %I on public.%I for all to authenticated using (true) with check (true);',
       t || '_team_rw', t
     );
+  end loop;
+end $$;
+
+-- ---------------------------------------------------------------------------
+-- Realtime: publish every synced table so clients stay live (idempotent)
+-- ---------------------------------------------------------------------------
+do $$
+declare t text;
+begin
+  foreach t in array array['projects','tasks','vault_keys','activity','wins','project_files','profiles','conversations','messages','content_items']
+  loop
+    if not exists (
+      select 1 from pg_publication_tables
+      where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t
+    ) then
+      execute format('alter publication supabase_realtime add table public.%I;', t);
+    end if;
   end loop;
 end $$;
 
