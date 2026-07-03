@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeInitials, defaultPrefs, defaultProfiles, effectiveUser } from "./profile";
+import { computeInitials, defaultPrefs, defaultProfiles, effectiveUser, isKnownTeammate } from "./profile";
 
 describe("computeInitials", () => {
   it("uses first + last initial for multi-word names", () => {
@@ -29,6 +29,25 @@ describe("effectiveUser", () => {
     expect(u.name).toBe("jordan blake");
     expect(u.first).toBe("jordan");
     expect(u.initials).toBe("JB");
+  });
+});
+
+describe("isKnownTeammate", () => {
+  it("accepts default team emails (case/space-insensitive)", () => {
+    expect(isKnownTeammate("josh@synthos.dev")).toBe(true);
+    expect(isKnownTeammate("  SADEQ@synthos.dev ")).toBe(true);
+    expect(isKnownTeammate("aqeel@synthos.dev")).toBe(true);
+  });
+
+  it("accepts any domain when the local-part matches a teammate username", () => {
+    expect(isKnownTeammate("josh@gmail.com")).toBe(true);
+  });
+
+  it("rejects unknown emails and blanks", () => {
+    expect(isKnownTeammate("stranger@synthos.dev")).toBe(false);
+    expect(isKnownTeammate("")).toBe(false);
+    expect(isKnownTeammate(undefined)).toBe(false);
+    expect(isKnownTeammate(null)).toBe(false);
   });
 });
 

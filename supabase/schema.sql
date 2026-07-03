@@ -65,13 +65,17 @@ create table if not exists public.vault_keys (
 
 -- ---------------------------------------------------------------------------
 -- activity (audit log)
+-- `at` is epoch ms, written by the app (src/store/slices/data.ts). The legacy
+-- `"time" text` column was dropped — it caused inserts to fail silently after
+-- the timestamp refactor. `time?` is still accepted on the model for any
+-- entries persisted locally before the switch.
 -- ---------------------------------------------------------------------------
 create table if not exists public.activity (
   id text primary key,
   who int not null default 0,
   action text not null,
   target text not null default '',
-  "time" text not null default 'now',
+  at bigint,
   proj text not null default 'shared',
   created_at timestamptz not null default now()
 );

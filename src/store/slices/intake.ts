@@ -49,7 +49,7 @@ export const createIntakeSlice = (set: StoreSet, get: StoreGet) => ({
       notes: "",
     }));
     set((s) => ({ tasks: s.tasks.concat(nw), draftTasks: null, intakeText: "" }));
-    nw.forEach((t) => repo.saveTask(t).catch(() => {}));
+    nw.forEach((t) => repo.saveTask(t).catch(get().syncCatch("task write")));
     get().showToast("added " + d.length + " tasks · assigned evenly");
   },
 });

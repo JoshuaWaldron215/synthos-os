@@ -34,6 +34,7 @@ export interface StoreState {
   notifOpen: boolean;
   showRevenue: boolean;
   toast: string | null;
+  syncError: string | null;
 
   // profiles / prefs / notifications
   profiles: Record<number, Profile>;
@@ -109,6 +110,8 @@ export interface StoreState {
   setShowRevenue: (v: boolean) => void;
   showToast: (msg: string) => void;
   clearToast: () => void;
+  syncCatch: (context: string) => (err: unknown) => void;
+  dismissSyncError: () => void;
   copy: (text: string, label: string) => void;
 
   // profile / prefs / notifications

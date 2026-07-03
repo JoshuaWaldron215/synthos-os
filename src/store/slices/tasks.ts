@@ -28,7 +28,7 @@ export const createTasksSlice = (set: StoreSet, get: StoreGet) => ({
     if (id) {
       set((s) => ({ tasks: s.tasks.map((t) => (t.id === id ? { ...t, col } : t)) }));
       const moved = get().tasks.find((t) => t.id === id);
-      if (moved) repo.saveTask(moved).catch(() => {});
+      if (moved) repo.saveTask(moved).catch(get().syncCatch("task write"));
     }
     set({ dragId: null, dragOver: null });
   },
@@ -47,7 +47,7 @@ export const createTasksSlice = (set: StoreSet, get: StoreGet) => ({
         editText: "",
       }));
       const edited = get().tasks.find((t) => t.id === editingId);
-      if (edited) repo.saveTask(edited).catch(() => {});
+      if (edited) repo.saveTask(edited).catch(get().syncCatch("task write"));
     } else {
       set({ editingId: null, editText: "" });
     }
@@ -78,7 +78,7 @@ export const createTasksSlice = (set: StoreSet, get: StoreGet) => ({
       notes: "",
     };
     set((s) => ({ tasks: s.tasks.concat(task) }));
-    repo.saveTask(task).catch(() => {});
+    repo.saveTask(task).catch(get().syncCatch("task write"));
     get().showToast("task added");
   },
   openTask: (id: string) => set({ openTaskId: id, editingId: null }),
@@ -86,7 +86,7 @@ export const createTasksSlice = (set: StoreSet, get: StoreGet) => ({
   patchTask: (id: string, patch: Partial<Task>) => {
     set((s) => ({ tasks: s.tasks.map((t) => (t.id === id ? { ...t, ...patch } : t)) }));
     const updated = get().tasks.find((t) => t.id === id);
-    if (updated) repo.saveTask(updated).catch(() => {});
+    if (updated) repo.saveTask(updated).catch(get().syncCatch("task write"));
   },
   cyclePri: (id: string) => {
     set((s) => ({
@@ -97,16 +97,16 @@ export const createTasksSlice = (set: StoreSet, get: StoreGet) => ({
       }),
     }));
     const t = get().tasks.find((x) => x.id === id);
-    if (t) repo.saveTask(t).catch(() => {});
+    if (t) repo.saveTask(t).catch(get().syncCatch("task write"));
   },
   cycleAssignTask: (id: string) => {
     set((s) => ({ tasks: s.tasks.map((t) => (t.id === id ? { ...t, who: (t.who + 1) % USERS.length } : t)) }));
     const t = get().tasks.find((x) => x.id === id);
-    if (t) repo.saveTask(t).catch(() => {});
+    if (t) repo.saveTask(t).catch(get().syncCatch("task write"));
   },
   deleteTask: (id: string) => {
     set((s) => ({ tasks: s.tasks.filter((t) => t.id !== id), openTaskId: null }));
-    repo.removeTask(id).catch(() => {});
+    repo.removeTask(id).catch(get().syncCatch("task write"));
     get().showToast("task deleted");
   },
   startEditCol: (col: ColKey) => set((s) => ({ editingCol: col, editColText: s.colLabels[col] })),

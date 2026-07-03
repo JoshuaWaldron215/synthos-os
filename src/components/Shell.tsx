@@ -15,6 +15,7 @@ import { AuditDrawer } from "./AuditDrawer";
 import { AccountSheet } from "./AccountSheet";
 import { ProfileCard } from "./ProfileCard";
 import { Notifications } from "./Notifications";
+import { SyncBanner } from "./SyncBanner";
 
 export function Shell() {
   const isMobile = useIsMobile();
@@ -98,6 +99,7 @@ export function Shell() {
       <ProfileCard />
       <AuditDrawer />
       {openTaskId && <TaskModal />}
+      <SyncBanner />
       <Toast />
     </div>
   );

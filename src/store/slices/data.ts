@@ -31,8 +31,9 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
           tasks: data.tasks.length ? data.tasks : get().tasks,
         });
       }
-    } catch {
-      /* stay on local cache */
+    } catch (e) {
+      // stay on local cache, but let the user know the shared copy didn't load
+      get().syncCatch("initial load")(e);
     } finally {
       set({ hydrated: true });
     }
@@ -48,7 +49,7 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
       proj,
     };
     set((s) => ({ activity: [entry, ...s.activity].slice(0, 80) }));
-    repo.addActivity(entry).catch(() => {});
+    repo.addActivity(entry).catch(get().syncCatch("data write"));
   },
 
   addProject: (input: { client: string; tagline?: string; stack?: string[]; status?: ProjectStatus }) => {
@@ -81,14 +82,14 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
       imageUrl: null,
     };
     set((s) => ({ projects: s.projects.concat(proj) }));
-    repo.saveProject(proj).catch(() => {});
+    repo.saveProject(proj).catch(get().syncCatch("data write"));
     get().logActivity("created project", proj.client, id);
     return id;
   },
   updateProject: (id: string, patch: Partial<Project>) => {
     set((s) => ({ projects: s.projects.map((p) => (p.id === id ? { ...p, ...patch } : p)) }));
     const updated = get().projects.find((p) => p.id === id);
-    if (updated) repo.saveProject(updated).catch(() => {});
+    if (updated) repo.saveProject(updated).catch(get().syncCatch("data write"));
   },
   setProjectImage: (id: string, url: string | null) => {
     get().updateProject(id, { imageUrl: url });
@@ -100,7 +101,7 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
       keys: s.keys.filter((k) => k.proj !== id),
       files: s.files.filter((f) => f.proj !== id),
     }));
-    repo.removeProject(id).catch(() => {});
+    repo.removeProject(id).catch(get().syncCatch("data write"));
     get().showToast("project deleted");
   },
 
@@ -112,29 +113,29 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
       proj: input.proj,
     };
     set((s) => ({ keys: s.keys.concat(key) }));
-    repo.saveKey(key).catch(() => {});
+    repo.saveKey(key).catch(get().syncCatch("data write"));
     get().logActivity("added", key.label, key.proj);
   },
   updateKey: (id: string, patch: Partial<VaultKey>) => {
     set((s) => ({ keys: s.keys.map((k) => (k.id === id ? { ...k, ...patch } : k)) }));
     const updated = get().keys.find((k) => k.id === id);
-    if (updated) repo.saveKey(updated).catch(() => {});
+    if (updated) repo.saveKey(updated).catch(get().syncCatch("data write"));
   },
   deleteKey: (id: string) => {
     const k = get().keys.find((x) => x.id === id);
     set((s) => ({ keys: s.keys.filter((x) => x.id !== id) }));
-    repo.removeKey(id).catch(() => {});
+    repo.removeKey(id).catch(get().syncCatch("data write"));
     if (k) get().logActivity("removed", k.label, k.proj);
   },
 
   addFile: (f: ProjectFile) => {
     set((s) => ({ files: s.files.concat(f) }));
-    repo.saveFileMeta(f).catch(() => {});
+    repo.saveFileMeta(f).catch(get().syncCatch("data write"));
     get().logActivity("uploaded", f.name, f.proj);
   },
   deleteFile: (f: ProjectFile) => {
     set((s) => ({ files: s.files.filter((x) => x.id !== f.id) }));
-    repo.removeFile(f).catch(() => {});
+    repo.removeFile(f).catch(get().syncCatch("data write"));
     get().logActivity("deleted file", f.name, f.proj);
   },
 
@@ -150,18 +151,18 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
       createdAt: Date.now(),
     };
     set((s) => ({ wins: [win, ...s.wins] }));
-    repo.saveWin(win).catch(() => {});
+    repo.saveWin(win).catch(get().syncCatch("data write"));
     if (win.proj) get().logActivity("logged a win", win.title, win.proj);
     get().showToast("win logged \u2728");
   },
   updateWin: (id: string, patch: Partial<Win>) => {
     set((s) => ({ wins: s.wins.map((w) => (w.id === id ? { ...w, ...patch } : w)) }));
     const updated = get().wins.find((w) => w.id === id);
-    if (updated) repo.saveWin(updated).catch(() => {});
+    if (updated) repo.saveWin(updated).catch(get().syncCatch("data write"));
   },
   deleteWin: (id: string) => {
     set((s) => ({ wins: s.wins.filter((w) => w.id !== id) }));
-    repo.removeWin(id).catch(() => {});
+    repo.removeWin(id).catch(get().syncCatch("data write"));
     get().showToast("win removed");
   },
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getSupabase, isSupabaseConfigured } from "./supabase";
+import { isKnownTeammate } from "./profile";
 
 export interface Session {
   email: string;
@@ -33,7 +34,9 @@ export function useAuth(): AuthApi {
     let active = true;
     let unsubscribe: (() => void) | undefined;
     if (!isSupabaseConfigured) {
-      setSession(readLocal());
+      // Local simulated auth is a dev convenience only. A production build with
+      // no Supabase env vars must not fall back to "any email works".
+      setSession(import.meta.env.DEV ? readLocal() : null);
       setLoading(false);
       return;
     }
@@ -41,11 +44,21 @@ export function useAuth(): AuthApi {
       if (!sb || !active) return;
       sb.auth.getSession().then(({ data }) => {
         if (!active) return;
-        setSession(data.session ? { email: data.session.user.email ?? "" } : null);
+        const email = data.session?.user.email ?? "";
+        // Reject a restored session that isn't a known teammate (e.g. a stray
+        // auth user) instead of silently operating as builder 0.
+        if (data.session && !isKnownTeammate(email)) {
+          sb.auth.signOut();
+          setSession(null);
+        } else {
+          setSession(data.session ? { email } : null);
+        }
         setLoading(false);
       });
       const { data: sub } = sb.auth.onAuthStateChange((_e, s) => {
-        setSession(s ? { email: s.user.email ?? "" } : null);
+        const email = s?.user.email ?? "";
+        if (s && !isKnownTeammate(email)) return;
+        setSession(s ? { email } : null);
       });
       unsubscribe = () => sub.subscription.unsubscribe();
     });
@@ -61,6 +74,9 @@ export function useAuth(): AuthApi {
 
     const sb = await getSupabase();
     if (!sb) {
+      if (!import.meta.env.DEV) {
+        return { error: "sign-in is unavailable — this build has no backend configured" };
+      }
       const s = { email: trimmed };
       localStorage.setItem(LOCAL_KEY, JSON.stringify(s));
       setSession(s);
@@ -68,6 +84,12 @@ export function useAuth(): AuthApi {
     }
     const { error } = await sb.auth.signInWithPassword({ email: trimmed, password });
     if (error) return { error: error.message };
+    // Real backend: only recognised teammates may hold a session.
+    if (!isKnownTeammate(trimmed)) {
+      await sb.auth.signOut();
+      setSession(null);
+      return { error: "this email isn’t a Synthos teammate" };
+    }
     return {};
   };
 
