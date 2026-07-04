@@ -13,7 +13,7 @@ export function defaultUsername(u: { first: string }): string {
 }
 
 // Canonical login allowlist. A session is a real teammate when its auth email
-// either equals a default team email (…@synthos.dev) or its local-part matches
+// either equals a default team email (…@runsynthos.com) or its local-part matches
 // a teammate username — the same match Shell.tsx uses to pick a builder slot.
 // Derived from the seed roster (the Supabase auth users are created with these
 // exact emails), so it is stable even though in-app profiles are editable.
@@ -23,7 +23,7 @@ export function isKnownTeammate(email: string | undefined | null): boolean {
   const local = e.split("@")[0];
   return USERS.some((u) => {
     const un = defaultUsername(u);
-    return e === un + "@synthos.dev" || local === un;
+    return e === un + "@runsynthos.com" || local === un;
   });
 }
 
@@ -34,7 +34,7 @@ export function defaultProfiles(): Record<number, Profile> {
       name: u.name,
       username: defaultUsername(u),
       role: u.role,
-      email: defaultUsername(u) + "@synthos.dev",
+      email: defaultUsername(u) + "@runsynthos.com",
       github: "",
       bio: "",
       avatarUrl: null,
@@ -94,7 +94,7 @@ export function effectiveUser(id: number, profiles: Record<number, Profile>): Ef
     username: p?.username ?? defaultUsername(base),
     initials: computeInitials(name),
     role: p?.role ?? base.role,
-    email: p?.email ?? defaultUsername(base) + "@synthos.dev",
+    email: p?.email ?? defaultUsername(base) + "@runsynthos.com",
     github: p?.github ?? "",
     bio: p?.bio ?? "",
     tone: base.tone,

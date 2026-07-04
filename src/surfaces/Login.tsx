@@ -119,7 +119,7 @@ export function Login({ local, onSignIn }: LoginProps) {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@synthos.dev"
+                placeholder="you@runsynthos.com"
                 className="lg-field"
               />
             </div>
@@ -151,7 +151,7 @@ export function Login({ local, onSignIn }: LoginProps) {
 
           {local && (
             <p style={{ margin: "16px 0 0", fontSize: 12, color: "rgba(11,15,25,.55)", lineHeight: 1.5, textAlign: "center" }}>
-              local mode — sign in with your team email (e.g. josh@synthos.dev) to load your profile. connect Supabase to enable real team logins.
+              local mode — sign in with your team email (e.g. josh@runsynthos.com) to load your profile. connect Supabase to enable real team logins.
             </p>
           )}
         </div>

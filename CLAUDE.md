@@ -78,9 +78,9 @@ Hardcoded in `src/data/seed.ts` as `USERS` (ids 0, 1, 2):
 
 | ID | Name | Default email |
 |----|------|---------------|
-| 0 | Josh Waldron | josh@synthos.dev |
-| 1 | Sadeq Wahab | sadeq@synthos.dev |
-| 2 | Aqeel Bacchus | aqeel@synthos.dev |
+| 0 | Josh Waldron | josh@runsynthos.com |
+| 1 | Sadeq Wahab | sadeq@runsynthos.com |
+| 2 | Aqeel Bacchus | aqeel@runsynthos.com |
 
 Profiles (name, username, avatar, status, github, bio) are editable in Settings and persist per-browser.
 

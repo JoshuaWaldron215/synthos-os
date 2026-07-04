@@ -19,7 +19,7 @@ const DATA_DIR = join(__dirname, ".data");
 const VAPID_FILE = join(DATA_DIR, "vapid.json");
 const SUBS_FILE = join(DATA_DIR, "subscriptions.json");
 const PORT = process.env.PORT || 4000;
-const CONTACT = process.env.VAPID_CONTACT || "mailto:team@synthos.dev";
+const CONTACT = process.env.VAPID_CONTACT || "mailto:team@runsynthos.com";
 
 mkdirSync(DATA_DIR, { recursive: true });
 

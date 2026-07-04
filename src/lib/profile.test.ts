@@ -34,17 +34,19 @@ describe("effectiveUser", () => {
 
 describe("isKnownTeammate", () => {
   it("accepts default team emails (case/space-insensitive)", () => {
-    expect(isKnownTeammate("josh@synthos.dev")).toBe(true);
-    expect(isKnownTeammate("  SADEQ@synthos.dev ")).toBe(true);
-    expect(isKnownTeammate("aqeel@synthos.dev")).toBe(true);
+    expect(isKnownTeammate("josh@runsynthos.com")).toBe(true);
+    expect(isKnownTeammate("  SADEQ@runsynthos.com ")).toBe(true);
+    expect(isKnownTeammate("Josh@runsynthos.com")).toBe(true);
+    expect(isKnownTeammate("aqeel@runsynthos.com")).toBe(true);
   });
 
   it("accepts any domain when the local-part matches a teammate username", () => {
     expect(isKnownTeammate("josh@gmail.com")).toBe(true);
+    expect(isKnownTeammate("josh@synthos.dev")).toBe(true); // legacy domain
   });
 
   it("rejects unknown emails and blanks", () => {
-    expect(isKnownTeammate("stranger@synthos.dev")).toBe(false);
+    expect(isKnownTeammate("stranger@runsynthos.com")).toBe(false);
     expect(isKnownTeammate("")).toBe(false);
     expect(isKnownTeammate(undefined)).toBe(false);
     expect(isKnownTeammate(null)).toBe(false);

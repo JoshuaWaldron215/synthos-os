@@ -155,7 +155,7 @@ export function Settings() {
           <Field label="real name" value={p.name} onChange={(v) => updateProfile(currentUserId, { name: v })} placeholder="e.g. Josh Waldron" />
           <Field label="username" value={p.username} onChange={(v) => updateProfile(currentUserId, { username: v.toLowerCase().replace(/\s+/g, "") })} placeholder="e.g. josh" />
           <Field label="role" value={p.role} onChange={(v) => updateProfile(currentUserId, { role: v })} placeholder="e.g. engineering" />
-          <Field label="email" type="email" value={p.email} onChange={(v) => updateProfile(currentUserId, { email: v })} placeholder="you@synthos.dev" />
+          <Field label="email" type="email" value={p.email} onChange={(v) => updateProfile(currentUserId, { email: v })} placeholder="you@runsynthos.com" />
           <Field label="github" value={p.github} onChange={(v) => updateProfile(currentUserId, { github: v })} placeholder="e.g. joshwaldron or github.com/joshwaldron" />
           <BioField value={p.bio} onChange={(v) => updateProfile(currentUserId, { bio: v })} />
           <div style={{ marginBottom: 0 }}>

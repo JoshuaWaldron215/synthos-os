@@ -12,7 +12,7 @@ export function vapidConfigured() {
 
 export function setupWebPush() {
   webpush.setVapidDetails(
-    process.env.VAPID_CONTACT || "mailto:team@synthos.dev",
+    process.env.VAPID_CONTACT || "mailto:team@runsynthos.com",
     process.env.VAPID_PUBLIC_KEY,
     process.env.VAPID_PRIVATE_KEY,
   );
