@@ -56,7 +56,7 @@ function ContentCard({ item }: { item: ContentItem }) {
       }}
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 9 }}>
-        <span style={{ fontSize: 10.5, color: "rgba(11,15,25,.45)", fontWeight: 600, textTransform: "uppercase", letterSpacing: ".08em" }}>{item.kind}</span>
+        <span style={{ fontSize: 10.5, color: "rgba(11,15,25,.55)", fontWeight: 600, textTransform: "uppercase", letterSpacing: ".08em" }}>{item.kind}</span>
         <Avatar id={item.who} size={22} />
       </div>
       <p style={{ margin: "0 0 13px", fontSize: 13.5, lineHeight: 1.4, fontWeight: 500 }}>{item.title}</p>
@@ -142,8 +142,8 @@ function Lane({ laneKey, label, accentKey, isMobile }: { laneKey: ContentLane; l
         >
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: accent.dot, flex: "0 0 auto" }} />
           <span style={{ fontSize: 14, fontWeight: 700 }}>{label}</span>
-          <span style={{ fontSize: 12, color: "rgba(11,15,25,.4)", fontWeight: 600 }}>{items.length}</span>
-          <span style={{ marginLeft: "auto", display: "flex", transform: open ? "rotate(0deg)" : "rotate(-90deg)", transition: "transform .18s", color: "rgba(11,15,25,.4)" }}>
+          <span style={{ fontSize: 12, color: "rgba(11,15,25,.55)", fontWeight: 600 }}>{items.length}</span>
+          <span style={{ marginLeft: "auto", display: "flex", transform: open ? "rotate(0deg)" : "rotate(-90deg)", transition: "transform .18s", color: "rgba(11,15,25,.55)" }}>
             <Icon name="chevron" size={18} sw={2} />
           </span>
         </button>
@@ -152,7 +152,7 @@ function Lane({ laneKey, label, accentKey, isMobile }: { laneKey: ContentLane; l
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 4px" }}>
             <span style={{ width: 8, height: 8, borderRadius: "50%", background: accent.dot }} />
             <span style={{ fontSize: 13, fontWeight: 700 }}>{label}</span>
-            <span style={{ fontSize: 12, color: "rgba(11,15,25,.4)", fontWeight: 600 }}>{items.length}</span>
+            <span style={{ fontSize: 12, color: "rgba(11,15,25,.55)", fontWeight: 600 }}>{items.length}</span>
           </div>
           <div style={{ height: 3, borderRadius: 3, background: accent.bg }} />
         </>
@@ -200,6 +200,7 @@ function Lane({ laneKey, label, accentKey, isMobile }: { laneKey: ContentLane; l
 
 export function Content() {
   const isMobile = useIsMobile();
+  const pipelineEmpty = useStore((s) => s.content.length === 0);
 
   return (
     <div className="anim-sc">
@@ -210,6 +211,15 @@ export function Content() {
       <p style={{ margin: "0 0 22px", fontSize: 14, color: "rgba(11,15,25,.5)" }}>
         idea to posted · {isMobile ? "tap a card to edit & move it" : "drag to move · click a card to edit"}. each card has ai assists — hook, script, repurpose.
       </p>
+
+      {pipelineEmpty && (
+        <div style={{ background: "#fff", border: "1px dashed rgba(11,15,25,.14)", borderRadius: 16, padding: "26px 20px", textAlign: "center", marginBottom: 16 }}>
+          <div style={{ fontSize: 14.5, fontWeight: 600, marginBottom: 4 }}>nothing in the pipeline yet ✦</div>
+          <div style={{ fontSize: 13, color: "rgba(11,15,25,.55)" }}>
+            drop your first idea into the idea lane — posts, scripts, clips, anything.
+          </div>
+        </div>
+      )}
 
       <div
         style={{

@@ -12,7 +12,7 @@ export function Eyebrow({ index, label, color = "#33ADEE", center = false }: Eye
         fontSize: 11,
         letterSpacing: ".18em",
         textTransform: "uppercase",
-        color: "rgba(11,15,25,.4)",
+        color: "rgba(11,15,25,.55)",
         fontWeight: 600,
         display: "flex",
         alignItems: "center",

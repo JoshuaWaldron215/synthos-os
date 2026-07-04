@@ -14,7 +14,7 @@ import type { Win } from "../types";
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ flex: "1 1 150px", background: "#fff", border: "1px solid rgba(11,15,25,.06)", borderRadius: 16, padding: "16px 18px", boxShadow: "var(--shadow-card)" }}>
-      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.42)", fontWeight: 700 }}>{label}</div>
+      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 700 }}>{label}</div>
       <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-.02em", fontVariantNumeric: "tabular-nums", marginTop: 4 }}>{value}</div>
     </div>
   );
@@ -39,7 +39,7 @@ function WinRow({ win, num, onEdit }: { win: Win; num: number; onEdit: (w: Win) 
           {win.tag && <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", color: "#1F8F6E", background: "rgba(126,230,193,.22)", padding: "2px 8px", borderRadius: 6 }}>{win.tag}</span>}
           {win.amount && showRevenue && <span style={{ fontSize: 12.5, fontWeight: 700, color: "#1F8F6E", fontVariantNumeric: "tabular-nums" }}>+{win.amount}</span>}
         </div>
-        <div style={{ fontSize: 12.5, color: "rgba(11,15,25,.45)", marginTop: 2 }}>
+        <div style={{ fontSize: 12.5, color: "rgba(11,15,25,.55)", marginTop: 2 }}>
           {meta}
           {meta && " · "}
           {timeAgo(win.createdAt)}
@@ -114,7 +114,7 @@ export function Wins() {
       {wins.length === 0 ? (
         <div style={{ background: "#fff", border: "1px dashed rgba(11,15,25,.14)", borderRadius: 16, padding: "32px 20px", textAlign: "center" }}>
           <div style={{ fontSize: 14.5, fontWeight: 600, marginBottom: 4 }}>no wins logged yet</div>
-          <div style={{ fontSize: 13, color: "rgba(11,15,25,.45)" }}>ship something, then come back and brag a little.</div>
+          <div style={{ fontSize: 13, color: "rgba(11,15,25,.55)" }}>ship something, then come back and brag a little.</div>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

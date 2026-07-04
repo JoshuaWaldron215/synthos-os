@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useLiveNotifications } from "../lib/useLiveNotifications";
@@ -17,6 +17,7 @@ import { ProfileCard } from "./ProfileCard";
 import { Notifications } from "./Notifications";
 import { SyncBanner } from "./SyncBanner";
 import { ErrorBoundary } from "./ErrorBoundary";
+import { RouteSkeleton } from "./RouteSkeleton";
 
 export function Shell() {
   const isMobile = useIsMobile();
@@ -91,7 +92,10 @@ export function Shell() {
         <div style={{ padding: screenPad }}>
           {/* keyed by path: a crashed surface resets when the user navigates away */}
           <ErrorBoundary scope="surface" key={location.pathname}>
-            <Outlet />
+            {/* lazy surfaces shimmer in place while their chunk loads */}
+            <Suspense fallback={<RouteSkeleton />}>
+              <Outlet />
+            </Suspense>
           </ErrorBoundary>
         </div>
       </section>

@@ -1,5 +1,20 @@
 // Client-side Web Push: subscribe the installed/served PWA to real push and
-// register the subscription with the local push server (see server/index.mjs).
+// register the subscription with the push API — Vercel serverless functions
+// in production (see api/), the local Express server in dev (server/index.mjs,
+// proxied via vite.config.ts). In Supabase mode every call carries the
+// caller's session token; the API verifies it before touching the DB.
+
+import { getSupabase } from "./supabase";
+
+async function authHeaders(): Promise<Record<string, string>> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const sb = await getSupabase();
+  if (sb) {
+    const { data } = await sb.auth.getSession();
+    if (data.session) headers.Authorization = "Bearer " + data.session.access_token;
+  }
+  return headers;
+}
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -34,10 +49,10 @@ export async function getExistingSubscription(): Promise<PushSubscription | null
 }
 
 /**
- * Subscribe to push and register with the server.
+ * Subscribe to push and register with the server, owned by builder `who`.
  * Throws on failure (e.g. server not running, permission denied).
  */
-export async function subscribeToPush(): Promise<PushSubscription> {
+export async function subscribeToPush(who: number): Promise<PushSubscription> {
   if (!pushSupported()) throw new Error("push not supported in this browser");
 
   const reg = await getRegistration();
@@ -55,8 +70,8 @@ export async function subscribeToPush(): Promise<PushSubscription> {
 
   const reg2 = await fetch("/api/subscribe", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ subscription: sub }),
+    headers: await authHeaders(),
+    body: JSON.stringify({ subscription: sub, who }),
   });
   if (!reg2.ok) throw new Error("failed to register subscription");
   return sub;
@@ -68,7 +83,7 @@ export async function unsubscribeFromPush(): Promise<void> {
   try {
     await fetch("/api/unsubscribe", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: await authHeaders(),
       body: JSON.stringify({ endpoint: sub.endpoint }),
     });
   } catch {
@@ -77,12 +92,20 @@ export async function unsubscribeFromPush(): Promise<void> {
   await sub.unsubscribe();
 }
 
-/** Ask the server to broadcast a push to all subscribers (demo/test). */
-export async function sendServerPush(title: string, body: string, tag?: string): Promise<{ sent: number; total: number }> {
+/**
+ * Ask the server to push to the team — everyone, or just the builder ids in
+ * `userIds` (e.g. the other members of a conversation).
+ */
+export async function sendServerPush(
+  title: string,
+  body: string,
+  tag?: string,
+  userIds?: number[],
+): Promise<{ sent: number; total: number }> {
   const res = await fetch("/api/send", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title, body, tag }),
+    headers: await authHeaders(),
+    body: JSON.stringify({ title, body, tag, userIds }),
   });
   if (!res.ok) throw new Error("send failed");
   return res.json();

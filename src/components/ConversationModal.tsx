@@ -153,7 +153,7 @@ export function ConversationModal({ open, onClose, convo }: { open: boolean; onC
             ))}
           </div>
         )}
-        <p style={{ fontSize: 11.5, color: "rgba(11,15,25,.42)", margin: "9px 2px 0", lineHeight: 1.45 }}>
+        <p style={{ fontSize: 11.5, color: "rgba(11,15,25,.55)", margin: "9px 2px 0", lineHeight: 1.45 }}>
           guests appear in the chat now. outbound SMS/email delivery turns on once an sms/email provider is connected.
         </p>
       </div>

@@ -242,19 +242,19 @@ export function Team() {
         {!isMobile && (
           <div style={{ flex: "0 0 230px", background: "#fff", border: "1px solid rgba(11,15,25,.06)", borderRadius: 18, padding: 10, boxShadow: "var(--shadow-card)", alignSelf: "flex-start" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 6px 6px 10px" }}>
-              <span style={{ fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.38)", fontWeight: 600 }}>channels</span>
+              <span style={{ fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600 }}>channels</span>
               <button onClick={openNew} title="new group chat" style={newBtnStyle}>
                 <Icon name="plus" size={14} sw={2} color="rgba(11,15,25,.55)" />
               </button>
             </div>
             {conversations.map((c) => (
               <button key={c.id} onClick={() => selectConvo(c.id)} style={convoItemStyle(activeConvo === c.id)}>
-                <span style={{ fontSize: 15, color: "rgba(11,15,25,.4)", fontWeight: 700 }}>#</span>
+                <span style={{ fontSize: 15, color: "rgba(11,15,25,.55)", fontWeight: 700 }}>#</span>
                 <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.name}</span>
                 {c.proj && <span title={projectName(c.proj)} style={{ width: 7, height: 7, borderRadius: "50%", background: "#60C8FF", flex: "0 0 auto" }} />}
               </button>
             ))}
-            <div style={{ fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.38)", fontWeight: 600, padding: "14px 10px 6px" }}>direct messages</div>
+            <div style={{ fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600, padding: "14px 10px 6px" }}>direct messages</div>
             {dms.map((c) => (
               <button key={c.id} onClick={() => selectConvo(c.id)} style={convoItemStyle(activeConvo === c.id)}>
                 <Avatar id={c.user} size={26} presence />
@@ -320,7 +320,7 @@ export function Team() {
           )}
           <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "13px 16px", borderBottom: "1px solid rgba(11,15,25,.06)" }}>
             {channel ? (
-              <span style={{ width: 32, height: 32, borderRadius: 10, background: "rgba(11,15,25,.06)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, fontWeight: 700, color: "rgba(11,15,25,.45)" }}>#</span>
+              <span style={{ width: 32, height: 32, borderRadius: 10, background: "rgba(11,15,25,.06)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, fontWeight: 700, color: "rgba(11,15,25,.55)" }}>#</span>
             ) : dm ? (
               <button onClick={() => openProfile(dm.user)} title="view profile" style={{ display: "flex", border: "none", background: "transparent", padding: 0, cursor: "pointer" }}>
                 <Avatar id={dm.user} size={34} presence />
@@ -334,7 +334,7 @@ export function Team() {
               ) : (
                 <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-.01em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{headerName}</div>
               )}
-              <div style={{ fontSize: 12, color: "rgba(11,15,25,.45)", display: "flex", alignItems: "center", gap: 5, marginTop: 1 }}>
+              <div style={{ fontSize: 12, color: "rgba(11,15,25,.55)", display: "flex", alignItems: "center", gap: 5, marginTop: 1 }}>
                 <span style={{ width: 6, height: 6, borderRadius: "50%", background: headerDot }} />
                 {headerSub}
               </div>
@@ -346,9 +346,10 @@ export function Team() {
             )}
           </div>
 
-          <div ref={scrollRef} style={{ flex: 1, overflowY: "auto", padding: 16, display: "flex", flexDirection: "column", gap: 7, minHeight: isMobile ? 120 : 300, maxHeight: isMobile ? undefined : "52vh" }}>
+          {/* desktop: track the viewport instead of a fixed 52vh cap so big screens get a tall pane */}
+          <div ref={scrollRef} style={{ flex: 1, overflowY: "auto", padding: 16, display: "flex", flexDirection: "column", gap: 7, minHeight: isMobile ? 120 : 300, maxHeight: isMobile ? undefined : "calc(100dvh - 330px)" }}>
             {messages.length === 0 && (
-              <div style={{ margin: "auto", textAlign: "center", color: "rgba(11,15,25,.4)", fontSize: 13.5, padding: 20 }}>
+              <div style={{ margin: "auto", textAlign: "center", color: "rgba(11,15,25,.55)", fontSize: 13.5, padding: 20 }}>
                 no messages yet — say hello 👋
               </div>
             )}
@@ -483,7 +484,7 @@ export function Team() {
                     </button>
                   </div>
                 ))}
-                {uploading && <span style={{ fontSize: 12.5, color: "rgba(11,15,25,.45)", alignSelf: "center" }}>attaching…</span>}
+                {uploading && <span style={{ fontSize: 12.5, color: "rgba(11,15,25,.55)", alignSelf: "center" }}>attaching…</span>}
               </div>
             )}
             <div style={{ display: "flex", gap: 9, alignItems: "flex-end" }}>
@@ -503,7 +504,7 @@ export function Team() {
                         <Avatar id={r.id} size={26} />
                         <span style={{ minWidth: 0 }}>
                           <span style={{ display: "block", fontSize: 13.5, fontWeight: 600, color: "#0B0F19" }}>{r.name}</span>
-                          <span style={{ display: "block", fontSize: 12, color: "rgba(11,15,25,.45)" }}>@{r.username}</span>
+                          <span style={{ display: "block", fontSize: 12, color: "rgba(11,15,25,.55)" }}>@{r.username}</span>
                         </span>
                       </button>
                     ))}

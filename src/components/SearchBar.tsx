@@ -167,7 +167,7 @@ function ResultRow({ r }: { r: Result }) {
       )}
       <span style={{ flex: 1, minWidth: 0 }}>
         <span style={{ display: "block", fontSize: 13.5, fontWeight: 600, color: "#0B0F19", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.title}</span>
-        <span style={{ display: "block", fontSize: 12, color: "rgba(11,15,25,.45)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.sub}</span>
+        <span style={{ display: "block", fontSize: 12, color: "rgba(11,15,25,.55)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.sub}</span>
       </span>
       <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(11,15,25,.32)", fontWeight: 700, flex: "0 0 auto" }}>{KIND_LABEL[r.kind]}</span>
     </button>
@@ -177,14 +177,14 @@ function ResultRow({ r }: { r: Result }) {
 function ResultList({ query, results }: { query: string; results: Result[] }) {
   if (!query.trim()) {
     return (
-      <div style={{ padding: "18px 12px", fontSize: 13, color: "rgba(11,15,25,.45)", textAlign: "center" }}>
+      <div style={{ padding: "18px 12px", fontSize: 13, color: "rgba(11,15,25,.55)", textAlign: "center" }}>
         search people, projects, tasks, keys and files
       </div>
     );
   }
   if (!results.length) {
     return (
-      <div style={{ padding: "18px 12px", fontSize: 13, color: "rgba(11,15,25,.45)", textAlign: "center" }}>
+      <div style={{ padding: "18px 12px", fontSize: 13, color: "rgba(11,15,25,.55)", textAlign: "center" }}>
         no matches for "{query.trim()}"
       </div>
     );

@@ -117,7 +117,7 @@ function TaskCard({ task }: { task: Task }) {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
           {hasNotes && (
-            <span style={{ display: "flex", color: "rgba(11,15,25,.35)" }}>
+            <span style={{ display: "flex", color: "rgba(11,15,25,.55)" }}>
               <Icon name="note" size={13} sw={1.6} />
             </span>
           )}
@@ -189,8 +189,8 @@ function Column({ colKey, accent, isMobile }: { colKey: ColKey; accent: (typeof 
         >
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: accent.dot, flex: "0 0 auto" }} />
           <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: "-.01em" }}>{colLabels[colKey]}</span>
-          <span style={{ fontSize: 12, color: "rgba(11,15,25,.4)", fontWeight: 600, background: "#fff", borderRadius: 999, padding: "1px 8px" }}>{items.length}</span>
-          <span style={{ marginLeft: "auto", display: "flex", transform: open ? "rotate(0deg)" : "rotate(-90deg)", transition: "transform .18s", color: "rgba(11,15,25,.4)" }}>
+          <span style={{ fontSize: 12, color: "rgba(11,15,25,.55)", fontWeight: 600, background: "#fff", borderRadius: 999, padding: "1px 8px" }}>{items.length}</span>
+          <span style={{ marginLeft: "auto", display: "flex", transform: open ? "rotate(0deg)" : "rotate(-90deg)", transition: "transform .18s", color: "rgba(11,15,25,.55)" }}>
             <Icon name="chevron" size={18} sw={2} />
           </span>
         </button>
@@ -223,7 +223,7 @@ function Column({ colKey, accent, isMobile }: { colKey: ColKey; accent: (typeof 
               {colLabels[colKey]}
             </span>
           )}
-          <span style={{ fontSize: 12, color: "rgba(11,15,25,.4)", fontWeight: 600, background: "#fff", borderRadius: 999, padding: "1px 8px", flex: "0 0 auto" }}>{items.length}</span>
+          <span style={{ fontSize: 12, color: "rgba(11,15,25,.55)", fontWeight: 600, background: "#fff", borderRadius: 999, padding: "1px 8px", flex: "0 0 auto" }}>{items.length}</span>
         </div>
       )}
 
@@ -272,6 +272,7 @@ export function Tasks() {
   const projects = useStore((s) => s.projects);
   const boardProj = useStore((s) => s.boardProj);
   const setBoardProj = useStore((s) => s.setBoardProj);
+  const boardEmpty = useStore((s) => !s.tasks.some((t) => boardProj === "all" || t.proj === boardProj));
 
   return (
     <div className="anim-sc">
@@ -284,7 +285,7 @@ export function Tasks() {
       </p>
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-        <span style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.38)", fontWeight: 600 }}>project</span>
+        <span style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600 }}>project</span>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 4, background: "rgba(11,15,25,.04)", borderRadius: 10, padding: 3 }}>
           <button onClick={() => setBoardProj("all")} style={filterPill(boardProj === "all")}>all</button>
           {projects.map((p) => (
@@ -292,6 +293,15 @@ export function Tasks() {
           ))}
         </div>
       </div>
+
+      {boardEmpty && (
+        <div style={{ background: "#fff", border: "1px dashed rgba(11,15,25,.14)", borderRadius: 16, padding: "26px 20px", textAlign: "center", marginBottom: 16 }}>
+          <div style={{ fontSize: 14.5, fontWeight: 600, marginBottom: 4 }}>the board is clear ✦</div>
+          <div style={{ fontSize: 13, color: "rgba(11,15,25,.55)" }}>
+            add a task with the + in any lane, or paste a scope into intake to draft a batch.
+          </div>
+        </div>
+      )}
 
       <div
         style={{

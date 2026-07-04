@@ -66,7 +66,7 @@ export function Sidebar() {
           {showLabels && (
             <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1 }}>
               <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-.025em" }}>synthos</span>
-              <span style={{ fontSize: 9, letterSpacing: ".22em", textTransform: "uppercase", color: "rgba(11,15,25,.4)", fontWeight: 700, marginTop: 3 }}>
+              <span style={{ fontSize: 9, letterSpacing: ".22em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 700, marginTop: 3 }}>
                 workspace os
               </span>
             </span>
@@ -142,7 +142,7 @@ export function Sidebar() {
           {showLabels && (
             <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.25, flex: 1, minWidth: 0 }}>
               <span style={{ fontSize: 13, fontWeight: 600 }}>{currentUser.name}</span>
-              <span style={{ fontSize: 11, color: "rgba(11,15,25,.45)" }}>@{currentUser.username}</span>
+              <span style={{ fontSize: 11, color: "rgba(11,15,25,.55)" }}>@{currentUser.username}</span>
             </span>
           )}
           {showLabels && <Icon name="chevron" size={15} sw={1.8} color="rgba(11,15,25,.4)" />}

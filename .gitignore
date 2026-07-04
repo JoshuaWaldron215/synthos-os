@@ -31,3 +31,4 @@ server/.data/
 .env
 .env.*
 !.env.example
+.vapid-keys.local.json

@@ -2,6 +2,7 @@ import * as repo from "../../data/repo";
 import { seedConversations, seedTeam } from "../../data/seed";
 import { effectiveUser } from "../../lib/profile";
 import { showOSNotification } from "../../lib/notifications";
+import { sendServerPush } from "../../lib/push";
 import type { Conversation, MessageAttachment, TeamMessage } from "../../types";
 import type { StoreGet, StoreSet } from "../types";
 
@@ -32,6 +33,17 @@ export const createTeamSlice = (set: StoreSet, get: StoreGet) => ({
       return { teamMsgs: msgs, teamInput: "" };
     });
     repo.saveMessage(activeConvo, msg).catch(get().syncCatch("message send"));
+    // real Web Push to the other members' devices (best-effort — closed tabs
+    // get this; open tabs are covered by Realtime + receiveTeamMessage)
+    const convo = get().conversations.find((c) => c.id === activeConvo);
+    const others = (convo?.members ?? []).filter((m) => m !== currentUserId);
+    if (repo.usingSupabase && others.length) {
+      const sender = effectiveUser(currentUserId, get().profiles).name;
+      const label = convo ? "#" + convo.name : "team chat";
+      sendServerPush(sender, label + ": " + (t || "sent an attachment"), "msg-" + activeConvo, others).catch(() => {
+        /* push is non-critical; delivery for open tabs comes via realtime */
+      });
+    }
   },
   toggleReaction: (convoId: string, index: number, emoji: string) => {
     const me = get().currentUserId;

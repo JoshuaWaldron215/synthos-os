@@ -55,7 +55,7 @@ export function Intake() {
       {draftTasks && (
         <div style={{ marginTop: 22 }} className="anim-sc">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 14 }}>
-            <div style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.42)", fontWeight: 600 }}>
+            <div style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600 }}>
               drafted · {draftTasks.length} tasks · balanced
             </div>
             <div style={{ display: "flex", gap: 10 }}>
@@ -79,7 +79,7 @@ export function Intake() {
                 <button onClick={() => cycleAssignee(i)} title="tap to reassign" className="hov-row" style={{ display: "flex", alignItems: "center", gap: 7, background: "rgba(11,15,25,.04)", border: "none", borderRadius: 999, padding: "4px 11px 4px 4px", fontFamily: "inherit" }}>
                   <Avatar id={t.who} size={26} />
                   <span style={{ fontSize: 12.5, fontWeight: 600, color: "#0B0F19" }}>{effectiveUser(t.who, profiles).first}</span>
-                  <span style={{ fontSize: 12, color: "rgba(11,15,25,.4)" }}>⤾</span>
+                  <span style={{ fontSize: 12, color: "rgba(11,15,25,.55)" }}>⤾</span>
                 </button>
               </div>
             ))}

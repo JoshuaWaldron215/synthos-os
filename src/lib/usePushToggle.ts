@@ -23,7 +23,7 @@ export function usePushToggle() {
       if (perm === "granted") {
         showOSNotification("notifications on", "you'll get live updates here ✦", "welcome");
         try {
-          await subscribeToPush();
+          await subscribeToPush(currentUserId);
           showToast("push notifications enabled ✦");
         } catch {
           showToast("push on (local). run the push server for real delivery");

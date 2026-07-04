@@ -19,7 +19,7 @@ import type { Prefs } from "../types";
 function Card({ title, desc, children }: { title: string; desc?: string; children: ReactNode }) {
   return (
     <div style={{ background: "#fff", border: "1px solid rgba(11,15,25,.06)", borderRadius: 18, padding: 20, boxShadow: "var(--shadow-card)" }}>
-      <div style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.4)", fontWeight: 600 }}>{title}</div>
+      <div style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600 }}>{title}</div>
       {desc && <p style={{ margin: "6px 0 0", fontSize: 13, color: "rgba(11,15,25,.5)", lineHeight: 1.5 }}>{desc}</p>}
       <div style={{ marginTop: 16 }}>{children}</div>
     </div>
@@ -66,7 +66,7 @@ function Toggle({ on, onClick, label, sub }: { on: boolean; onClick: () => void;
     <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 0", borderBottom: "1px solid rgba(11,15,25,.05)" }}>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 14, fontWeight: 500 }}>{label}</div>
-        {sub && <div style={{ fontSize: 12, color: "rgba(11,15,25,.45)", marginTop: 1 }}>{sub}</div>}
+        {sub && <div style={{ fontSize: 12, color: "rgba(11,15,25,.55)", marginTop: 1 }}>{sub}</div>}
       </div>
       <button
         onClick={onClick}

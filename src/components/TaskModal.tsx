@@ -43,7 +43,7 @@ function TaskModalInner({ t }: { t: Task }) {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 13 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: accent.dot }} />
-          <span style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.4)", fontWeight: 600 }}>{colLabels[t.col]}</span>
+          <span style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600 }}>{colLabels[t.col]}</span>
         </div>
         <button onClick={closeTask} aria-label="close" style={{ display: "flex", background: "transparent", border: "none", padding: 2 }}>
           <Icon name="close" size={18} sw={1.8} color="rgba(11,15,25,.5)" />
@@ -76,7 +76,7 @@ function TaskModalInner({ t }: { t: Task }) {
         </button>
       </div>
 
-      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.4)", fontWeight: 600, marginBottom: 8 }}>move to</div>
+      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600, marginBottom: 8 }}>move to</div>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 18 }}>
         {COLS.map((c) => {
           const active = c.key === t.col;
@@ -93,7 +93,7 @@ function TaskModalInner({ t }: { t: Task }) {
         })}
       </div>
 
-      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.4)", fontWeight: 600, marginBottom: 8 }}>project</div>
+      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600, marginBottom: 8 }}>project</div>
       <select
         value={t.proj}
         onChange={(e) => patchTask(t.id, { proj: e.target.value })}
@@ -106,7 +106,7 @@ function TaskModalInner({ t }: { t: Task }) {
         ))}
       </select>
 
-      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.4)", fontWeight: 600, marginBottom: 8 }}>notes</div>
+      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600, marginBottom: 8 }}>notes</div>
       <textarea
         value={notes.draft}
         onChange={(e) => notes.onChange(e.target.value)}

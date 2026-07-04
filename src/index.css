@@ -576,3 +576,12 @@ a {
     animation: none !important;
   }
 }
+
+/* route-skeleton shimmer (also respects reduced motion) */
+@keyframes lgShimmer {
+  0% { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [style*="lgShimmer"] { animation: none !important; }
+}

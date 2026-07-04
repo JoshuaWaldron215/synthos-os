@@ -10,13 +10,13 @@ function List({ items, onClear }: { items: NotifItem[]; onClear: () => void }) {
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 6px 8px" }}>
-        <span style={{ fontSize: 10, letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(11,15,25,.38)", fontWeight: 600 }}>notifications</span>
+        <span style={{ fontSize: 10, letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600 }}>notifications</span>
         {items.length > 0 && (
-          <button onClick={onClear} style={{ background: "transparent", border: "none", fontSize: 11.5, fontWeight: 600, color: "rgba(11,15,25,.45)", fontFamily: "inherit" }}>clear all</button>
+          <button onClick={onClear} style={{ background: "transparent", border: "none", fontSize: 11.5, fontWeight: 600, color: "rgba(11,15,25,.55)", fontFamily: "inherit" }}>clear all</button>
         )}
       </div>
       {items.length === 0 ? (
-        <div style={{ padding: "26px 12px", textAlign: "center", fontSize: 13, color: "rgba(11,15,25,.4)" }}>you're all caught up ✦</div>
+        <div style={{ padding: "26px 12px", textAlign: "center", fontSize: 13, color: "rgba(11,15,25,.55)" }}>you're all caught up ✦</div>
       ) : (
         items.map((n) => (
           <div key={n.id} className="hov-soft" style={{ display: "flex", gap: 9, padding: "10px 10px", borderRadius: 11, background: n.read ? "transparent" : "rgba(96,200,255,.07)" }}>
@@ -25,7 +25,7 @@ function List({ items, onClear }: { items: NotifItem[]; onClear: () => void }) {
               <div style={{ fontSize: 12.5, lineHeight: 1.4 }}>
                 <b style={{ fontWeight: 600 }}>{n.title}</b> {n.body}
               </div>
-              <div style={{ fontSize: 11, color: "rgba(11,15,25,.4)", marginTop: 2 }}>{whenLabel(n.at, n.time)}</div>
+              <div style={{ fontSize: 11, color: "rgba(11,15,25,.55)", marginTop: 2 }}>{whenLabel(n.at, n.time)}</div>
             </div>
           </div>
         ))

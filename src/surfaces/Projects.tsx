@@ -38,7 +38,7 @@ function FilterGroup({
   };
   return (
     <div style={groupStyle}>
-      <span style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.38)", fontWeight: 600 }}>{label}</span>
+      <span style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600 }}>{label}</span>
       <div style={pillsStyle}>
         {options.map((o) => (
           <button key={o} onClick={() => onPick(o)} style={filterPill(value === o)}>
@@ -97,7 +97,7 @@ function ProjectCard({ p }: { p: Project }) {
           {p.status}
         </span>
       </div>
-      <p style={{ margin: "6px 0 0", fontSize: 13, color: "rgba(11,15,25,.46)" }}>{p.tagline}</p>
+      <p style={{ margin: "6px 0 0", fontSize: 13, color: "rgba(11,15,25,.55)" }}>{p.tagline}</p>
       <div style={{ display: "flex", gap: 6, margin: "14px 0 16px", flexWrap: "wrap" }}>
         {p.stack.map((s) => (
           <span key={s} style={{ fontSize: 11, fontWeight: 600, color: "rgba(11,15,25,.55)", background: "rgba(11,15,25,.045)", padding: "3px 9px", borderRadius: 7 }}>{s}</span>

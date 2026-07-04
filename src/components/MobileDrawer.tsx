@@ -99,7 +99,7 @@ export function MobileDrawer() {
             <Avatar id={currentUserId} size={36} presence />
             <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.25, flex: 1, minWidth: 0 }}>
               <span style={{ fontSize: 14, fontWeight: 700, color: "#0B0F19" }}>{me.name}</span>
-              <span style={{ fontSize: 12, color: "rgba(11,15,25,.45)" }}>@{me.username}</span>
+              <span style={{ fontSize: 12, color: "rgba(11,15,25,.55)" }}>@{me.username}</span>
             </span>
             <Icon name="settings" size={18} color="rgba(11,15,25,.5)" />
           </button>

@@ -123,7 +123,7 @@ export function ResponsiveModal({
         )}
         {title && (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flex: "0 0 auto" }}>
-            <span style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.4)", fontWeight: 600 }}>{title}</span>
+            <span style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600 }}>{title}</span>
             <button onClick={onClose} style={{ display: "flex", background: "transparent", border: "none", padding: 2 }}>
               <Icon name="close" size={18} sw={1.8} color="rgba(11,15,25,.5)" />
             </button>

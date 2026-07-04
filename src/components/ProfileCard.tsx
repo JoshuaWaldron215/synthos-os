@@ -14,7 +14,7 @@ function DetailRow({ icon, label, value, href, onCopy }: { icon: IconName; label
         <Icon name={icon} size={17} color="rgba(11,15,25,.55)" />
       </span>
       <span style={{ minWidth: 0, flex: 1 }}>
-        <span style={{ display: "block", fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(11,15,25,.4)", fontWeight: 700 }}>{label}</span>
+        <span style={{ display: "block", fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 700 }}>{label}</span>
         <span style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#0B0F19", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{value}</span>
       </span>
       {href && <Icon name="arrowr" size={16} color="rgba(11,15,25,.3)" />}

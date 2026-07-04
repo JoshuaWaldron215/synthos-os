@@ -50,7 +50,7 @@ export function AccountSheet() {
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: "-.01em", color: "#0B0F19" }}>{me.name}</div>
           <div style={{ fontSize: 13, color: "rgba(11,15,25,.5)" }}>@{me.username} · {me.role}</div>
-          <div style={{ fontSize: 12.5, color: "rgba(11,15,25,.45)", marginTop: 2, display: "flex", alignItems: "center", gap: 5 }}>
+          <div style={{ fontSize: 12.5, color: "rgba(11,15,25,.55)", marginTop: 2, display: "flex", alignItems: "center", gap: 5 }}>
             <span style={{ width: 7, height: 7, borderRadius: "50%", background: status.color }} />
             {status.label} · {me.email}
           </div>

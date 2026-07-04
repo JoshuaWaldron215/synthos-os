@@ -36,7 +36,7 @@ function ContentModalInner({ c }: { c: ContentItem }) {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 13 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: accent.dot }} />
-          <span style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.4)", fontWeight: 600 }}>{laneDef.label}</span>
+          <span style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600 }}>{laneDef.label}</span>
         </div>
         <button onClick={closeContent} aria-label="close" style={{ display: "flex", background: "transparent", border: "none", padding: 2 }}>
           <Icon name="close" size={18} sw={1.8} color="rgba(11,15,25,.5)" />
@@ -59,7 +59,7 @@ function ContentModalInner({ c }: { c: ContentItem }) {
         </button>
       </div>
 
-      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.4)", fontWeight: 600, marginBottom: 8 }}>format</div>
+      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600, marginBottom: 8 }}>format</div>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
         {CONTENT_KINDS.map((k) => {
           const active = c.kind === k;
@@ -82,7 +82,7 @@ function ContentModalInner({ c }: { c: ContentItem }) {
         style={{ width: "100%", border: "1px solid rgba(11,15,25,.1)", borderRadius: 12, padding: "10px 12px", fontSize: 16, fontFamily: "inherit", color: "#0B0F19", marginBottom: 18, background: "#fff", boxSizing: "border-box" }}
       />
 
-      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.4)", fontWeight: 600, marginBottom: 8 }}>move to</div>
+      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600, marginBottom: 8 }}>move to</div>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 18 }}>
         {CONTENT_LANES.map((l) => {
           const active = l.key === c.lane;

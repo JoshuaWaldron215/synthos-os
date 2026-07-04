@@ -59,7 +59,7 @@ export function Login({ local, onSignIn }: LoginProps) {
     fontSize: 11,
     letterSpacing: ".12em",
     textTransform: "uppercase",
-    color: "rgba(11,15,25,.45)",
+    color: "rgba(11,15,25,.55)",
     fontWeight: 700,
     display: "block",
     marginBottom: 7,
@@ -93,7 +93,7 @@ export function Login({ local, onSignIn }: LoginProps) {
             <img src={appIcon} alt="synthos" className="lg-mark" />
             <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
               <span style={{ fontSize: 21, fontWeight: 800, letterSpacing: "-.03em" }}>synthos</span>
-              <span style={{ fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(11,15,25,.4)", fontWeight: 700 }}>os</span>
+              <span style={{ fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 700 }}>os</span>
             </div>
           </div>
 
@@ -150,7 +150,7 @@ export function Login({ local, onSignIn }: LoginProps) {
           </form>
 
           {local && (
-            <p style={{ margin: "16px 0 0", fontSize: 12, color: "rgba(11,15,25,.45)", lineHeight: 1.5, textAlign: "center" }}>
+            <p style={{ margin: "16px 0 0", fontSize: 12, color: "rgba(11,15,25,.55)", lineHeight: 1.5, textAlign: "center" }}>
               local mode — sign in with your team email (e.g. josh@synthos.dev) to load your profile. connect Supabase to enable real team logins.
             </p>
           )}

@@ -41,7 +41,7 @@ export function Topbar({ mobile }: { mobile: boolean }) {
           </button>
           <img src={appIcon} alt="synthos" style={{ width: 26, height: 26, borderRadius: 8, boxShadow: "0 0 0 3px rgba(200,198,255,.2)" }} />
           <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: "-.025em" }}>synthos</span>
-          <span style={{ fontSize: 10, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.35)", fontWeight: 700, marginTop: 2 }}>os</span>
+          <span style={{ fontSize: 10, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 700, marginTop: 2 }}>os</span>
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 9 }}>
             <SearchBar mobile />
             <BellButton mobile />

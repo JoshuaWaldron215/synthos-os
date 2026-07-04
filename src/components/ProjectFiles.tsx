@@ -85,19 +85,19 @@ export function ProjectFiles({ projId }: { projId: string }) {
         }}
       >
         <input ref={inputRef} type="file" multiple onChange={(e) => handleFiles(e.target.files)} style={{ display: "none" }} />
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 8, color: "rgba(11,15,25,.45)" }}>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 8, color: "rgba(11,15,25,.55)" }}>
           <Icon name="download" size={22} sw={1.7} />
         </div>
         <div style={{ fontSize: 14, fontWeight: 600, color: "#0B0F19" }}>
           {busy ? "uploading…" : "drop files or click to upload"}
         </div>
-        <div style={{ fontSize: 12.5, color: "rgba(11,15,25,.45)", marginTop: 3 }}>
+        <div style={{ fontSize: 12.5, color: "rgba(11,15,25,.55)", marginTop: 3 }}>
           SOPs, scopes, briefs, contracts — anything the team needs
         </div>
       </div>
 
       {files.length === 0 ? (
-        <div style={{ fontSize: 13.5, color: "rgba(11,15,25,.45)", textAlign: "center", padding: "18px 0" }}>
+        <div style={{ fontSize: 13.5, color: "rgba(11,15,25,.55)", textAlign: "center", padding: "18px 0" }}>
           no files yet.
         </div>
       ) : (
@@ -109,7 +109,7 @@ export function ProjectFiles({ projId }: { projId: string }) {
               </span>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{f.name}</div>
-                <div style={{ fontSize: 12, color: "rgba(11,15,25,.45)", marginTop: 1 }}>
+                <div style={{ fontSize: 12, color: "rgba(11,15,25,.55)", marginTop: 1 }}>
                   {f.kind} · {fmtSize(f.size)} · {fmtDate(f.createdAt)}
                 </div>
               </div>

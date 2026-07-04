@@ -32,7 +32,7 @@ export function AuditDrawer() {
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px", borderBottom: "1px solid rgba(11,15,25,.06)" }}>
           <div>
-            <div style={{ fontSize: 10.5, letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(11,15,25,.4)", fontWeight: 600 }}>vault</div>
+            <div style={{ fontSize: 10.5, letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600 }}>vault</div>
             <h3 style={{ margin: "3px 0 0", fontSize: 17, fontWeight: 700 }}>audit log</h3>
           </div>
           <button onClick={closeAudit} style={{ display: "flex", background: "transparent", border: "none", padding: 4 }}>
@@ -49,7 +49,7 @@ export function AuditDrawer() {
                 </div>
                 <div style={{ fontSize: 12, color: "rgba(11,15,25,.5)", fontFamily: "ui-monospace,monospace", marginTop: 1 }}>{a.target}</div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "rgba(11,15,25,.38)", whiteSpace: "nowrap" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "rgba(11,15,25,.55)", whiteSpace: "nowrap" }}>
                 <Icon name="clock" size={15} sw={1.6} color="rgba(11,15,25,.4)" />
                 {whenLabel(a.at, a.time)}
               </div>

@@ -32,7 +32,7 @@ function KeyRow({ k, projName, flash }: { k: VaultKey; projName: string; flash?:
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: ".02em", fontFamily: "ui-monospace,SFMono-Regular,Menlo,monospace", color: "#0B0F19", display: "flex", alignItems: "center", gap: 8 }}>
           {k.label}
-          <span style={{ fontSize: 9.5, letterSpacing: ".08em", textTransform: "uppercase", color: "rgba(11,15,25,.42)", background: "rgba(11,15,25,.05)", padding: "1px 6px", borderRadius: 5, fontFamily: "inherit" }}>{projName}</span>
+          <span style={{ fontSize: 9.5, letterSpacing: ".08em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", background: "rgba(11,15,25,.05)", padding: "1px 6px", borderRadius: 5, fontFamily: "inherit" }}>{projName}</span>
         </div>
         <div style={{ fontSize: 13, color: "rgba(11,15,25,.55)", fontFamily: "ui-monospace,SFMono-Regular,Menlo,monospace", marginTop: 3, letterSpacing: ".06em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {isRevealed ? k.val : "••••••••••••••••"}
@@ -162,7 +162,7 @@ export function Vault() {
       <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
         {groups.map((g) => (
           <div key={g.id}>
-            <div style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.4)", fontWeight: 700, margin: "0 4px 8px" }}>
+            <div style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 700, margin: "0 4px 8px" }}>
               {g.name} · {g.keys.length}
             </div>
             <div style={{ background: "#fff", border: "1px solid rgba(11,15,25,.06)", borderRadius: 18, overflow: "hidden", boxShadow: "0 1px 2px rgba(11,15,25,.04),0 18px 40px -28px rgba(11,15,25,.3)" }}>

@@ -61,10 +61,11 @@ app.get("/api/subscriptions/count", (_req, res) => res.json({ count: Object.keys
 
 app.post("/api/subscribe", (req, res) => {
   const sub = req.body && req.body.subscription;
+  const who = Number.isInteger(req.body && req.body.who) ? req.body.who : 0;
   if (!sub || !sub.endpoint) return res.status(400).json({ error: "missing subscription" });
-  subs[sub.endpoint] = sub;
+  subs[sub.endpoint] = { sub, who };
   saveSubs();
-  console.log("[push] subscribed:", sub.endpoint.slice(0, 60) + "…", "(total " + Object.keys(subs).length + ")");
+  console.log("[push] subscribed:", sub.endpoint.slice(0, 60) + "…", "(who " + who + ", total " + Object.keys(subs).length + ")");
   res.status(201).json({ ok: true, count: Object.keys(subs).length });
 });
 
@@ -77,18 +78,25 @@ app.post("/api/unsubscribe", (req, res) => {
   res.json({ ok: true, count: Object.keys(subs).length });
 });
 
-// Send a push to every stored subscription. Prunes dead endpoints (404/410).
+// Send a push to every stored subscription — or just to the builder ids in
+// `userIds` (same contract as api/send.js). Prunes dead endpoints (404/410).
+// Handles both the legacy flat format and the {sub, who} wrapper.
 app.post("/api/send", async (req, res) => {
-  const { title = "Synthos OS", body = "", tag } = req.body || {};
+  const { title = "Synthos OS", body = "", tag, userIds } = req.body || {};
   const payload = JSON.stringify({ title, body, tag });
-  const endpoints = Object.keys(subs);
+  const wanted = Array.isArray(userIds) && userIds.length ? new Set(userIds) : null;
+  const endpoints = Object.keys(subs).filter((ep) => {
+    if (!wanted) return true;
+    const who = subs[ep] && Number.isInteger(subs[ep].who) ? subs[ep].who : 0;
+    return wanted.has(who);
+  });
   let sent = 0;
   const dead = [];
 
   await Promise.all(
     endpoints.map(async (ep) => {
       try {
-        await webpush.sendNotification(subs[ep], payload);
+        await webpush.sendNotification(subs[ep].sub || subs[ep], payload);
         sent++;
       } catch (err) {
         if (err && (err.statusCode === 404 || err.statusCode === 410)) dead.push(ep);

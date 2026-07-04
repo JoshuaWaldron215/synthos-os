@@ -15,7 +15,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           alignItems: "center",
           justifyContent: "center",
           background: "linear-gradient(165deg,#F1ECFF 0%,#EAF2FF 48%,#FFF1EC 100%)",
-          color: "rgba(11,15,25,.4)",
+          color: "rgba(11,15,25,.55)",
           fontSize: 13,
           letterSpacing: ".06em",
         }}

@@ -87,7 +87,7 @@ function InlineText({
       }}
       style={{ cursor: "text", display: "inline-block", ...style }}
     >
-      {value || <span style={{ color: "rgba(11,15,25,.35)" }}>{placeholder || "click to edit"}</span>}
+      {value || <span style={{ color: "rgba(11,15,25,.55)" }}>{placeholder || "click to edit"}</span>}
     </span>
   );
 }
@@ -103,7 +103,7 @@ const sectionLabel: CSSProperties = {
   fontSize: 11,
   letterSpacing: ".14em",
   textTransform: "uppercase",
-  color: "rgba(11,15,25,.4)",
+  color: "rgba(11,15,25,.55)",
   fontWeight: 600,
   marginBottom: 12,
 };
@@ -295,7 +295,7 @@ export function ProjectDetail() {
                     {showRevenue ? (
                       <>
                         <InlineText value={project.rev} onSave={(v) => updateProject(pid, { rev: v })} placeholder="$0" style={{ fontSize: 18, fontWeight: 700 }} />
-                        <span style={{ fontSize: 12.5, fontWeight: 600, color: "rgba(11,15,25,.4)" }}> / mo</span>
+                        <span style={{ fontSize: 12.5, fontWeight: 600, color: "rgba(11,15,25,.55)" }}> / mo</span>
                       </>
                     ) : (
                       "•••"
@@ -407,7 +407,7 @@ function LinksRow({ projId }: { projId: string }) {
       {project.links.map((l) => (
         <button key={l.id} className="hov-link" onClick={() => open(l.url)} style={{ display: "flex", alignItems: "center", gap: 8, background: "#fff", border: "1px solid rgba(11,15,25,.08)", borderRadius: 11, padding: "8px 13px", fontSize: 13, fontWeight: 600, color: l.url ? "#0B0F19" : "rgba(11,15,25,.4)", fontFamily: "inherit" }}>
           {l.label}
-          <span style={{ fontSize: 12, color: "rgba(11,15,25,.4)" }}>↗</span>
+          <span style={{ fontSize: 12, color: "rgba(11,15,25,.55)" }}>↗</span>
         </button>
       ))}
       <button onClick={() => setEditing(true)} className="hov-soft" title="edit links" style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "1px dashed rgba(11,15,25,.18)", borderRadius: 11, padding: "8px 12px", fontSize: 13, fontWeight: 600, color: "rgba(11,15,25,.5)", fontFamily: "inherit" }}>
@@ -424,7 +424,7 @@ function ToolsEditor({ tools, onAdd, onRemove }: { tools: string[]; onAdd: (t: s
   return (
     <div>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
-        {tools.length === 0 && <span style={{ fontSize: 13, color: "rgba(11,15,25,.4)" }}>no tools yet</span>}
+        {tools.length === 0 && <span style={{ fontSize: 13, color: "rgba(11,15,25,.55)" }}>no tools yet</span>}
         {tools.map((t) => (
           <span key={t} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 600, color: "rgba(11,15,25,.62)", background: "rgba(11,15,25,.045)", padding: "5px 6px 5px 10px", borderRadius: 8 }}>
             {t}
@@ -480,7 +480,7 @@ function ProjectTasks({ projId }: { projId: string }) {
   return (
     <div style={{ ...cardStyle, padding: 10 }}>
       {tasks.length === 0 && (
-        <div style={{ fontSize: 13.5, color: "rgba(11,15,25,.45)", textAlign: "center", padding: "16px 0" }}>no tasks yet — add the first one below.</div>
+        <div style={{ fontSize: 13.5, color: "rgba(11,15,25,.55)", textAlign: "center", padding: "16px 0" }}>no tasks yet — add the first one below.</div>
       )}
       {tasks.map((t) => (
         <div
@@ -500,7 +500,7 @@ function ProjectTasks({ projId }: { projId: string }) {
           <span style={priDot(t.pri)} />
           <span style={{ fontSize: 14, flex: 1 }}>{t.title}</span>
           {t.blocked && <span style={{ fontSize: 10.5, fontWeight: 600, color: "#B5462A", background: "rgba(255,150,120,.18)", padding: "2px 8px", borderRadius: 6 }}>blocked</span>}
-          <span style={{ fontSize: 11, color: "rgba(11,15,25,.4)", textTransform: "uppercase", letterSpacing: ".08em", fontWeight: 600 }}>{t.col}</span>
+          <span style={{ fontSize: 11, color: "rgba(11,15,25,.55)", textTransform: "uppercase", letterSpacing: ".08em", fontWeight: 600 }}>{t.col}</span>
           <Avatar id={t.who} size={24} />
         </div>
       ))}
@@ -544,7 +544,7 @@ function ProjectVault({ projId }: { projId: string }) {
 
   return (
     <div style={{ ...cardStyle, padding: 0, overflow: "hidden" }}>
-      {keys.length === 0 && <div style={{ fontSize: 13.5, color: "rgba(11,15,25,.45)", textAlign: "center", padding: "18px 0" }}>no keys for this project yet.</div>}
+      {keys.length === 0 && <div style={{ fontSize: 13.5, color: "rgba(11,15,25,.55)", textAlign: "center", padding: "18px 0" }}>no keys for this project yet.</div>}
       {keys.map((k) => {
         const isRevealed = !!revealed[k.id];
         return (
@@ -552,7 +552,7 @@ function ProjectVault({ projId }: { projId: string }) {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 12, fontWeight: 700, fontFamily: "ui-monospace,Menlo,monospace", color: "#0B0F19", display: "flex", alignItems: "center", gap: 8 }}>
                 {k.label}
-                {k.proj === "shared" && <span style={{ fontSize: 9.5, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(11,15,25,.4)", background: "rgba(11,15,25,.05)", padding: "1px 6px", borderRadius: 5 }}>shared</span>}
+                {k.proj === "shared" && <span style={{ fontSize: 9.5, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", background: "rgba(11,15,25,.05)", padding: "1px 6px", borderRadius: 5 }}>shared</span>}
               </div>
               <div style={{ fontSize: 13, color: "rgba(11,15,25,.55)", fontFamily: "ui-monospace,Menlo,monospace", marginTop: 3, letterSpacing: ".06em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {isRevealed ? k.val : "••••••••••••••••"}
@@ -598,7 +598,7 @@ function ActivityRow({ who, action, target, when }: { who: number; action: strin
       <span style={{ fontSize: 13.5, flex: 1 }}>
         <b style={{ fontWeight: 600 }}>{u.name}</b> {action} <span style={{ color: "rgba(11,15,25,.5)" }}>{target}</span>
       </span>
-      <span style={{ fontSize: 12, color: "rgba(11,15,25,.38)" }}>{when}</span>
+      <span style={{ fontSize: 12, color: "rgba(11,15,25,.55)" }}>{when}</span>
     </div>
   );
 }
@@ -609,7 +609,7 @@ function ProjectActivity({ projId }: { projId: string }) {
   return (
     <div style={{ ...cardStyle, padding: "14px 18px" }}>
       {activity.length === 0 ? (
-        <div style={{ fontSize: 13.5, color: "rgba(11,15,25,.45)", textAlign: "center", padding: "14px 0" }}>no activity yet for this project.</div>
+        <div style={{ fontSize: 13.5, color: "rgba(11,15,25,.55)", textAlign: "center", padding: "14px 0" }}>no activity yet for this project.</div>
       ) : (
         activity.map((a) => <ActivityRow key={a.id} who={a.who} action={a.action} target={a.target} when={whenLabel(a.at, a.time)} />)
       )}

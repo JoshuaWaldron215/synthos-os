@@ -16,18 +16,13 @@ precacheAndRoute(self.__WB_MANIFEST);
 // offline is served the precached shell instead of failing.
 registerRoute(new NavigationRoute(createHandlerBoundToURL("index.html")));
 
-// Google Fonts: cache-first so the installed PWA keeps its typeface offline.
+// Self-hosted font files (@fontsource, hashed under /assets): cache-first so
+// the installed PWA keeps its typeface offline. Only the subsets the browser
+// actually requests get cached — cheaper than precaching every unicode range.
 registerRoute(
-  ({ url }) => url.origin === "https://fonts.googleapis.com",
+  ({ url, request }) => url.origin === self.location.origin && request.destination === "font",
   new CacheFirst({
-    cacheName: "google-fonts-styles",
-    plugins: [new ExpirationPlugin({ maxEntries: 8, maxAgeSeconds: 60 * 60 * 24 * 365 })],
-  })
-);
-registerRoute(
-  ({ url }) => url.origin === "https://fonts.gstatic.com",
-  new CacheFirst({
-    cacheName: "google-fonts-files",
+    cacheName: "app-fonts",
     plugins: [
       new CacheableResponsePlugin({ statuses: [0, 200] }),
       new ExpirationPlugin({ maxEntries: 24, maxAgeSeconds: 60 * 60 * 24 * 365 }),
