@@ -278,3 +278,301 @@ a {
     height: 0;
   }
 }
+
+/* ---------------------------------------------------------------- login --- */
+/* "calm aurora": drifting brand-pastel blobs, glass card with cursor glow,
+   floating status-dot satellites, staggered reveal. Pure CSS — respects
+   prefers-reduced-motion at the bottom. */
+
+.lg-scene {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 18px;
+  background: var(--cloud);
+  overflow: hidden;
+}
+/* faint dot grid so the aurora has something to breathe over */
+.lg-scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(11, 15, 25, 0.055) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(ellipse 90% 80% at 50% 45%, #000 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 45%, #000 30%, transparent 75%);
+}
+/* film grain keeps the gradients from banding */
+.lg-scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .04 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.lg-blob {
+  position: absolute;
+  width: 46vmax;
+  height: 46vmax;
+  border-radius: 50%;
+  filter: blur(70px);
+  will-change: transform;
+  pointer-events: none;
+}
+.lg-blob--lav {
+  top: -18vmax;
+  left: -10vmax;
+  background: radial-gradient(circle at 35% 35%, rgba(138, 132, 240, 0.55), transparent 62%);
+  animation: lgDrift1 21s ease-in-out infinite alternate;
+}
+.lg-blob--sky {
+  bottom: -20vmax;
+  right: -12vmax;
+  background: radial-gradient(circle at 60% 40%, rgba(51, 173, 238, 0.45), transparent 62%);
+  animation: lgDrift2 26s ease-in-out infinite alternate;
+}
+.lg-blob--blush {
+  top: 30%;
+  right: -18vmax;
+  width: 36vmax;
+  height: 36vmax;
+  background: radial-gradient(circle at 40% 50%, rgba(255, 138, 99, 0.38), transparent 60%);
+  animation: lgDrift3 24s ease-in-out infinite alternate;
+}
+.lg-blob--mint {
+  bottom: -8vmax;
+  left: 12vmax;
+  width: 32vmax;
+  height: 32vmax;
+  background: radial-gradient(circle at 50% 50%, rgba(47, 193, 151, 0.36), transparent 60%);
+  animation: lgDrift4 19s ease-in-out infinite alternate;
+}
+@keyframes lgDrift1 {
+  to { transform: translate(9vmax, 7vmax) scale(1.15); }
+}
+@keyframes lgDrift2 {
+  to { transform: translate(-8vmax, -6vmax) scale(1.1) rotate(20deg); }
+}
+@keyframes lgDrift3 {
+  to { transform: translate(-10vmax, -9vmax) scale(0.92); }
+}
+@keyframes lgDrift4 {
+  to { transform: translate(6vmax, -7vmax) scale(1.18); }
+}
+
+
+/* slow-spinning pastel halo directly behind the card */
+.lg-halo {
+  position: absolute;
+  width: 640px;
+  height: 640px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(138, 132, 240, 0.5),
+    rgba(51, 173, 238, 0.42),
+    rgba(47, 193, 151, 0.34),
+    rgba(255, 138, 99, 0.4),
+    rgba(138, 132, 240, 0.5)
+  );
+  filter: blur(80px);
+  animation: lgSpin 26s linear infinite;
+  pointer-events: none;
+  will-change: transform;
+}
+@keyframes lgSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* glass card — gradient hairline + cursor-tracked specular glow (--mx/--my) */
+.lg-card {
+  position: relative;
+  width: 100%;
+  max-width: 392px;
+  border-radius: 26px;
+  padding: 30px 28px 28px;
+  background: rgba(255, 255, 255, 0.66);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow:
+    0 1px 2px rgba(11, 15, 25, 0.05),
+    0 40px 90px -32px rgba(64, 58, 160, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  animation: lgCardIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: transform 0.25s ease-out;
+  transform-style: preserve-3d;
+}
+.lg-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    240px circle at var(--mx, 50%) var(--my, -20%),
+    rgba(255, 255, 255, 0.85),
+    transparent 65%
+  );
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+@keyframes lgCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(26px) scale(0.965);
+  }
+}
+
+/* staggered children */
+.lg-stagger > * {
+  animation: lgRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.lg-stagger > *:nth-child(1) { animation-delay: 0.08s; }
+.lg-stagger > *:nth-child(2) { animation-delay: 0.16s; }
+.lg-stagger > *:nth-child(3) { animation-delay: 0.24s; }
+.lg-stagger > *:nth-child(4) { animation-delay: 0.32s; }
+.lg-stagger > *:nth-child(5) { animation-delay: 0.4s; }
+@keyframes lgRise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+/* brand icon breathes a soft lavender ring */
+.lg-mark {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  box-shadow: 0 0 0 4px rgba(200, 198, 255, 0.25);
+  animation: lgBreathe 3.6s ease-in-out infinite;
+}
+@keyframes lgBreathe {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(200, 198, 255, 0.22); }
+  50% { box-shadow: 0 0 0 9px rgba(200, 198, 255, 0.08); }
+}
+
+/* cycling headline word */
+.lg-word {
+  display: inline-block;
+  background: linear-gradient(100deg, var(--lav-dot), var(--sky-dot) 55%, var(--mint-dot));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: lgWordIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes lgWordIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.5em);
+    filter: blur(4px);
+  }
+}
+
+/* inputs: lift + brand ring on focus */
+.lg-field {
+  width: 100%;
+  border: 1px solid rgba(11, 15, 25, 0.1);
+  border-radius: 13px;
+  padding: 12.5px 14px;
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.85);
+  box-sizing: border-box;
+  transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s, background 0.18s;
+}
+.lg-field:focus {
+  outline: none;
+  background: #fff;
+  border-color: rgba(138, 132, 240, 0.65);
+  box-shadow: 0 0 0 4px rgba(138, 132, 240, 0.16), 0 10px 26px -14px rgba(11, 15, 25, 0.3);
+  transform: translateY(-1px);
+}
+
+/* button: ink base, animated sheen sweep, spring press */
+.lg-cta {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+  box-shadow: 0 14px 30px -14px rgba(11, 15, 25, 0.55);
+}
+.lg-cta:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 20px 40px -16px rgba(11, 15, 25, 0.6);
+}
+.lg-cta:active {
+  transform: translateY(0.5px) scale(0.99);
+}
+.lg-cta::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -70%;
+  width: 46%;
+  background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.24), transparent);
+  transform: skewX(-18deg);
+  animation: lgSheen 3.4s ease-in-out infinite;
+}
+@keyframes lgSheen {
+  0%, 55% { left: -70%; }
+  85%, 100% { left: 130%; }
+}
+.lg-cta:disabled {
+  opacity: 0.72;
+  cursor: default;
+}
+
+/* floating status-dot satellites + sparkles */
+.lg-dot {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: lgFloat 6s ease-in-out infinite;
+}
+.lg-spark {
+  position: absolute;
+  font-size: 15px;
+  color: var(--lav-dot);
+  pointer-events: none;
+  animation: lgTwinkle 4.2s ease-in-out infinite;
+}
+@keyframes lgFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+@keyframes lgTwinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.85) rotate(0deg); }
+  50% { opacity: 0.9; transform: scale(1.15) rotate(24deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lg-blob,
+  .lg-halo,
+  .lg-card,
+  .lg-stagger > *,
+  .lg-mark,
+  .lg-word,
+  .lg-dot,
+  .lg-spark,
+  .lg-cta::after {
+    animation: none !important;
+  }
+}

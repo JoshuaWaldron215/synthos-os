@@ -1,4 +1,4 @@
-import { useState, type CSSProperties, type FormEvent } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type MouseEvent } from "react";
 import appIcon from "../assets/app-icon.png";
 
 interface LoginProps {
@@ -6,11 +6,21 @@ interface LoginProps {
   onSignIn: (email: string, password: string) => Promise<{ error?: string }>;
 }
 
+// the things the workspace holds — cycled in the subtitle
+const WORDS = ["projects", "tasks", "secrets", "wins", "messages"];
+
 export function Login({ local, onSignIn }: LoginProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [wordIdx, setWordIdx] = useState(0);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const t = setInterval(() => setWordIdx((i) => (i + 1) % WORDS.length), 2400);
+    return () => clearInterval(t);
+  }, []);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -23,17 +33,28 @@ export function Login({ local, onSignIn }: LoginProps) {
     }
   };
 
-  const field: CSSProperties = {
-    width: "100%",
-    border: "1px solid rgba(11,15,25,.1)",
-    borderRadius: 12,
-    padding: "12px 14px",
-    fontSize: 16,
-    fontFamily: "inherit",
-    color: "#0B0F19",
-    background: "#fff",
-    boxSizing: "border-box",
+  // specular glow + a whisper of 3D tilt follow the cursor across the glass
+  const onGlow = (e: MouseEvent<HTMLDivElement>) => {
+    const el = cardRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const x = e.clientX - r.left;
+    const y = e.clientY - r.top;
+    el.style.setProperty("--mx", x + "px");
+    el.style.setProperty("--my", y + "px");
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const ry = (x / r.width - 0.5) * 5;
+      const rx = (0.5 - y / r.height) * 5;
+      el.style.transform = `perspective(900px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
+    }
   };
+  const onLeave = () => {
+    const el = cardRef.current;
+    if (!el) return;
+    el.style.removeProperty("--mx");
+    el.style.transform = "";
+  };
+
   const labelStyle: CSSProperties = {
     fontSize: 11,
     letterSpacing: ".12em",
@@ -45,104 +66,95 @@ export function Login({ local, onSignIn }: LoginProps) {
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100dvh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "24px 18px",
-        background: "linear-gradient(165deg,#F1ECFF 0%,#EAF2FF 48%,#FFF1EC 100%)",
-        color: "#0B0F19",
-      }}
-    >
+    <div className="lg-scene">
+      {/* aurora */}
+      <div className="lg-blob lg-blob--lav" aria-hidden />
+      <div className="lg-blob lg-blob--sky" aria-hidden />
+      <div className="lg-blob lg-blob--blush" aria-hidden />
+      <div className="lg-blob lg-blob--mint" aria-hidden />
+      <div className="lg-halo" aria-hidden />
+
+      {/* drifting satellites — the four status dots + sparks */}
+      <span className="lg-dot" aria-hidden style={{ width: 10, height: 10, background: "var(--sky-dot)", top: "22%", left: "16%", opacity: 0.5, animationDelay: "-1s" }} />
+      <span className="lg-dot" aria-hidden style={{ width: 7, height: 7, background: "var(--mint-dot)", top: "68%", left: "24%", opacity: 0.45, animationDelay: "-3.2s" }} />
+      <span className="lg-dot" aria-hidden style={{ width: 8, height: 8, background: "var(--blush-dot)", top: "30%", right: "18%", opacity: 0.45, animationDelay: "-2.1s" }} />
+      <span className="lg-dot" aria-hidden style={{ width: 12, height: 12, background: "var(--lav-dot)", top: "74%", right: "22%", opacity: 0.4, animationDelay: "-4.6s" }} />
+      <span className="lg-spark" aria-hidden style={{ top: "18%", right: "30%", animationDelay: "-1.4s" }}>✦</span>
+      <span className="lg-spark" aria-hidden style={{ top: "62%", left: "12%", fontSize: 11, animationDelay: "-2.8s" }}>✦</span>
+
       <div
-        className="anim-sc"
-        style={{
-          width: "100%",
-          maxWidth: 380,
-          background: "rgba(255,255,255,.72)",
-          backdropFilter: "blur(14px)",
-          WebkitBackdropFilter: "blur(14px)",
-          border: "1px solid rgba(255,255,255,.6)",
-          borderRadius: 24,
-          padding: 28,
-          boxShadow: "0 30px 80px -30px rgba(11,15,25,.5)",
-        }}
+        ref={cardRef}
+        className="lg-card"
+        onMouseMove={onGlow}
+        onMouseLeave={onLeave}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 22 }}>
-          <img src={appIcon} alt="synthos" style={{ width: 40, height: 40, borderRadius: 12, boxShadow: "0 0 0 4px rgba(200,198,255,.25)" }} />
-          <div>
+        <div className="lg-stagger" style={{ position: "relative" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
+            <img src={appIcon} alt="synthos" className="lg-mark" />
             <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-              <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-.03em" }}>synthos</span>
+              <span style={{ fontSize: 21, fontWeight: 800, letterSpacing: "-.03em" }}>synthos</span>
               <span style={{ fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(11,15,25,.4)", fontWeight: 700 }}>os</span>
             </div>
           </div>
-        </div>
 
-        <h1 style={{ margin: "0 0 4px", fontSize: 25, fontWeight: 700, letterSpacing: "-.025em" }}>
-          welcome <i style={{ fontWeight: 600 }}>back</i>
-        </h1>
-        <p style={{ margin: "0 0 22px", fontSize: 13.5, color: "rgba(11,15,25,.5)", lineHeight: 1.5 }}>
-          sign in to your workspace. projects, tasks, the vault and files — all in one place.
-        </p>
-
-        <form onSubmit={submit}>
-          <div style={{ marginBottom: 14 }}>
-            <label style={labelStyle}>email</label>
-            <input
-              type="email"
-              autoFocus
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@synthos.dev"
-              style={field}
-            />
-          </div>
-          <div style={{ marginBottom: 18 }}>
-            <label style={labelStyle}>password</label>
-            <input
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              style={field}
-            />
+          <div>
+            <h1 style={{ margin: "0 0 6px", fontSize: 27, fontWeight: 700, letterSpacing: "-.028em", lineHeight: 1.12 }}>
+              welcome <i style={{ fontWeight: 600 }}>back</i>
+            </h1>
+            <p style={{ margin: "0 0 24px", fontSize: 14, color: "rgba(11,15,25,.52)", lineHeight: 1.55 }}>
+              your{" "}
+              <b className="lg-word" key={WORDS[wordIdx]} style={{ fontWeight: 700 }}>
+                {WORDS[wordIdx]}
+              </b>
+              , right where you left them.
+            </p>
           </div>
 
-          {error && (
-            <div style={{ fontSize: 13, color: "#C5343A", background: "rgba(229,72,77,.1)", borderRadius: 10, padding: "9px 12px", marginBottom: 14 }}>
-              {error}
+          <form onSubmit={submit}>
+            <div style={{ marginBottom: 14 }}>
+              <label style={labelStyle}>email</label>
+              <input
+                type="email"
+                autoFocus
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@synthos.dev"
+                className="lg-field"
+              />
             </div>
+            <div style={{ marginBottom: 20 }}>
+              <label style={labelStyle}>password</label>
+              <input
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="lg-field"
+              />
+            </div>
+
+            {error && (
+              <div
+                role="alert"
+                style={{ fontSize: 13, color: "#C5343A", background: "rgba(229,72,77,.1)", borderRadius: 10, padding: "9px 12px", marginBottom: 14 }}
+              >
+                {error}
+              </div>
+            )}
+
+            <button type="submit" disabled={busy} className="lg-cta">
+              {busy ? "signing in…" : "sign in ✦"}
+            </button>
+          </form>
+
+          {local && (
+            <p style={{ margin: "16px 0 0", fontSize: 12, color: "rgba(11,15,25,.45)", lineHeight: 1.5, textAlign: "center" }}>
+              local mode — sign in with your team email (e.g. josh@synthos.dev) to load your profile. connect Supabase to enable real team logins.
+            </p>
           )}
-
-          <button
-            type="submit"
-            disabled={busy}
-            style={{
-              width: "100%",
-              background: "#0B0F19",
-              color: "#fff",
-              border: "none",
-              borderRadius: 13,
-              padding: "13px 16px",
-              fontSize: 15,
-              fontWeight: 600,
-              fontFamily: "inherit",
-              opacity: busy ? 0.7 : 1,
-            }}
-          >
-            {busy ? "signing in…" : "sign in"}
-          </button>
-        </form>
-
-        {local && (
-          <p style={{ margin: "16px 0 0", fontSize: 12, color: "rgba(11,15,25,.45)", lineHeight: 1.5, textAlign: "center" }}>
-            local mode — sign in with your team email (e.g. josh@synthos.dev) to load your profile. connect Supabase to enable real team logins.
-          </p>
-        )}
+        </div>
       </div>
     </div>
   );
