@@ -1,8 +1,8 @@
 import * as repo from "../../data/repo";
-import { currentPermission } from "../../lib/notifications";
+import { currentPermission, showOSNotification } from "../../lib/notifications";
 import { defaultPrefs, defaultProfiles, seedNotifications } from "../../lib/profile";
 import { playNotifySound } from "../../lib/sound";
-import type { NotifItem, Prefs, Profile } from "../../types";
+import type { NotifCategory, NotifItem, Prefs, Profile } from "../../types";
 import type { StoreGet, StoreSet } from "../types";
 
 const MAX_NOTIFS = 40;
@@ -46,6 +46,22 @@ export const createProfilesSlice = (set: StoreSet, get: StoreGet) => ({
     }));
     const st = get();
     if (st.prefs[st.currentUserId]?.sound) playNotifySound();
+  },
+
+  // Single gate for category-based notifications: the Settings toggle for the
+  // category controls the whole thing (feed entry, sound, OS popup). This is
+  // what makes the toggles real — an event whose toggle is off never surfaces.
+  notifyCategory: (
+    category: NotifCategory,
+    n: { dot: string; title: string; body: string; tag?: string; url?: string },
+  ) => {
+    const st = get();
+    const prefs = st.prefs[st.currentUserId];
+    if (!prefs?.[category]) return;
+    st.pushNotification({ dot: n.dot, title: n.title, body: n.body, category });
+    if (prefs.pushEnabled && st.notifPermission === "granted") {
+      showOSNotification(n.title, n.body, n.tag, n.url);
+    }
   },
   markAllNotifsRead: () =>
     set((s) => ({ notifications: s.notifications.map((n) => ({ ...n, read: true })) })),

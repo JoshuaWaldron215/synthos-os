@@ -1,7 +1,6 @@
 import * as repo from "../../data/repo";
 import { seedConversations, seedTeam } from "../../data/seed";
 import { effectiveUser } from "../../lib/profile";
-import { showOSNotification } from "../../lib/notifications";
 import { sendServerPush } from "../../lib/push";
 import type { Conversation, MessageAttachment, TeamMessage } from "../../types";
 import type { StoreGet, StoreSet } from "../types";
@@ -40,7 +39,7 @@ export const createTeamSlice = (set: StoreSet, get: StoreGet) => ({
     if (repo.usingSupabase && others.length) {
       const sender = effectiveUser(currentUserId, get().profiles).name;
       const label = convo ? "#" + convo.name : "team chat";
-      sendServerPush(sender, label + ": " + (t || "sent an attachment"), "msg-" + activeConvo, others).catch(() => {
+      sendServerPush(sender, label + ": " + (t || "sent an attachment"), "msg-" + activeConvo, others, "/team").catch(() => {
         /* push is non-critical; delivery for open tabs comes via realtime */
       });
     }
@@ -157,10 +156,6 @@ export const createTeamSlice = (set: StoreSet, get: StoreGet) => ({
     const label = convo ? "#" + convo.name : "team chat";
     const sender = effectiveUser(msg.who, st.profiles).name;
     const body = label + ": " + (msg.text || "sent an attachment");
-    st.pushNotification({ dot: "#8A84F0", title: sender, body, category: "mentions" });
-    const prefs = st.prefs[st.currentUserId];
-    if (prefs?.pushEnabled && prefs.mentions && st.notifPermission === "granted") {
-      showOSNotification(sender, body, "msg-" + convoId);
-    }
+    st.notifyCategory("mentions", { dot: "#8A84F0", title: sender, body, tag: "msg-" + convoId, url: "/team" });
   },
 });

@@ -94,18 +94,20 @@ export async function unsubscribeFromPush(): Promise<void> {
 
 /**
  * Ask the server to push to the team — everyone, or just the builder ids in
- * `userIds` (e.g. the other members of a conversation).
+ * `userIds` (e.g. the other members of a conversation). `url` is where the
+ * notification lands on tap (defaults to the app root).
  */
 export async function sendServerPush(
   title: string,
   body: string,
   tag?: string,
   userIds?: number[],
+  url?: string,
 ): Promise<{ sent: number; total: number }> {
   const res = await fetch("/api/send", {
     method: "POST",
     headers: await authHeaders(),
-    body: JSON.stringify({ title, body, tag, userIds }),
+    body: JSON.stringify({ title, body, tag, url, userIds }),
   });
   if (!res.ok) throw new Error("send failed");
   return res.json();

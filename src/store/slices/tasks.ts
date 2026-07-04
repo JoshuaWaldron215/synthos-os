@@ -1,5 +1,7 @@
 import * as repo from "../../data/repo";
 import { BASE_TASKS, USERS } from "../../data/seed";
+import { effectiveUser } from "../../lib/profile";
+import { sendServerPush } from "../../lib/push";
 import type { ColKey, ColLabels, Priority, Task } from "../../types";
 import type { StoreGet, StoreSet } from "../types";
 
@@ -21,6 +23,19 @@ export const createTasksSlice = (set: StoreSet, get: StoreGet) => ({
   editColText: "",
 
   setBoardProj: (val: string) => set({ boardProj: val }),
+
+  // Real Web Push to a teammate's devices when a task lands on their plate.
+  // Open tabs get the in-app notification via Realtime; this reaches phones
+  // with the app closed. Best-effort, never surfaces an error.
+  notifyAssigned: (id: string) => {
+    const t = get().tasks.find((x) => x.id === id);
+    const me = get().currentUserId;
+    if (!t || !repo.usingSupabase || t.who === me) return;
+    const assigner = effectiveUser(me, get().profiles).name;
+    sendServerPush("task for you ✦", assigner + " assigned: " + t.title, "task-" + t.id, [t.who], "/tasks").catch(
+      () => {},
+    );
+  },
   setDragId: (id: string | null) => set({ dragId: id }),
   setDragOver: (col: ColKey | null) => set((s) => (s.dragOver === col ? {} : { dragOver: col })),
   dropOnCol: (col: ColKey) => {
@@ -79,14 +94,17 @@ export const createTasksSlice = (set: StoreSet, get: StoreGet) => ({
     };
     set((s) => ({ tasks: s.tasks.concat(task) }));
     repo.saveTask(task).catch(get().syncCatch("task write"));
+    get().notifyAssigned(task.id);
     get().showToast("task added");
   },
   openTask: (id: string) => set({ openTaskId: id, editingId: null }),
   closeTask: () => set({ openTaskId: null }),
   patchTask: (id: string, patch: Partial<Task>) => {
+    const before = get().tasks.find((t) => t.id === id);
     set((s) => ({ tasks: s.tasks.map((t) => (t.id === id ? { ...t, ...patch } : t)) }));
     const updated = get().tasks.find((t) => t.id === id);
     if (updated) repo.saveTask(updated).catch(get().syncCatch("task write"));
+    if (patch.who !== undefined && before && patch.who !== before.who) get().notifyAssigned(id);
   },
   cyclePri: (id: string) => {
     set((s) => ({
@@ -103,6 +121,7 @@ export const createTasksSlice = (set: StoreSet, get: StoreGet) => ({
     set((s) => ({ tasks: s.tasks.map((t) => (t.id === id ? { ...t, who: (t.who + 1) % USERS.length } : t)) }));
     const t = get().tasks.find((x) => x.id === id);
     if (t) repo.saveTask(t).catch(get().syncCatch("task write"));
+    get().notifyAssigned(id);
   },
   deleteTask: (id: string) => {
     set((s) => ({ tasks: s.tasks.filter((t) => t.id !== id), openTaskId: null }));

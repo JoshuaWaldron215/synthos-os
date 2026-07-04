@@ -8,14 +8,14 @@ export default async function handler(req, res) {
   const ctx = await requireUser(req, res);
   if (!ctx) return;
 
-  const { title = "Synthos OS", body = "", tag, userIds } = req.body || {};
+  const { title = "Synthos OS", body = "", tag, url, userIds } = req.body || {};
   let q = ctx.sb.from("push_subscriptions").select("endpoint, sub");
   if (Array.isArray(userIds) && userIds.length) q = q.in("who", userIds);
   const { data: rows, error } = await q;
   if (error) return res.status(500).json({ error: error.message });
 
   const webpush = setupWebPush();
-  const payload = JSON.stringify({ title, body, tag });
+  const payload = JSON.stringify({ title, body, tag, url });
   let sent = 0;
   const dead = [];
 

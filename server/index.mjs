@@ -82,8 +82,8 @@ app.post("/api/unsubscribe", (req, res) => {
 // `userIds` (same contract as api/send.js). Prunes dead endpoints (404/410).
 // Handles both the legacy flat format and the {sub, who} wrapper.
 app.post("/api/send", async (req, res) => {
-  const { title = "Synthos OS", body = "", tag, userIds } = req.body || {};
-  const payload = JSON.stringify({ title, body, tag });
+  const { title = "Synthos OS", body = "", tag, url, userIds } = req.body || {};
+  const payload = JSON.stringify({ title, body, tag, url });
   const wanted = Array.isArray(userIds) && userIds.length ? new Set(userIds) : null;
   const endpoints = Object.keys(subs).filter((ep) => {
     if (!wanted) return true;

@@ -96,18 +96,58 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
           set((s) => ({
             projects: ev === "delete" ? s.projects.filter((p) => p.id !== data) : upsertBy(s.projects, data as Project),
           })),
-        task: (ev, data) =>
-          set((s) => ({
-            tasks: ev === "delete" ? s.tasks.filter((t) => t.id !== data) : upsertBy(s.tasks, data as Task),
-          })),
+        // Task events double as notification triggers. Own edits apply locally
+        // before the echo arrives, so prev-based diffs only fire for changes
+        // made by someone else.
+        task: (ev, data) => {
+          if (ev === "delete") {
+            set((s) => ({ tasks: s.tasks.filter((t) => t.id !== data) }));
+            return;
+          }
+          const task = data as Task;
+          const st = get();
+          const prev = st.tasks.find((t) => t.id === task.id);
+          set((s) => ({ tasks: upsertBy(s.tasks, task) }));
+          if (task.who === st.currentUserId && (!prev || prev.who !== st.currentUserId)) {
+            st.notifyCategory("taskAssigned", {
+              dot: "#33ADEE",
+              title: "task for you ✦",
+              body: task.title,
+              tag: "task-" + task.id,
+              url: "/tasks",
+            });
+          } else if (prev && prev.col !== task.col && (task.col === "ship" || task.col === "done")) {
+            st.notifyCategory("shipped", {
+              dot: "#2FC197",
+              title: task.col === "done" ? "task done" : "task shipped",
+              body: task.title,
+              tag: "task-" + task.id,
+              url: "/tasks",
+            });
+          }
+        },
         key: (ev, data) =>
           set((s) => ({
             keys: ev === "delete" ? s.keys.filter((k) => k.id !== data) : upsertBy(s.keys, data as VaultKey),
           })),
-        win: (ev, data) =>
-          set((s) => ({
-            wins: ev === "delete" ? s.wins.filter((w) => w.id !== data) : upsertBy(s.wins, data as Win),
-          })),
+        win: (ev, data) => {
+          if (ev === "delete") {
+            set((s) => ({ wins: s.wins.filter((w) => w.id !== data) }));
+            return;
+          }
+          const win = data as Win;
+          const isNew = !get().wins.some((w) => w.id === win.id);
+          set((s) => ({ wins: upsertBy(s.wins, win) }));
+          if (isNew) {
+            get().notifyCategory("shipped", {
+              dot: "#2FC197",
+              title: "win logged 🎉",
+              body: win.title + (win.amount ? " · " + win.amount : ""),
+              tag: "win-" + win.id,
+              url: "/wins",
+            });
+          }
+        },
         file: (ev, data) =>
           set((s) => ({
             files: ev === "delete" ? s.files.filter((f) => f.id !== data) : upsertBy(s.files, data as ProjectFile),
@@ -132,11 +172,24 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
           }
         },
         message: (convoId, msg) => get().receiveTeamMessage(convoId, msg),
-        content: (ev, data) =>
-          set((s) => ({
-            content:
-              ev === "delete" ? s.content.filter((c) => c.id !== data) : upsertBy(s.content, data as ContentItem),
-          })),
+        content: (ev, data) => {
+          if (ev === "delete") {
+            set((s) => ({ content: s.content.filter((c) => c.id !== data) }));
+            return;
+          }
+          const item = data as ContentItem;
+          const isNew = !get().content.some((c) => c.id === item.id);
+          set((s) => ({ content: upsertBy(s.content, item) }));
+          if (isNew) {
+            get().notifyCategory("content", {
+              dot: "#FF8A63",
+              title: "new in the pipeline",
+              body: item.title,
+              tag: "content-" + item.id,
+              url: "/content",
+            });
+          }
+        },
         profile: (builderId, patch) =>
           set((s) => ({
             profiles: s.profiles[builderId]

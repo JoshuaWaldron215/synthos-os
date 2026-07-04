@@ -17,13 +17,14 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
 
 // Prefer showing through the service worker registration (works while backgrounded
 // and is required for installed PWAs on some platforms); fall back to a page Notification.
-export async function showOSNotification(title: string, body: string, tag?: string): Promise<void> {
+export async function showOSNotification(title: string, body: string, tag?: string, url?: string): Promise<void> {
   if (!notificationsSupported() || Notification.permission !== "granted") return;
   const options: NotificationOptions = {
     body,
     tag,
     icon: "/pwa-192x192.png",
-    badge: "/pwa-192x192.png",
+    badge: "/badge-96x96.png", // white ✦ silhouette for the Android status bar
+    data: { url: url || "/" },
   };
   try {
     if ("serviceWorker" in navigator) {

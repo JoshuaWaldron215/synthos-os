@@ -40,8 +40,11 @@ self.addEventListener("activate", (event) => {
 
 // Real Web Push entry point. With a push backend + VAPID keys, the server
 // posts here and the notification shows even when the app is closed.
+// Branding: app icon as the large image, white ✦ spark as the status-bar
+// badge (Android masks badges to a silhouette — the full-color icon turns
+// into a blob), and a soft double-tap vibration.
 self.addEventListener("push", (event) => {
-  let data: { title?: string; body?: string; tag?: string } = {};
+  let data: { title?: string; body?: string; tag?: string; url?: string } = {};
   try {
     if (event.data) data = event.data.json();
   } catch {
@@ -53,20 +56,29 @@ self.addEventListener("push", (event) => {
       body: data.body || "",
       tag: data.tag,
       icon: "/pwa-192x192.png",
-      badge: "/pwa-192x192.png",
+      badge: "/badge-96x96.png",
+      // @ts-expect-error vibrate is valid on Android; missing from lib.dom types
+      vibrate: [90, 40, 90],
+      data: { url: data.url || "/" },
     })
   );
 });
 
-// Focus or open the app when a notification is clicked.
+// Open (or focus + navigate) the app at the notification's target URL —
+// a chat push lands on /team, a task push on /tasks.
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || "/";
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
       for (const client of clients) {
-        if ("focus" in client) return client.focus();
+        if ("focus" in client) {
+          client.focus();
+          if ("navigate" in client && url !== "/") return (client as WindowClient).navigate(url);
+          return;
+        }
       }
-      return self.clients.openWindow("/");
+      return self.clients.openWindow(url);
     })
   );
 });

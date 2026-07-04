@@ -8,6 +8,7 @@ import type {
   Conversation,
   DraftTask,
   MessageAttachment,
+  NotifCategory,
   NotifItem,
   Prefs,
   Priority,
@@ -121,6 +122,10 @@ export interface StoreState {
   updatePrefs: (id: number, patch: Partial<Prefs>) => void;
   setNotifPermission: (p: NotificationPermission) => void;
   pushNotification: (n: Omit<NotifItem, "id" | "read" | "time" | "at">) => void;
+  notifyCategory: (
+    category: NotifCategory,
+    n: { dot: string; title: string; body: string; tag?: string; url?: string },
+  ) => void;
   markAllNotifsRead: () => void;
   clearNotifs: () => void;
 
@@ -170,6 +175,7 @@ export interface StoreState {
   patchTask: (id: string, patch: Partial<Task>) => void;
   cyclePri: (id: string) => void;
   cycleAssignTask: (id: string) => void;
+  notifyAssigned: (id: string) => void;
   deleteTask: (id: string) => void;
   startEditCol: (col: ColKey) => void;
   setEditColText: (v: string) => void;
