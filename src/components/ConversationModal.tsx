@@ -111,7 +111,7 @@ export function ConversationModal({ open, onClose, convo }: { open: boolean; onC
           {USERS.map((u) => {
             const on = members.includes(u.id);
             return (
-              <button key={u.id} onClick={() => toggleMember(u.id)} style={{ display: "flex", alignItems: "center", gap: 7, border: on ? "1px solid rgba(96,200,255,.55)" : "1px solid rgba(11,15,25,.08)", background: on ? "rgba(96,200,255,.12)" : "#fff", padding: "4px 12px 4px 4px", borderRadius: 999, fontFamily: "inherit", fontSize: 13, fontWeight: 600, color: "#0B0F19" }}>
+              <button key={u.id} onClick={() => toggleMember(u.id)} style={{ display: "flex", alignItems: "center", gap: 7, border: on ? "1px solid rgba(96,200,255,.55)" : "1px solid rgba(var(--ink-rgb),.08)", background: on ? "rgba(96,200,255,.12)" : "var(--card)", padding: "4px 12px 4px 4px", borderRadius: 999, fontFamily: "inherit", fontSize: 13, fontWeight: 600, color: "var(--ink)" }}>
                 <Avatar id={u.id} size={26} />
                 {u.first}
                 {on && <Icon name="check" size={14} sw={2.4} color="#1f8fbf" />}
@@ -136,24 +136,24 @@ export function ConversationModal({ open, onClose, convo }: { open: boolean; onC
             placeholder="+1 555 012 3456 or client@co.com"
             style={field}
           />
-          <button onClick={submitGuest} style={{ flex: "0 0 auto", background: "rgba(11,15,25,.06)", border: "none", borderRadius: 12, padding: "0 16px", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}>add</button>
+          <button onClick={submitGuest} style={{ flex: "0 0 auto", background: "rgba(var(--ink-rgb),.06)", border: "none", borderRadius: 12, padding: "0 16px", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}>add</button>
         </div>
         {guests.length > 0 && (
           <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 10 }}>
             {guests.map((g) => (
-              <div key={g} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, background: "rgba(11,15,25,.04)", borderRadius: 10, padding: "8px 10px 8px 12px" }}>
-                <span style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, color: "#0B0F19", minWidth: 0 }}>
-                  <Icon name="team" size={14} sw={1.8} color="rgba(11,15,25,.5)" />
+              <div key={g} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, background: "rgba(var(--ink-rgb),.04)", borderRadius: 10, padding: "8px 10px 8px 12px" }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, color: "var(--ink)", minWidth: 0 }}>
+                  <Icon name="team" size={14} sw={1.8} color="rgba(var(--ink-rgb),.5)" />
                   <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{g}</span>
                 </span>
                 <button onClick={() => removeGuestLocal(g)} style={{ background: "transparent", border: "none", padding: 2, display: "flex" }}>
-                  <Icon name="close" size={15} sw={1.8} color="rgba(11,15,25,.45)" />
+                  <Icon name="close" size={15} sw={1.8} color="rgba(var(--ink-rgb),.45)" />
                 </button>
               </div>
             ))}
           </div>
         )}
-        <p style={{ fontSize: 11.5, color: "rgba(11,15,25,.55)", margin: "9px 2px 0", lineHeight: 1.45 }}>
+        <p style={{ fontSize: 11.5, color: "rgba(var(--ink-rgb),.55)", margin: "9px 2px 0", lineHeight: 1.45 }}>
           guests appear in the chat now. outbound SMS/email delivery turns on once an sms/email provider is connected.
         </p>
       </div>
@@ -170,8 +170,8 @@ export function ConversationModal({ open, onClose, convo }: { open: boolean; onC
           <span />
         )}
         <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={onClose} style={{ background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 11, padding: "10px 16px", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}>cancel</button>
-          <button onClick={save} disabled={!name.trim()} style={{ background: "#0B0F19", color: "#fff", border: "none", borderRadius: 11, padding: "10px 18px", fontSize: 14, fontWeight: 600, fontFamily: "inherit", opacity: name.trim() ? 1 : 0.5 }}>
+          <button onClick={onClose} style={{ background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 11, padding: "10px 16px", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}>cancel</button>
+          <button onClick={save} disabled={!name.trim()} style={{ background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 11, padding: "10px 18px", fontSize: 14, fontWeight: 600, fontFamily: "inherit", opacity: name.trim() ? 1 : 0.5 }}>
             {editing ? "save" : "create chat ✦"}
           </button>
         </div>

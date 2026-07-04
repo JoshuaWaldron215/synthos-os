@@ -74,8 +74,8 @@ export function ProjectFiles({ projId }: { projId: string }) {
         }}
         onClick={() => inputRef.current?.click()}
         style={{
-          border: "1.5px dashed " + (drag ? "rgba(96,200,255,.7)" : "rgba(11,15,25,.16)"),
-          background: drag ? "rgba(96,200,255,.08)" : "rgba(11,15,25,.015)",
+          border: "1.5px dashed " + (drag ? "rgba(96,200,255,.7)" : "rgba(var(--ink-rgb),.16)"),
+          background: drag ? "rgba(96,200,255,.08)" : "rgba(var(--ink-rgb),.015)",
           borderRadius: 16,
           padding: "26px 18px",
           textAlign: "center",
@@ -85,45 +85,45 @@ export function ProjectFiles({ projId }: { projId: string }) {
         }}
       >
         <input ref={inputRef} type="file" multiple onChange={(e) => handleFiles(e.target.files)} style={{ display: "none" }} />
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 8, color: "rgba(11,15,25,.55)" }}>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 8, color: "rgba(var(--ink-rgb),.55)" }}>
           <Icon name="download" size={22} sw={1.7} />
         </div>
-        <div style={{ fontSize: 14, fontWeight: 600, color: "#0B0F19" }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: "var(--ink)" }}>
           {busy ? "uploading…" : "drop files or click to upload"}
         </div>
-        <div style={{ fontSize: 12.5, color: "rgba(11,15,25,.55)", marginTop: 3 }}>
+        <div style={{ fontSize: 12.5, color: "rgba(var(--ink-rgb),.55)", marginTop: 3 }}>
           SOPs, scopes, briefs, contracts — anything the team needs
         </div>
       </div>
 
       {files.length === 0 ? (
-        <div style={{ fontSize: 13.5, color: "rgba(11,15,25,.55)", textAlign: "center", padding: "18px 0" }}>
+        <div style={{ fontSize: 13.5, color: "rgba(var(--ink-rgb),.55)", textAlign: "center", padding: "18px 0" }}>
           no files yet.
         </div>
       ) : (
-        <div style={{ background: "#fff", border: "1px solid rgba(11,15,25,.06)", borderRadius: 16, overflow: "hidden", boxShadow: "var(--shadow-card)" }}>
+        <div style={{ background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.06)", borderRadius: 16, overflow: "hidden", boxShadow: "var(--shadow-card)" }}>
           {files.map((f) => (
-            <div key={f.id} style={{ display: "flex", alignItems: "center", gap: 13, padding: "13px 16px", borderBottom: "1px solid rgba(11,15,25,.05)" }}>
-              <span style={{ display: "flex", width: 38, height: 38, alignItems: "center", justifyContent: "center", borderRadius: 10, background: "rgba(11,15,25,.05)", flex: "0 0 auto" }}>
-                <Icon name="note" size={18} color="rgba(11,15,25,.55)" />
+            <div key={f.id} style={{ display: "flex", alignItems: "center", gap: 13, padding: "13px 16px", borderBottom: "1px solid rgba(var(--ink-rgb),.05)" }}>
+              <span style={{ display: "flex", width: 38, height: 38, alignItems: "center", justifyContent: "center", borderRadius: 10, background: "rgba(var(--ink-rgb),.05)", flex: "0 0 auto" }}>
+                <Icon name="note" size={18} color="rgba(var(--ink-rgb),.55)" />
               </span>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{f.name}</div>
-                <div style={{ fontSize: 12, color: "rgba(11,15,25,.55)", marginTop: 1 }}>
+                <div style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.55)", marginTop: 1 }}>
                   {f.kind} · {fmtSize(f.size)} · {fmtDate(f.createdAt)}
                 </div>
               </div>
               <Avatar id={f.who} size={24} />
-              <button className="hov-soft" onClick={() => open(f)} title="open" style={{ display: "flex", background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 9, padding: 8 }}>
-                <Icon name="download" size={16} color="rgba(11,15,25,.55)" />
+              <button className="hov-soft" onClick={() => open(f)} title="open" style={{ display: "flex", background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 9, padding: 8 }}>
+                <Icon name="download" size={16} color="rgba(var(--ink-rgb),.55)" />
               </button>
               <button
                 className="hov-soft"
                 onClick={() => deleteFile(f)}
                 title="delete"
-                style={{ display: "flex", background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 9, padding: 8 }}
+                style={{ display: "flex", background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 9, padding: 8 }}
               >
-                <Icon name="trash" size={16} color="rgba(11,15,25,.55)" />
+                <Icon name="trash" size={16} color="rgba(var(--ink-rgb),.55)" />
               </button>
             </div>
           ))}

@@ -59,7 +59,7 @@ export function Login({ local, onSignIn }: LoginProps) {
     fontSize: 11,
     letterSpacing: ".12em",
     textTransform: "uppercase",
-    color: "rgba(11,15,25,.55)",
+    color: "rgba(var(--ink-rgb),.55)",
     fontWeight: 700,
     display: "block",
     marginBottom: 7,
@@ -93,7 +93,7 @@ export function Login({ local, onSignIn }: LoginProps) {
             <img src={appIcon} alt="synthos" className="lg-mark" />
             <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
               <span style={{ fontSize: 21, fontWeight: 800, letterSpacing: "-.03em" }}>synthos</span>
-              <span style={{ fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 700 }}>os</span>
+              <span style={{ fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 700 }}>os</span>
             </div>
           </div>
 
@@ -101,7 +101,7 @@ export function Login({ local, onSignIn }: LoginProps) {
             <h1 style={{ margin: "0 0 6px", fontSize: 27, fontWeight: 700, letterSpacing: "-.028em", lineHeight: 1.12 }}>
               welcome <i style={{ fontWeight: 600 }}>back</i>
             </h1>
-            <p style={{ margin: "0 0 24px", fontSize: 14, color: "rgba(11,15,25,.52)", lineHeight: 1.55 }}>
+            <p style={{ margin: "0 0 24px", fontSize: 14, color: "rgba(var(--ink-rgb),.52)", lineHeight: 1.55 }}>
               your{" "}
               <b className="lg-word" key={WORDS[wordIdx]} style={{ fontWeight: 700 }}>
                 {WORDS[wordIdx]}
@@ -150,7 +150,7 @@ export function Login({ local, onSignIn }: LoginProps) {
           </form>
 
           {local && (
-            <p style={{ margin: "16px 0 0", fontSize: 12, color: "rgba(11,15,25,.55)", lineHeight: 1.5, textAlign: "center" }}>
+            <p style={{ margin: "16px 0 0", fontSize: 12, color: "rgba(var(--ink-rgb),.55)", lineHeight: 1.5, textAlign: "center" }}>
               local mode — sign in with your team email (e.g. josh@runsynthos.com) to load your profile. connect Supabase to enable real team logins.
             </p>
           )}

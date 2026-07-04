@@ -32,13 +32,13 @@ function FilterGroup({
     display: "flex",
     flexWrap: "wrap",
     gap: 4,
-    background: "rgba(11,15,25,.04)",
+    background: "rgba(var(--ink-rgb),.04)",
     borderRadius: 10,
     padding: 3,
   };
   return (
     <div style={groupStyle}>
-      <span style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600 }}>{label}</span>
+      <span style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600 }}>{label}</span>
       <div style={pillsStyle}>
         {options.map((o) => (
           <button key={o} onClick={() => onPick(o)} style={filterPill(value === o)}>
@@ -74,8 +74,8 @@ function ProjectCard({ p }: { p: Project }) {
         }
       }}
       style={{
-        background: "#fff",
-        border: "1px solid rgba(11,15,25,.06)",
+        background: "var(--card)",
+        border: "1px solid rgba(var(--ink-rgb),.06)",
         borderRadius: 18,
         padding: 18,
         cursor: "pointer",
@@ -92,27 +92,27 @@ function ProjectCard({ p }: { p: Project }) {
             <h3 style={{ margin: 0, fontSize: 16.5, fontWeight: 700, letterSpacing: "-.01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.client}</h3>
           </div>
         </div>
-        <span style={{ fontSize: 11.5, fontWeight: 600, color: "rgba(11,15,25,.78)", background: sm.bg, padding: "4px 10px", borderRadius: 999, display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap", flex: "0 0 auto" }}>
+        <span style={{ fontSize: 11.5, fontWeight: 600, color: "rgba(var(--ink-rgb),.78)", background: sm.bg, padding: "4px 10px", borderRadius: 999, display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap", flex: "0 0 auto" }}>
           <span style={{ width: 6, height: 6, borderRadius: "50%", background: sm.dot }} />
           {p.status}
         </span>
       </div>
-      <p style={{ margin: "6px 0 0", fontSize: 13, color: "rgba(11,15,25,.55)" }}>{p.tagline}</p>
+      <p style={{ margin: "6px 0 0", fontSize: 13, color: "rgba(var(--ink-rgb),.55)" }}>{p.tagline}</p>
       <div style={{ display: "flex", gap: 6, margin: "14px 0 16px", flexWrap: "wrap" }}>
         {p.stack.map((s) => (
-          <span key={s} style={{ fontSize: 11, fontWeight: 600, color: "rgba(11,15,25,.55)", background: "rgba(11,15,25,.045)", padding: "3px 9px", borderRadius: 7 }}>{s}</span>
+          <span key={s} style={{ fontSize: 11, fontWeight: 600, color: "rgba(var(--ink-rgb),.55)", background: "rgba(var(--ink-rgb),.045)", padding: "3px 9px", borderRadius: 7 }}>{s}</span>
         ))}
       </div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, paddingTop: 14, borderTop: "1px solid rgba(11,15,25,.06)" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, paddingTop: 14, borderTop: "1px solid rgba(var(--ink-rgb),.06)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <span style={{ display: "flex" }}>
             {p.builders.map((b, i) => (
               <Avatar key={b} id={b} size={28} i={i} />
             ))}
           </span>
-          <span style={{ fontSize: 12.5, color: "rgba(11,15,25,.55)", fontWeight: 500 }}>{openCount} open</span>
+          <span style={{ fontSize: 12.5, color: "rgba(var(--ink-rgb),.55)", fontWeight: 500 }}>{openCount} open</span>
         </div>
-        <span style={{ fontSize: 12.5, color: "rgba(11,15,25,.34)", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>
+        <span style={{ fontSize: 12.5, color: "rgba(var(--ink-rgb),.34)", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>
           {showRevenue ? p.rev + " / mo" : "•••"}
         </span>
       </div>
@@ -144,11 +144,11 @@ export function Projects() {
           <h1 style={{ margin: 0, fontSize: isMobile ? 23 : 32, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.08 }}>
             your <i style={{ fontWeight: 600 }}>projects</i>, at a glance
           </h1>
-          <p style={{ margin: "8px 0 0", fontSize: 14, color: "rgba(11,15,25,.5)", maxWidth: 440, lineHeight: 1.5 }}>
+          <p style={{ margin: "8px 0 0", fontSize: 14, color: "rgba(var(--ink-rgb),.5)", maxWidth: 440, lineHeight: 1.5 }}>
             {projects.length} build{projects.length === 1 ? "" : "s"} across your workspace.
           </p>
         </div>
-        <button className="hov-soft" onClick={() => setFormOpen(true)} style={{ display: "flex", alignItems: "center", gap: 7, background: "#0B0F19", color: "#fff", border: "none", borderRadius: 12, padding: "10px 15px", fontSize: 13.5, fontWeight: 600 }}>
+        <button className="hov-soft" onClick={() => setFormOpen(true)} style={{ display: "flex", alignItems: "center", gap: 7, background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 12, padding: "10px 15px", fontSize: 13.5, fontWeight: 600 }}>
           <Icon name="plus" size={15} sw={2.2} color="#fff" /> new project
         </button>
       </div>
@@ -166,21 +166,21 @@ export function Projects() {
       </div>
 
       {projects.length === 0 && (
-        <div style={{ background: "#fff", border: "1px dashed rgba(11,15,25,.14)", borderRadius: 18, padding: "48px 24px", textAlign: "center" }}>
+        <div style={{ background: "var(--card)", border: "1px dashed rgba(var(--ink-rgb),.14)", borderRadius: 18, padding: "48px 24px", textAlign: "center" }}>
           {allProjects.length === 0 ? (
             <>
               <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>no projects yet</div>
-              <p style={{ margin: "0 0 16px", fontSize: 13.5, color: "rgba(11,15,25,.5)" }}>create your first project to start tracking tasks, keys, files and revenue.</p>
-              <button className="hov-soft" onClick={() => setFormOpen(true)} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#0B0F19", color: "#fff", border: "none", borderRadius: 12, padding: "10px 16px", fontSize: 13.5, fontWeight: 600, fontFamily: "inherit" }}>
+              <p style={{ margin: "0 0 16px", fontSize: 13.5, color: "rgba(var(--ink-rgb),.5)" }}>create your first project to start tracking tasks, keys, files and revenue.</p>
+              <button className="hov-soft" onClick={() => setFormOpen(true)} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 12, padding: "10px 16px", fontSize: 13.5, fontWeight: 600, fontFamily: "inherit" }}>
                 <Icon name="plus" size={15} sw={2.2} color="#fff" /> create your first project
               </button>
             </>
           ) : (
             <>
               <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>nothing {fStatus}</div>
-              <p style={{ margin: 0, fontSize: 13.5, color: "rgba(11,15,25,.5)" }}>
+              <p style={{ margin: 0, fontSize: 13.5, color: "rgba(var(--ink-rgb),.5)" }}>
                 no projects match this filter —{" "}
-                <button onClick={() => setFilter("status", "all")} style={{ background: "transparent", border: "none", padding: 0, fontSize: 13.5, fontWeight: 600, color: "#0B0F19", textDecoration: "underline", fontFamily: "inherit", cursor: "pointer" }}>
+                <button onClick={() => setFilter("status", "all")} style={{ background: "transparent", border: "none", padding: 0, fontSize: 13.5, fontWeight: 600, color: "var(--ink)", textDecoration: "underline", fontFamily: "inherit", cursor: "pointer" }}>
                   show all
                 </button>
               </p>

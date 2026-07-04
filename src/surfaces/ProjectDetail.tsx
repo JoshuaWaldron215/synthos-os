@@ -47,7 +47,7 @@ function InlineText({
       borderRadius: 9,
       padding: "6px 9px",
       fontFamily: "inherit",
-      color: "#0B0F19",
+      color: "var(--ink)",
       ...style,
     };
     return multiline ? (
@@ -87,14 +87,14 @@ function InlineText({
       }}
       style={{ cursor: "text", display: "inline-block", ...style }}
     >
-      {value || <span style={{ color: "rgba(11,15,25,.55)" }}>{placeholder || "click to edit"}</span>}
+      {value || <span style={{ color: "rgba(var(--ink-rgb),.55)" }}>{placeholder || "click to edit"}</span>}
     </span>
   );
 }
 
 const cardStyle: CSSProperties = {
-  background: "#fff",
-  border: "1px solid rgba(11,15,25,.06)",
+  background: "var(--card)",
+  border: "1px solid rgba(var(--ink-rgb),.06)",
   borderRadius: 18,
   padding: 22,
   boxShadow: "var(--shadow-card)",
@@ -103,7 +103,7 @@ const sectionLabel: CSSProperties = {
   fontSize: 11,
   letterSpacing: ".14em",
   textTransform: "uppercase",
-  color: "rgba(11,15,25,.55)",
+  color: "rgba(var(--ink-rgb),.55)",
   fontWeight: 600,
   marginBottom: 12,
 };
@@ -175,11 +175,11 @@ export function ProjectDetail() {
       <button
         key={t}
         onClick={() => pickTab(t)}
-        style={{ display: "flex", alignItems: "center", gap: 6, border: "none", background: "transparent", padding: "10px 14px", fontSize: 14, fontWeight: 600, fontFamily: "inherit", color: active ? "#0B0F19" : "rgba(11,15,25,.45)", borderBottom: active ? "2px solid #0B0F19" : "2px solid transparent", marginBottom: -1, whiteSpace: "nowrap" }}
+        style={{ display: "flex", alignItems: "center", gap: 6, border: "none", background: "transparent", padding: "10px 14px", fontSize: 14, fontWeight: 600, fontFamily: "inherit", color: active ? "var(--ink)" : "rgba(var(--ink-rgb),.45)", borderBottom: active ? "2px solid #0B0F19" : "2px solid transparent", marginBottom: -1, whiteSpace: "nowrap" }}
       >
         {t}
         {count !== undefined && count > 0 && (
-          <span style={{ fontSize: 11, fontWeight: 700, color: active ? "#0B0F19" : "rgba(11,15,25,.4)", background: "rgba(11,15,25,.06)", borderRadius: 999, padding: "1px 7px" }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: active ? "var(--ink)" : "rgba(var(--ink-rgb),.4)", background: "rgba(var(--ink-rgb),.06)", borderRadius: 999, padding: "1px 7px" }}>
             {count}
           </span>
         )}
@@ -191,10 +191,10 @@ export function ProjectDetail() {
     <div style={{ maxWidth: 1080, margin: "0 auto" }} className="anim-sc">
       <button
         onClick={() => navigate("/projects")}
-        style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "none", padding: 0, fontSize: 12.5, fontWeight: 600, color: "rgba(11,15,25,.5)", fontFamily: "inherit", marginBottom: 14 }}
+        style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "none", padding: 0, fontSize: 12.5, fontWeight: 600, color: "rgba(var(--ink-rgb),.5)", fontFamily: "inherit", marginBottom: 14 }}
       >
         <span style={{ transform: "rotate(180deg)", display: "flex" }}>
-          <Icon name="arrowr" size={15} color="rgba(11,15,25,.5)" />
+          <Icon name="arrowr" size={15} color="rgba(var(--ink-rgb),.5)" />
         </span>
         projects
       </button>
@@ -202,7 +202,7 @@ export function ProjectDetail() {
       <div style={{ display: "flex", alignItems: "flex-start", gap: 14, flexWrap: "wrap" }}>
         <div style={{ position: "relative", cursor: "pointer" }} onClick={() => imgInput.current?.click()} title="change image">
           <ProjectThumb project={project} size={56} radius={15} />
-          <span style={{ position: "absolute", right: -4, bottom: -4, display: "flex", width: 22, height: 22, alignItems: "center", justifyContent: "center", borderRadius: "50%", background: "#0B0F19", boxShadow: "0 0 0 2px #F6F8FA" }}>
+          <span style={{ position: "absolute", right: -4, bottom: -4, display: "flex", width: 22, height: 22, alignItems: "center", justifyContent: "center", borderRadius: "50%", background: "var(--btn-ink)", boxShadow: "0 0 0 2px #F6F8FA" }}>
             <Icon name="camera" size={12} color="#fff" />
           </span>
           <input ref={imgInput} type="file" accept="image/*" onChange={(e) => onImage(e.target.files?.[0])} style={{ display: "none" }} />
@@ -216,12 +216,12 @@ export function ProjectDetail() {
               onSave={(v) => updateProject(pid, { client: v || project.client })}
               style={{ fontSize: isMobile ? 22 : 28, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}
             />
-            <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(11,15,25,.78)", background: sm.bg, padding: "5px 12px", borderRadius: 999, display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(var(--ink-rgb),.78)", background: sm.bg, padding: "5px 12px", borderRadius: 999, display: "flex", alignItems: "center", gap: 6 }}>
               <span style={{ width: 6, height: 6, borderRadius: "50%", background: sm.dot }} />
               {project.status}
             </span>
           </div>
-          <div style={{ margin: "8px 0 0", fontSize: 14, color: "rgba(11,15,25,.5)" }}>
+          <div style={{ margin: "8px 0 0", fontSize: 14, color: "rgba(var(--ink-rgb),.5)" }}>
             <InlineText value={project.tagline} onSave={(v) => updateProject(pid, { tagline: v })} placeholder="add a tagline" />
           </div>
         </div>
@@ -230,7 +230,7 @@ export function ProjectDetail() {
           className="hov-soft"
           onClick={() => setConfirmProjDelete(true)}
           title="delete project"
-          style={{ display: "flex", alignItems: "center", gap: 6, background: "#fff", border: "1px solid rgba(229,72,77,.3)", color: "#C5343A", borderRadius: 11, padding: "8px 12px", fontSize: 13, fontWeight: 600, fontFamily: "inherit" }}
+          style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--card)", border: "1px solid rgba(229,72,77,.3)", color: "#C5343A", borderRadius: 11, padding: "8px 12px", fontSize: 13, fontWeight: 600, fontFamily: "inherit" }}
         >
           <Icon name="trash" size={15} color="#C5343A" /> delete
         </button>
@@ -250,7 +250,7 @@ export function ProjectDetail() {
       {/* links */}
       <LinksRow projId={pid} />
 
-      <div style={{ display: "flex", gap: 4, borderBottom: "1px solid rgba(11,15,25,.08)", margin: "22px 0", overflowX: "auto" }}>
+      <div style={{ display: "flex", gap: 4, borderBottom: "1px solid rgba(var(--ink-rgb),.08)", margin: "22px 0", overflowX: "auto" }}>
         {TABS.map(tabBtn)}
       </div>
 
@@ -259,7 +259,7 @@ export function ProjectDetail() {
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div style={cardStyle}>
               <div style={sectionLabel}>brief</div>
-              <div style={{ fontSize: 15, lineHeight: 1.6, color: "rgba(11,15,25,.78)" }}>
+              <div style={{ fontSize: 15, lineHeight: 1.6, color: "rgba(var(--ink-rgb),.78)" }}>
                 <InlineText
                   value={project.description}
                   onSave={(v) => updateProject(pid, { description: v })}
@@ -280,7 +280,7 @@ export function ProjectDetail() {
                           key={u.id}
                           onClick={() => toggleBuilder(u.id)}
                           title={on ? "remove" : "add"}
-                          style={{ display: "flex", alignItems: "center", gap: 6, border: on ? "1px solid rgba(96,200,255,.55)" : "1px dashed rgba(11,15,25,.18)", background: on ? "rgba(96,200,255,.1)" : "transparent", padding: "3px 9px 3px 3px", borderRadius: 999, fontFamily: "inherit", fontSize: 12.5, fontWeight: 600, color: on ? "#0B0F19" : "rgba(11,15,25,.5)" }}
+                          style={{ display: "flex", alignItems: "center", gap: 6, border: on ? "1px solid rgba(96,200,255,.55)" : "1px dashed rgba(var(--ink-rgb),.18)", background: on ? "rgba(96,200,255,.1)" : "transparent", padding: "3px 9px 3px 3px", borderRadius: 999, fontFamily: "inherit", fontSize: 12.5, fontWeight: 600, color: on ? "var(--ink)" : "rgba(var(--ink-rgb),.5)" }}
                         >
                           <Avatar id={u.id} size={22} />
                           {u.first}
@@ -295,7 +295,7 @@ export function ProjectDetail() {
                     {showRevenue ? (
                       <>
                         <InlineText value={project.rev} onSave={(v) => updateProject(pid, { rev: v })} placeholder="$0" style={{ fontSize: 18, fontWeight: 700 }} />
-                        <span style={{ fontSize: 12.5, fontWeight: 600, color: "rgba(11,15,25,.55)" }}> / mo</span>
+                        <span style={{ fontSize: 12.5, fontWeight: 600, color: "rgba(var(--ink-rgb),.55)" }}> / mo</span>
                       </>
                     ) : (
                       "•••"
@@ -325,7 +325,7 @@ export function ProjectDetail() {
                     <button
                       key={s}
                       onClick={() => setStatus(s)}
-                      style={{ display: "flex", alignItems: "center", gap: 6, border: on ? "1px solid " + c.dot : "1px solid rgba(11,15,25,.1)", background: on ? c.bg : "#fff", color: "#0B0F19", fontSize: 13, fontWeight: 600, padding: "7px 12px", borderRadius: 999, fontFamily: "inherit" }}
+                      style={{ display: "flex", alignItems: "center", gap: 6, border: on ? "1px solid " + c.dot : "1px solid rgba(var(--ink-rgb),.1)", background: on ? c.bg : "var(--card)", color: "var(--ink)", fontSize: 13, fontWeight: 600, padding: "7px 12px", borderRadius: 999, fontFamily: "inherit" }}
                     >
                       <span style={{ width: 6, height: 6, borderRadius: "50%", background: c.dot }} />
                       {s}
@@ -382,20 +382,20 @@ function LinksRow({ projId }: { projId: string }) {
       <div style={{ ...cardStyle, marginTop: 18, padding: 16 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
           <span style={sectionLabel as CSSProperties}>edit links</span>
-          <button onClick={() => setEditing(false)} style={{ background: "#0B0F19", color: "#fff", border: "none", borderRadius: 9, padding: "6px 12px", fontSize: 12.5, fontWeight: 600, fontFamily: "inherit" }}>done</button>
+          <button onClick={() => setEditing(false)} style={{ background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 9, padding: "6px 12px", fontSize: 12.5, fontWeight: 600, fontFamily: "inherit" }}>done</button>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {project.links.map((l) => (
             <div key={l.id} style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <input value={l.label} onChange={(e) => setLink(l.id, { label: e.target.value })} placeholder="label" style={{ width: 110, border: "1px solid rgba(11,15,25,.12)", borderRadius: 9, padding: "8px 10px", fontFamily: "inherit", fontSize: 14 }} />
-              <input value={l.url} onChange={(e) => setLink(l.id, { url: e.target.value })} placeholder="https://…" style={{ flex: 1, minWidth: 0, border: "1px solid rgba(11,15,25,.12)", borderRadius: 9, padding: "8px 10px", fontFamily: "inherit", fontSize: 14 }} />
-              <button onClick={() => removeLink(l.id)} title="remove" style={{ display: "flex", background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 9, padding: 8 }}>
-                <Icon name="trash" size={15} color="rgba(11,15,25,.5)" />
+              <input value={l.label} onChange={(e) => setLink(l.id, { label: e.target.value })} placeholder="label" style={{ width: 110, border: "1px solid rgba(var(--ink-rgb),.12)", borderRadius: 9, padding: "8px 10px", fontFamily: "inherit", fontSize: 14 }} />
+              <input value={l.url} onChange={(e) => setLink(l.id, { url: e.target.value })} placeholder="https://…" style={{ flex: 1, minWidth: 0, border: "1px solid rgba(var(--ink-rgb),.12)", borderRadius: 9, padding: "8px 10px", fontFamily: "inherit", fontSize: 14 }} />
+              <button onClick={() => removeLink(l.id)} title="remove" style={{ display: "flex", background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 9, padding: 8 }}>
+                <Icon name="trash" size={15} color="rgba(var(--ink-rgb),.5)" />
               </button>
             </div>
           ))}
         </div>
-        <button onClick={addLink} className="hov-dashed" style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 10, border: "1px dashed rgba(11,15,25,.18)", background: "transparent", borderRadius: 10, padding: "8px 12px", fontSize: 13, fontWeight: 600, color: "rgba(11,15,25,.55)", fontFamily: "inherit" }}>
+        <button onClick={addLink} className="hov-dashed" style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 10, border: "1px dashed rgba(var(--ink-rgb),.18)", background: "transparent", borderRadius: 10, padding: "8px 12px", fontSize: 13, fontWeight: 600, color: "rgba(var(--ink-rgb),.55)", fontFamily: "inherit" }}>
           <Icon name="plus" size={14} sw={2} /> add link
         </button>
       </div>
@@ -405,13 +405,13 @@ function LinksRow({ projId }: { projId: string }) {
   return (
     <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 18, alignItems: "center" }}>
       {project.links.map((l) => (
-        <button key={l.id} className="hov-link" onClick={() => open(l.url)} style={{ display: "flex", alignItems: "center", gap: 8, background: "#fff", border: "1px solid rgba(11,15,25,.08)", borderRadius: 11, padding: "8px 13px", fontSize: 13, fontWeight: 600, color: l.url ? "#0B0F19" : "rgba(11,15,25,.4)", fontFamily: "inherit" }}>
+        <button key={l.id} className="hov-link" onClick={() => open(l.url)} style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.08)", borderRadius: 11, padding: "8px 13px", fontSize: 13, fontWeight: 600, color: l.url ? "var(--ink)" : "rgba(var(--ink-rgb),.4)", fontFamily: "inherit" }}>
           {l.label}
-          <span style={{ fontSize: 12, color: "rgba(11,15,25,.55)" }}>↗</span>
+          <span style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.55)" }}>↗</span>
         </button>
       ))}
-      <button onClick={() => setEditing(true)} className="hov-soft" title="edit links" style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "1px dashed rgba(11,15,25,.18)", borderRadius: 11, padding: "8px 12px", fontSize: 13, fontWeight: 600, color: "rgba(11,15,25,.5)", fontFamily: "inherit" }}>
-        <Icon name="link" size={14} color="rgba(11,15,25,.5)" /> edit links
+      <button onClick={() => setEditing(true)} className="hov-soft" title="edit links" style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "1px dashed rgba(var(--ink-rgb),.18)", borderRadius: 11, padding: "8px 12px", fontSize: 13, fontWeight: 600, color: "rgba(var(--ink-rgb),.5)", fontFamily: "inherit" }}>
+        <Icon name="link" size={14} color="rgba(var(--ink-rgb),.5)" /> edit links
       </button>
     </div>
   );
@@ -424,12 +424,12 @@ function ToolsEditor({ tools, onAdd, onRemove }: { tools: string[]; onAdd: (t: s
   return (
     <div>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
-        {tools.length === 0 && <span style={{ fontSize: 13, color: "rgba(11,15,25,.55)" }}>no tools yet</span>}
+        {tools.length === 0 && <span style={{ fontSize: 13, color: "rgba(var(--ink-rgb),.55)" }}>no tools yet</span>}
         {tools.map((t) => (
-          <span key={t} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 600, color: "rgba(11,15,25,.62)", background: "rgba(11,15,25,.045)", padding: "5px 6px 5px 10px", borderRadius: 8 }}>
+          <span key={t} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 600, color: "rgba(var(--ink-rgb),.62)", background: "rgba(var(--ink-rgb),.045)", padding: "5px 6px 5px 10px", borderRadius: 8 }}>
             {t}
             <button onClick={() => onRemove(t)} title="remove" style={{ display: "flex", background: "transparent", border: "none", padding: 0, cursor: "pointer" }}>
-              <Icon name="close" size={13} sw={2} color="rgba(11,15,25,.4)" />
+              <Icon name="close" size={13} sw={2} color="rgba(var(--ink-rgb),.4)" />
             </button>
           </span>
         ))}
@@ -445,14 +445,14 @@ function ToolsEditor({ tools, onAdd, onRemove }: { tools: string[]; onAdd: (t: s
             }
           }}
           placeholder="add a tool…"
-          style={{ flex: 1, minWidth: 0, border: "1px solid rgba(11,15,25,.12)", borderRadius: 10, padding: "9px 11px", fontFamily: "inherit", fontSize: 14 }}
+          style={{ flex: 1, minWidth: 0, border: "1px solid rgba(var(--ink-rgb),.12)", borderRadius: 10, padding: "9px 11px", fontFamily: "inherit", fontSize: 14 }}
         />
         <button
           onClick={() => {
             onAdd(val);
             setVal("");
           }}
-          style={{ background: "#0B0F19", color: "#fff", border: "none", borderRadius: 10, padding: "0 14px", fontSize: 13, fontWeight: 600, fontFamily: "inherit" }}
+          style={{ background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 10, padding: "0 14px", fontSize: 13, fontWeight: 600, fontFamily: "inherit" }}
         >
           add
         </button>
@@ -480,7 +480,7 @@ function ProjectTasks({ projId }: { projId: string }) {
   return (
     <div style={{ ...cardStyle, padding: 10 }}>
       {tasks.length === 0 && (
-        <div style={{ fontSize: 13.5, color: "rgba(11,15,25,.55)", textAlign: "center", padding: "16px 0" }}>no tasks yet — add the first one below.</div>
+        <div style={{ fontSize: 13.5, color: "rgba(var(--ink-rgb),.55)", textAlign: "center", padding: "16px 0" }}>no tasks yet — add the first one below.</div>
       )}
       {tasks.map((t) => (
         <div
@@ -495,12 +495,12 @@ function ProjectTasks({ projId }: { projId: string }) {
             }
           }}
           className="hov-row"
-          style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 12px", borderBottom: "1px solid rgba(11,15,25,.05)", cursor: "pointer", borderRadius: 10 }}
+          style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 12px", borderBottom: "1px solid rgba(var(--ink-rgb),.05)", cursor: "pointer", borderRadius: 10 }}
         >
           <span style={priDot(t.pri)} />
           <span style={{ fontSize: 14, flex: 1 }}>{t.title}</span>
           {t.blocked && <span style={{ fontSize: 10.5, fontWeight: 600, color: "#B5462A", background: "rgba(255,150,120,.18)", padding: "2px 8px", borderRadius: 6 }}>blocked</span>}
-          <span style={{ fontSize: 11, color: "rgba(11,15,25,.55)", textTransform: "uppercase", letterSpacing: ".08em", fontWeight: 600 }}>{t.col}</span>
+          <span style={{ fontSize: 11, color: "rgba(var(--ink-rgb),.55)", textTransform: "uppercase", letterSpacing: ".08em", fontWeight: 600 }}>{t.col}</span>
           <Avatar id={t.who} size={24} />
         </div>
       ))}
@@ -512,9 +512,9 @@ function ProjectTasks({ projId }: { projId: string }) {
             if (e.key === "Enter") submit();
           }}
           placeholder="new task for this project…"
-          style={{ flex: 1, minWidth: 0, border: "1px solid rgba(11,15,25,.12)", borderRadius: 10, padding: "10px 12px", fontFamily: "inherit", fontSize: 14 }}
+          style={{ flex: 1, minWidth: 0, border: "1px solid rgba(var(--ink-rgb),.12)", borderRadius: 10, padding: "10px 12px", fontFamily: "inherit", fontSize: 14 }}
         />
-        <button onClick={submit} style={{ background: "#0B0F19", color: "#fff", border: "none", borderRadius: 10, padding: "0 16px", fontSize: 13, fontWeight: 600, fontFamily: "inherit" }}>add</button>
+        <button onClick={submit} style={{ background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 10, padding: "0 16px", fontSize: 13, fontWeight: 600, fontFamily: "inherit" }}>add</button>
       </div>
     </div>
   );
@@ -544,38 +544,38 @@ function ProjectVault({ projId }: { projId: string }) {
 
   return (
     <div style={{ ...cardStyle, padding: 0, overflow: "hidden" }}>
-      {keys.length === 0 && <div style={{ fontSize: 13.5, color: "rgba(11,15,25,.55)", textAlign: "center", padding: "18px 0" }}>no keys for this project yet.</div>}
+      {keys.length === 0 && <div style={{ fontSize: 13.5, color: "rgba(var(--ink-rgb),.55)", textAlign: "center", padding: "18px 0" }}>no keys for this project yet.</div>}
       {keys.map((k) => {
         const isRevealed = !!revealed[k.id];
         return (
-          <div key={k.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", borderBottom: "1px solid rgba(11,15,25,.05)" }}>
+          <div key={k.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", borderBottom: "1px solid rgba(var(--ink-rgb),.05)" }}>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, fontFamily: "ui-monospace,Menlo,monospace", color: "#0B0F19", display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, fontFamily: "ui-monospace,Menlo,monospace", color: "var(--ink)", display: "flex", alignItems: "center", gap: 8 }}>
                 {k.label}
-                {k.proj === "shared" && <span style={{ fontSize: 9.5, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", background: "rgba(11,15,25,.05)", padding: "1px 6px", borderRadius: 5 }}>shared</span>}
+                {k.proj === "shared" && <span style={{ fontSize: 9.5, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", background: "rgba(var(--ink-rgb),.05)", padding: "1px 6px", borderRadius: 5 }}>shared</span>}
               </div>
-              <div style={{ fontSize: 13, color: "rgba(11,15,25,.55)", fontFamily: "ui-monospace,Menlo,monospace", marginTop: 3, letterSpacing: ".06em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              <div style={{ fontSize: 13, color: "rgba(var(--ink-rgb),.55)", fontFamily: "ui-monospace,Menlo,monospace", marginTop: 3, letterSpacing: ".06em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {isRevealed ? k.val : "••••••••••••••••"}
               </div>
             </div>
-            <button className="hov-soft" onClick={() => (isRevealed ? hide(k.id) : reveal(k.id))} title="reveal" style={{ display: "flex", background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 9, padding: 8 }}>
-              <Icon name={isRevealed ? "eyeoff" : "eye"} size={16} color="rgba(11,15,25,.55)" />
+            <button className="hov-soft" onClick={() => (isRevealed ? hide(k.id) : reveal(k.id))} title="reveal" style={{ display: "flex", background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 9, padding: 8 }}>
+              <Icon name={isRevealed ? "eyeoff" : "eye"} size={16} color="rgba(var(--ink-rgb),.55)" />
             </button>
-            <button className="hov-soft" onClick={() => copy(k.val, "copied " + k.label)} title="copy" style={{ display: "flex", background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 9, padding: 8 }}>
-              <Icon name="copy" size={15} color="rgba(11,15,25,.55)" />
+            <button className="hov-soft" onClick={() => copy(k.val, "copied " + k.label)} title="copy" style={{ display: "flex", background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 9, padding: 8 }}>
+              <Icon name="copy" size={15} color="rgba(var(--ink-rgb),.55)" />
             </button>
             {k.proj !== "shared" && (
-              <button className="hov-soft" onClick={() => setPendingDelete(k)} title="delete" style={{ display: "flex", background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 9, padding: 8 }}>
-                <Icon name="trash" size={15} color="rgba(11,15,25,.55)" />
+              <button className="hov-soft" onClick={() => setPendingDelete(k)} title="delete" style={{ display: "flex", background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 9, padding: 8 }}>
+                <Icon name="trash" size={15} color="rgba(var(--ink-rgb),.55)" />
               </button>
             )}
           </div>
         );
       })}
       <div style={{ display: "flex", gap: 8, padding: 12, flexWrap: "wrap" }}>
-        <input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="KEY_NAME" style={{ flex: "1 1 140px", minWidth: 0, border: "1px solid rgba(11,15,25,.12)", borderRadius: 10, padding: "10px 12px", fontFamily: "ui-monospace,Menlo,monospace", fontSize: 13 }} />
-        <input value={val} onChange={(e) => setVal(e.target.value)} onKeyDown={(e) => e.key === "Enter" && submit()} placeholder="value" style={{ flex: "2 1 180px", minWidth: 0, border: "1px solid rgba(11,15,25,.12)", borderRadius: 10, padding: "10px 12px", fontFamily: "ui-monospace,Menlo,monospace", fontSize: 13 }} />
-        <button onClick={submit} style={{ background: "#0B0F19", color: "#fff", border: "none", borderRadius: 10, padding: "0 16px", fontSize: 13, fontWeight: 600, fontFamily: "inherit" }}>add key</button>
+        <input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="KEY_NAME" style={{ flex: "1 1 140px", minWidth: 0, border: "1px solid rgba(var(--ink-rgb),.12)", borderRadius: 10, padding: "10px 12px", fontFamily: "ui-monospace,Menlo,monospace", fontSize: 13 }} />
+        <input value={val} onChange={(e) => setVal(e.target.value)} onKeyDown={(e) => e.key === "Enter" && submit()} placeholder="value" style={{ flex: "2 1 180px", minWidth: 0, border: "1px solid rgba(var(--ink-rgb),.12)", borderRadius: 10, padding: "10px 12px", fontFamily: "ui-monospace,Menlo,monospace", fontSize: 13 }} />
+        <button onClick={submit} style={{ background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 10, padding: "0 16px", fontSize: 13, fontWeight: 600, fontFamily: "inherit" }}>add key</button>
       </div>
       <ConfirmDialog
         open={pendingDelete !== null}
@@ -593,12 +593,12 @@ function ProjectVault({ projId }: { projId: string }) {
 function ActivityRow({ who, action, target, when }: { who: number; action: string; target: string; when: string }) {
   const u = useUser(who);
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "12px 0", borderBottom: "1px solid rgba(11,15,25,.05)" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "12px 0", borderBottom: "1px solid rgba(var(--ink-rgb),.05)" }}>
       <Avatar id={who} size={24} />
       <span style={{ fontSize: 13.5, flex: 1 }}>
-        <b style={{ fontWeight: 600 }}>{u.name}</b> {action} <span style={{ color: "rgba(11,15,25,.5)" }}>{target}</span>
+        <b style={{ fontWeight: 600 }}>{u.name}</b> {action} <span style={{ color: "rgba(var(--ink-rgb),.5)" }}>{target}</span>
       </span>
-      <span style={{ fontSize: 12, color: "rgba(11,15,25,.55)" }}>{when}</span>
+      <span style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.55)" }}>{when}</span>
     </div>
   );
 }
@@ -609,7 +609,7 @@ function ProjectActivity({ projId }: { projId: string }) {
   return (
     <div style={{ ...cardStyle, padding: "14px 18px" }}>
       {activity.length === 0 ? (
-        <div style={{ fontSize: 13.5, color: "rgba(11,15,25,.55)", textAlign: "center", padding: "14px 0" }}>no activity yet for this project.</div>
+        <div style={{ fontSize: 13.5, color: "rgba(var(--ink-rgb),.55)", textAlign: "center", padding: "14px 0" }}>no activity yet for this project.</div>
       ) : (
         activity.map((a) => <ActivityRow key={a.id} who={a.who} action={a.action} target={a.target} when={whenLabel(a.at, a.time)} />)
       )}

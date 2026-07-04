@@ -47,13 +47,13 @@ function convoItemStyle(active: boolean): CSSProperties {
     gap: 9,
     width: "100%",
     border: "none",
-    background: active ? "rgba(11,15,25,.06)" : "transparent",
+    background: active ? "rgba(var(--ink-rgb),.06)" : "transparent",
     padding: "8px 10px",
     borderRadius: 10,
     fontFamily: "inherit",
     fontSize: 13.5,
     fontWeight: active ? 600 : 500,
-    color: active ? "#0B0F19" : "rgba(11,15,25,.62)",
+    color: active ? "var(--ink)" : "rgba(var(--ink-rgb),.62)",
     textAlign: "left",
     marginBottom: 1,
     cursor: "pointer",
@@ -211,7 +211,7 @@ export function Team() {
     height: 24,
     borderRadius: 8,
     border: "none",
-    background: "rgba(11,15,25,.06)",
+    background: "rgba(var(--ink-rgb),.06)",
     cursor: "pointer",
     flex: "0 0 auto",
   };
@@ -235,26 +235,26 @@ export function Team() {
         team <i style={{ fontWeight: 600 }}>chat</i>
       </h1>
       {!isMobile && (
-        <p style={{ margin: "0 0 20px", fontSize: 14, color: "rgba(11,15,25,.5)" }}>channels, project group chats, and dms — fast, quiet, in one place.</p>
+        <p style={{ margin: "0 0 20px", fontSize: 14, color: "rgba(var(--ink-rgb),.5)" }}>channels, project group chats, and dms — fast, quiet, in one place.</p>
       )}
 
       <div style={teamWrapStyle}>
         {!isMobile && (
-          <div style={{ flex: "0 0 230px", background: "#fff", border: "1px solid rgba(11,15,25,.06)", borderRadius: 18, padding: 10, boxShadow: "var(--shadow-card)", alignSelf: "flex-start" }}>
+          <div style={{ flex: "0 0 230px", background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.06)", borderRadius: 18, padding: 10, boxShadow: "var(--shadow-card)", alignSelf: "flex-start" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 6px 6px 10px" }}>
-              <span style={{ fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600 }}>channels</span>
+              <span style={{ fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600 }}>channels</span>
               <button onClick={openNew} title="new group chat" style={newBtnStyle}>
-                <Icon name="plus" size={14} sw={2} color="rgba(11,15,25,.55)" />
+                <Icon name="plus" size={14} sw={2} color="rgba(var(--ink-rgb),.55)" />
               </button>
             </div>
             {conversations.map((c) => (
               <button key={c.id} onClick={() => selectConvo(c.id)} style={convoItemStyle(activeConvo === c.id)}>
-                <span style={{ fontSize: 15, color: "rgba(11,15,25,.55)", fontWeight: 700 }}>#</span>
+                <span style={{ fontSize: 15, color: "rgba(var(--ink-rgb),.55)", fontWeight: 700 }}>#</span>
                 <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.name}</span>
                 {c.proj && <span title={projectName(c.proj)} style={{ width: 7, height: 7, borderRadius: "50%", background: "#60C8FF", flex: "0 0 auto" }} />}
               </button>
             ))}
-            <div style={{ fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600, padding: "14px 10px 6px" }}>direct messages</div>
+            <div style={{ fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600, padding: "14px 10px 6px" }}>direct messages</div>
             {dms.map((c) => (
               <button key={c.id} onClick={() => selectConvo(c.id)} style={convoItemStyle(activeConvo === c.id)}>
                 <Avatar id={c.user} size={26} presence />
@@ -266,13 +266,13 @@ export function Team() {
 
         {isMobile && (
           <div style={{ display: "flex", gap: 7, overflowX: "auto", paddingBottom: 4, flex: "0 0 auto" }}>
-            <button onClick={openNew} title="new group chat" style={{ border: "none", borderRadius: 999, padding: "7px 12px", fontSize: 12.5, fontWeight: 700, whiteSpace: "nowrap", fontFamily: "inherit", background: "rgba(11,15,25,.05)", color: "rgba(11,15,25,.6)", display: "flex", alignItems: "center", gap: 4, flex: "0 0 auto" }}>
-              <Icon name="plus" size={13} sw={2.2} color="rgba(11,15,25,.6)" /> new
+            <button onClick={openNew} title="new group chat" style={{ border: "none", borderRadius: 999, padding: "7px 12px", fontSize: 12.5, fontWeight: 700, whiteSpace: "nowrap", fontFamily: "inherit", background: "rgba(var(--ink-rgb),.05)", color: "rgba(var(--ink-rgb),.6)", display: "flex", alignItems: "center", gap: 4, flex: "0 0 auto" }}>
+              <Icon name="plus" size={13} sw={2.2} color="rgba(var(--ink-rgb),.6)" /> new
             </button>
             {conversations.map((c) => {
               const active = activeConvo === c.id;
               return (
-                <button key={c.id} onClick={() => selectConvo(c.id)} style={{ border: "none", borderRadius: 999, padding: "7px 13px", fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", fontFamily: "inherit", background: active ? "#0B0F19" : "rgba(11,15,25,.05)", color: active ? "#fff" : "rgba(11,15,25,.6)", flex: "0 0 auto" }}>
+                <button key={c.id} onClick={() => selectConvo(c.id)} style={{ border: "none", borderRadius: 999, padding: "7px 13px", fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", fontFamily: "inherit", background: active ? "var(--btn-ink)" : "rgba(var(--ink-rgb),.05)", color: active ? "#fff" : "rgba(var(--ink-rgb),.6)", flex: "0 0 auto" }}>
                   # {c.name}
                 </button>
               );
@@ -280,7 +280,7 @@ export function Team() {
             {dms.map((c) => {
               const active = activeConvo === c.id;
               return (
-                <button key={c.id} onClick={() => selectConvo(c.id)} style={{ border: "none", borderRadius: 999, padding: "7px 13px", fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", fontFamily: "inherit", background: active ? "#0B0F19" : "rgba(11,15,25,.05)", color: active ? "#fff" : "rgba(11,15,25,.6)", flex: "0 0 auto" }}>
+                <button key={c.id} onClick={() => selectConvo(c.id)} style={{ border: "none", borderRadius: 999, padding: "7px 13px", fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", fontFamily: "inherit", background: active ? "var(--btn-ink)" : "rgba(var(--ink-rgb),.05)", color: active ? "#fff" : "rgba(var(--ink-rgb),.6)", flex: "0 0 auto" }}>
                   {c.name}
                 </button>
               );
@@ -309,18 +309,18 @@ export function Team() {
             setDragOver(false);
             handleFiles(e.dataTransfer.files);
           }}
-          style={{ position: "relative", flex: 1, minWidth: 0, minHeight: 0, background: "#fff", border: "1px solid rgba(11,15,25,.06)", borderRadius: 18, boxShadow: "0 1px 2px rgba(11,15,25,.04),0 14px 34px -22px rgba(11,15,25,.3)", display: "flex", flexDirection: "column", overflow: "hidden" }}
+          style={{ position: "relative", flex: 1, minWidth: 0, minHeight: 0, background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.06)", borderRadius: 18, boxShadow: "0 1px 2px rgba(11,15,25,.04),0 14px 34px -22px rgba(11,15,25,.3)", display: "flex", flexDirection: "column", overflow: "hidden" }}
         >
           {dragOver && (
             <div style={{ position: "absolute", inset: 6, zIndex: 8, borderRadius: 14, border: "2px dashed rgba(96,200,255,.8)", background: "rgba(96,200,255,.1)", backdropFilter: "blur(1px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, pointerEvents: "none" }}>
               <Icon name="paperclip" size={26} sw={1.8} color="#1E7FC4" />
-              <div style={{ fontSize: 15, fontWeight: 700, color: "#0B0F19" }}>drop to attach</div>
-              <div style={{ fontSize: 12.5, color: "rgba(11,15,25,.5)" }}>files will be added to your next message</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)" }}>drop to attach</div>
+              <div style={{ fontSize: 12.5, color: "rgba(var(--ink-rgb),.5)" }}>files will be added to your next message</div>
             </div>
           )}
-          <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "13px 16px", borderBottom: "1px solid rgba(11,15,25,.06)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "13px 16px", borderBottom: "1px solid rgba(var(--ink-rgb),.06)" }}>
             {channel ? (
-              <span style={{ width: 32, height: 32, borderRadius: 10, background: "rgba(11,15,25,.06)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, fontWeight: 700, color: "rgba(11,15,25,.55)" }}>#</span>
+              <span style={{ width: 32, height: 32, borderRadius: 10, background: "rgba(var(--ink-rgb),.06)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, fontWeight: 700, color: "rgba(var(--ink-rgb),.55)" }}>#</span>
             ) : dm ? (
               <button onClick={() => openProfile(dm.user)} title="view profile" style={{ display: "flex", border: "none", background: "transparent", padding: 0, cursor: "pointer" }}>
                 <Avatar id={dm.user} size={34} presence />
@@ -328,20 +328,20 @@ export function Team() {
             ) : null}
             <div style={{ flex: 1, minWidth: 0 }}>
               {dm ? (
-                <button onClick={() => openProfile(dm.user)} title="view profile" style={{ display: "block", border: "none", background: "transparent", padding: 0, cursor: "pointer", fontFamily: "inherit", fontSize: 15, fontWeight: 700, letterSpacing: "-.01em", color: "#0B0F19", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%", textAlign: "left" }}>
+                <button onClick={() => openProfile(dm.user)} title="view profile" style={{ display: "block", border: "none", background: "transparent", padding: 0, cursor: "pointer", fontFamily: "inherit", fontSize: 15, fontWeight: 700, letterSpacing: "-.01em", color: "var(--ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%", textAlign: "left" }}>
                   {headerName}
                 </button>
               ) : (
                 <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-.01em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{headerName}</div>
               )}
-              <div style={{ fontSize: 12, color: "rgba(11,15,25,.55)", display: "flex", alignItems: "center", gap: 5, marginTop: 1 }}>
+              <div style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.55)", display: "flex", alignItems: "center", gap: 5, marginTop: 1 }}>
                 <span style={{ width: 6, height: 6, borderRadius: "50%", background: headerDot }} />
                 {headerSub}
               </div>
             </div>
             {channel && (
-              <button onClick={() => openSettings(channel)} title="chat settings" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: 10, border: "none", background: "rgba(11,15,25,.05)", cursor: "pointer", flex: "0 0 auto" }}>
-                <Icon name="settings" size={17} sw={1.8} color="rgba(11,15,25,.55)" />
+              <button onClick={() => openSettings(channel)} title="chat settings" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: 10, border: "none", background: "rgba(var(--ink-rgb),.05)", cursor: "pointer", flex: "0 0 auto" }}>
+                <Icon name="settings" size={17} sw={1.8} color="rgba(var(--ink-rgb),.55)" />
               </button>
             )}
           </div>
@@ -349,7 +349,7 @@ export function Team() {
           {/* desktop: track the viewport instead of a fixed 52vh cap so big screens get a tall pane */}
           <div ref={scrollRef} style={{ flex: 1, overflowY: "auto", padding: 16, display: "flex", flexDirection: "column", gap: 7, minHeight: isMobile ? 120 : 300, maxHeight: isMobile ? undefined : "calc(100dvh - 330px)" }}>
             {messages.length === 0 && (
-              <div style={{ margin: "auto", textAlign: "center", color: "rgba(11,15,25,.55)", fontSize: 13.5, padding: 20 }}>
+              <div style={{ margin: "auto", textAlign: "center", color: "rgba(var(--ink-rgb),.55)", fontSize: 13.5, padding: 20 }}>
                 no messages yet — say hello 👋
               </div>
             )}
@@ -372,7 +372,7 @@ export function Team() {
                   )}
                   <div style={{ display: "flex", flexDirection: "column", alignItems: me ? "flex-end" : "flex-start", maxWidth: "80%" }}>
                     {!me && (
-                      <button onClick={() => openProfile(m.who)} title="view profile" style={{ border: "none", background: "transparent", padding: 0, cursor: "pointer", fontFamily: "inherit", fontSize: 11.5, fontWeight: 600, color: "rgba(11,15,25,.5)", margin: "0 0 3px 2px" }}>
+                      <button onClick={() => openProfile(m.who)} title="view profile" style={{ border: "none", background: "transparent", padding: 0, cursor: "pointer", fontFamily: "inherit", fontSize: 11.5, fontWeight: 600, color: "rgba(var(--ink-rgb),.5)", margin: "0 0 3px 2px" }}>
                         {u.name} · {whenLabel(m.at, m.time)}
                       </button>
                     )}
@@ -386,9 +386,9 @@ export function Team() {
                               padding: "10px 14px",
                               borderRadius: me ? "15px 15px 4px 15px" : "15px 15px 15px 4px",
                               whiteSpace: "pre-wrap",
-                              background: me ? "#0B0F19" : "rgba(11,15,25,.045)",
-                              color: me ? "#fff" : "#0B0F19",
-                              border: me ? "none" : "1px solid rgba(11,15,25,.05)",
+                              background: me ? "var(--btn-ink)" : "rgba(var(--ink-rgb),.045)",
+                              color: me ? "#fff" : "var(--ink)",
+                              border: me ? "none" : "1px solid rgba(var(--ink-rgb),.05)",
                               animation: "msgIn .25s ease",
                             }}
                           >
@@ -410,7 +410,7 @@ export function Team() {
                           aria-label="add reaction"
                           // no hover on touch: keep the button visible (dimmed) on mobile,
                           // and non-interactive while invisible on desktop
-                          style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 26, height: 26, borderRadius: 999, border: "1px solid rgba(11,15,25,.08)", background: "#fff", cursor: "pointer", opacity: showReact ? 1 : isMobile ? 0.45 : 0, pointerEvents: showReact || isMobile ? "auto" : "none", transition: "opacity .12s", fontSize: 13 }}
+                          style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 26, height: 26, borderRadius: 999, border: "1px solid rgba(var(--ink-rgb),.08)", background: "var(--card)", cursor: "pointer", opacity: showReact ? 1 : isMobile ? 0.45 : 0, pointerEvents: showReact || isMobile ? "auto" : "none", transition: "opacity .12s", fontSize: 13 }}
                         >
                           🙂
                         </button>
@@ -422,8 +422,8 @@ export function Team() {
                               ...(me ? { right: 0 } : { left: 0 }),
                               display: "flex",
                               gap: 2,
-                              background: "#fff",
-                              border: "1px solid rgba(11,15,25,.1)",
+                              background: "var(--card)",
+                              border: "1px solid rgba(var(--ink-rgb),.1)",
                               borderRadius: 999,
                               padding: 4,
                               boxShadow: "0 10px 26px -12px rgba(11,15,25,.4)",
@@ -457,7 +457,7 @@ export function Team() {
                               key={emoji}
                               onClick={() => toggleReaction(activeConvo, i, emoji)}
                               title={ids.map((id) => effectiveUser(id, profiles).first).join(", ")}
-                              style={{ display: "flex", alignItems: "center", gap: 4, border: mine ? "1px solid rgba(96,200,255,.6)" : "1px solid rgba(11,15,25,.1)", background: mine ? "rgba(96,200,255,.14)" : "#fff", borderRadius: 999, padding: "2px 8px", fontSize: 12.5, fontWeight: 600, color: "#0B0F19", cursor: "pointer" }}
+                              style={{ display: "flex", alignItems: "center", gap: 4, border: mine ? "1px solid rgba(96,200,255,.6)" : "1px solid rgba(var(--ink-rgb),.1)", background: mine ? "rgba(96,200,255,.14)" : "var(--card)", borderRadius: 999, padding: "2px 8px", fontSize: 12.5, fontWeight: 600, color: "var(--ink)", cursor: "pointer" }}
                             >
                               <span style={{ fontSize: 13 }}>{emoji}</span>
                               {ids.length}
@@ -472,19 +472,19 @@ export function Team() {
             })}
           </div>
 
-          <div style={{ padding: "12px 14px", borderTop: "1px solid rgba(11,15,25,.06)" }}>
+          <div style={{ padding: "12px 14px", borderTop: "1px solid rgba(var(--ink-rgb),.06)" }}>
             {(pending.length > 0 || uploading) && (
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
                 {pending.map((a) => (
-                  <div key={a.id} style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(11,15,25,.045)", border: "1px solid rgba(11,15,25,.07)", borderRadius: 10, padding: "6px 8px 6px 9px", maxWidth: 220 }}>
-                    <Icon name={a.image ? "image" : "note"} size={15} color="rgba(11,15,25,.5)" />
-                    <span style={{ flex: 1, minWidth: 0, fontSize: 12.5, fontWeight: 500, color: "#0B0F19", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.name}</span>
+                  <div key={a.id} style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(var(--ink-rgb),.045)", border: "1px solid rgba(var(--ink-rgb),.07)", borderRadius: 10, padding: "6px 8px 6px 9px", maxWidth: 220 }}>
+                    <Icon name={a.image ? "image" : "note"} size={15} color="rgba(var(--ink-rgb),.5)" />
+                    <span style={{ flex: 1, minWidth: 0, fontSize: 12.5, fontWeight: 500, color: "var(--ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.name}</span>
                     <button onClick={() => removePending(a.id)} title="remove" style={{ display: "flex", border: "none", background: "transparent", padding: 0, cursor: "pointer", flex: "0 0 auto" }}>
-                      <Icon name="close" size={14} sw={2} color="rgba(11,15,25,.4)" />
+                      <Icon name="close" size={14} sw={2} color="rgba(var(--ink-rgb),.4)" />
                     </button>
                   </div>
                 ))}
-                {uploading && <span style={{ fontSize: 12.5, color: "rgba(11,15,25,.55)", alignSelf: "center" }}>attaching…</span>}
+                {uploading && <span style={{ fontSize: 12.5, color: "rgba(var(--ink-rgb),.55)", alignSelf: "center" }}>attaching…</span>}
               </div>
             )}
             <div style={{ display: "flex", gap: 9, alignItems: "flex-end" }}>
@@ -492,19 +492,19 @@ export function Team() {
               <button
                 onClick={() => fileRef.current?.click()}
                 title="attach files"
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, background: "rgba(11,15,25,.05)", border: "none", borderRadius: 12, flex: "0 0 auto", cursor: "pointer" }}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, background: "rgba(var(--ink-rgb),.05)", border: "none", borderRadius: 12, flex: "0 0 auto", cursor: "pointer" }}
               >
-                <Icon name="paperclip" size={18} sw={1.8} color="rgba(11,15,25,.55)" />
+                <Icon name="paperclip" size={18} sw={1.8} color="rgba(var(--ink-rgb),.55)" />
               </button>
               <div style={{ flex: 1, position: "relative", minWidth: 0 }}>
                 {mentionQuery !== null && mentionResults.length > 0 && (
-                  <div style={{ position: "absolute", bottom: "calc(100% + 8px)", left: 0, right: 0, background: "#fff", border: "1px solid rgba(11,15,25,.1)", borderRadius: 12, boxShadow: "0 12px 30px -14px rgba(11,15,25,.4)", overflow: "hidden", zIndex: 6, animation: "scIn .14s ease" }}>
+                  <div style={{ position: "absolute", bottom: "calc(100% + 8px)", left: 0, right: 0, background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 12, boxShadow: "0 12px 30px -14px rgba(11,15,25,.4)", overflow: "hidden", zIndex: 6, animation: "scIn .14s ease" }}>
                     {mentionResults.map((r) => (
                       <button key={r.id} onClick={() => pickMention(r.username)} className="hov-soft" style={{ display: "flex", alignItems: "center", gap: 9, width: "100%", border: "none", background: "transparent", padding: "8px 11px", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}>
                         <Avatar id={r.id} size={26} />
                         <span style={{ minWidth: 0 }}>
-                          <span style={{ display: "block", fontSize: 13.5, fontWeight: 600, color: "#0B0F19" }}>{r.name}</span>
-                          <span style={{ display: "block", fontSize: 12, color: "rgba(11,15,25,.55)" }}>@{r.username}</span>
+                          <span style={{ display: "block", fontSize: 13.5, fontWeight: 600, color: "var(--ink)" }}>{r.name}</span>
+                          <span style={{ display: "block", fontSize: 12, color: "rgba(var(--ink-rgb),.55)" }}>@{r.username}</span>
                         </span>
                       </button>
                     ))}
@@ -527,10 +527,10 @@ export function Team() {
                   }}
                   rows={1}
                   placeholder={channel ? "message #" + channel.name + "… (@ to mention)" : "message the team… (@ to mention)"}
-                  style={{ display: "block", width: "100%", boxSizing: "border-box", border: "1px solid rgba(11,15,25,.1)", borderRadius: 12, padding: "10px 13px", fontSize: 14, lineHeight: 1.5, resize: "none", maxHeight: 100 }}
+                  style={{ display: "block", width: "100%", boxSizing: "border-box", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 12, padding: "10px 13px", fontSize: 14, lineHeight: 1.5, resize: "none", maxHeight: 100 }}
                 />
               </div>
-              <button onClick={send} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, background: "#0B0F19", border: "none", borderRadius: 12, flex: "0 0 auto", cursor: "pointer" }}>
+              <button onClick={send} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, background: "var(--btn-ink)", border: "none", borderRadius: 12, flex: "0 0 auto", cursor: "pointer" }}>
                 <Icon name="send" size={17} sw={1.8} color="#fff" />
               </button>
             </div>
@@ -569,9 +569,9 @@ function AttachmentView({ att, me, onOpen }: { att: MessageAttachment; me: boole
     return (
       <button onClick={open} title={att.name} style={{ border: "none", padding: 0, background: "transparent", cursor: "pointer", borderRadius: 12, overflow: "hidden", lineHeight: 0, maxWidth: 240 }}>
         {url ? (
-          <img src={url} alt={att.name} style={{ display: "block", maxWidth: 240, maxHeight: 200, borderRadius: 12, border: "1px solid rgba(11,15,25,.08)", objectFit: "cover" }} />
+          <img src={url} alt={att.name} style={{ display: "block", maxWidth: 240, maxHeight: 200, borderRadius: 12, border: "1px solid rgba(var(--ink-rgb),.08)", objectFit: "cover" }} />
         ) : (
-          <div style={{ width: 200, height: 130, borderRadius: 12, background: "rgba(11,15,25,.05)" }} />
+          <div style={{ width: 200, height: 130, borderRadius: 12, background: "rgba(var(--ink-rgb),.05)" }} />
         )}
       </button>
     );
@@ -581,14 +581,14 @@ function AttachmentView({ att, me, onOpen }: { att: MessageAttachment; me: boole
     <button
       onClick={open}
       title={att.name}
-      style={{ display: "flex", alignItems: "center", gap: 10, maxWidth: 240, border: me ? "none" : "1px solid rgba(11,15,25,.08)", background: me ? "#0B0F19" : "rgba(11,15,25,.04)", borderRadius: 12, padding: "9px 12px", cursor: "pointer", textAlign: "left" }}
+      style={{ display: "flex", alignItems: "center", gap: 10, maxWidth: 240, border: me ? "none" : "1px solid rgba(var(--ink-rgb),.08)", background: me ? "var(--btn-ink)" : "rgba(var(--ink-rgb),.04)", borderRadius: 12, padding: "9px 12px", cursor: "pointer", textAlign: "left" }}
     >
-      <span style={{ display: "flex", width: 30, height: 30, alignItems: "center", justifyContent: "center", borderRadius: 8, background: me ? "rgba(255,255,255,.12)" : "rgba(11,15,25,.06)", flex: "0 0 auto" }}>
-        <Icon name="note" size={15} color={me ? "#fff" : "rgba(11,15,25,.55)"} />
+      <span style={{ display: "flex", width: 30, height: 30, alignItems: "center", justifyContent: "center", borderRadius: 8, background: me ? "rgba(var(--card-rgb),.12)" : "rgba(var(--ink-rgb),.06)", flex: "0 0 auto" }}>
+        <Icon name="note" size={15} color={me ? "#fff" : "rgba(var(--ink-rgb),.55)"} />
       </span>
       <span style={{ minWidth: 0 }}>
-        <span style={{ display: "block", fontSize: 13, fontWeight: 600, color: me ? "#fff" : "#0B0F19", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{att.name}</span>
-        <span style={{ display: "block", fontSize: 11.5, color: me ? "rgba(255,255,255,.6)" : "rgba(11,15,25,.45)", marginTop: 1 }}>
+        <span style={{ display: "block", fontSize: 13, fontWeight: 600, color: me ? "#fff" : "var(--ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{att.name}</span>
+        <span style={{ display: "block", fontSize: 11.5, color: me ? "rgba(var(--card-rgb),.6)" : "rgba(var(--ink-rgb),.45)", marginTop: 1 }}>
           {att.kind} · {fmtSize(att.size)}
         </span>
       </span>

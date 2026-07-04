@@ -13,11 +13,11 @@ interface ConfirmDialogProps {
 export function ConfirmDialog({ open, title, body, confirmLabel = "delete", onConfirm, onClose }: ConfirmDialogProps) {
   return (
     <ResponsiveModal open={open} onClose={onClose} title={title} width={380}>
-      {body && <p style={{ margin: "0 0 18px", fontSize: 14, lineHeight: 1.55, color: "rgba(11,15,25,.65)" }}>{body}</p>}
+      {body && <p style={{ margin: "0 0 18px", fontSize: 14, lineHeight: 1.55, color: "rgba(var(--ink-rgb),.65)" }}>{body}</p>}
       <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
         <button
           onClick={onClose}
-          style={{ background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 11, padding: "10px 16px", fontSize: 14, fontWeight: 600, fontFamily: "inherit", color: "#0B0F19" }}
+          style={{ background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 11, padding: "10px 16px", fontSize: 14, fontWeight: 600, fontFamily: "inherit", color: "var(--ink)" }}
         >
           cancel
         </button>

@@ -55,6 +55,7 @@ export function Shell() {
     hydrate();
   }, [hydrate]);
 
+  // background comes from .app-frame (aurora corner tints over cloud)
   const frameStyle: CSSProperties = isMobile
     ? {
         display: "grid",
@@ -63,8 +64,7 @@ export function Shell() {
         gridTemplateAreas: '"top" "main" "tabs"',
         width: "100%",
         height: "100dvh",
-        background: "#F6F8FA",
-        color: "#0B0F19",
+        color: "var(--ink)",
         overflow: "hidden",
         position: "relative",
       }
@@ -75,8 +75,7 @@ export function Shell() {
         gridTemplateAreas: '"side top" "side main"',
         width: "100%",
         height: "100dvh",
-        background: "#F6F8FA",
-        color: "#0B0F19",
+        color: "var(--ink)",
         overflow: "hidden",
         position: "relative",
       };
@@ -84,11 +83,11 @@ export function Shell() {
   const screenPad = isMobile ? "16px 14px 28px" : "34px 44px 60px";
 
   return (
-    <div style={frameStyle}>
+    <div className="app-frame" style={frameStyle}>
       {!isMobile && <Sidebar />}
       <Topbar mobile={isMobile} />
 
-      <section style={{ gridArea: "main", overflowY: "auto", overflowX: "hidden", position: "relative" }}>
+      <section className="app-main" style={{ gridArea: "main", overflowY: "auto", overflowX: "hidden", position: "relative" }}>
         <div style={{ padding: screenPad }}>
           {/* keyed by path: a crashed surface resets when the user navigates away */}
           <ErrorBoundary scope="surface" key={location.pathname}>

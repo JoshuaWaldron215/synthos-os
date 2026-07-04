@@ -27,25 +27,25 @@ function KeyRow({ k, projName, flash }: { k: VaultKey; projName: string; flash?:
   return (
     <div
       ref={rowRef}
-      style={{ display: "flex", alignItems: "center", gap: 14, padding: "15px 18px", borderBottom: "1px solid rgba(11,15,25,.05)", animation: flash ? "rowFlash 1.6s ease 1" : undefined }}
+      style={{ display: "flex", alignItems: "center", gap: 14, padding: "15px 18px", borderBottom: "1px solid rgba(var(--ink-rgb),.05)", animation: flash ? "rowFlash 1.6s ease 1" : undefined }}
     >
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: ".02em", fontFamily: "ui-monospace,SFMono-Regular,Menlo,monospace", color: "#0B0F19", display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: ".02em", fontFamily: "ui-monospace,SFMono-Regular,Menlo,monospace", color: "var(--ink)", display: "flex", alignItems: "center", gap: 8 }}>
           {k.label}
-          <span style={{ fontSize: 9.5, letterSpacing: ".08em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", background: "rgba(11,15,25,.05)", padding: "1px 6px", borderRadius: 5, fontFamily: "inherit" }}>{projName}</span>
+          <span style={{ fontSize: 9.5, letterSpacing: ".08em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", background: "rgba(var(--ink-rgb),.05)", padding: "1px 6px", borderRadius: 5, fontFamily: "inherit" }}>{projName}</span>
         </div>
-        <div style={{ fontSize: 13, color: "rgba(11,15,25,.55)", fontFamily: "ui-monospace,SFMono-Regular,Menlo,monospace", marginTop: 3, letterSpacing: ".06em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        <div style={{ fontSize: 13, color: "rgba(var(--ink-rgb),.55)", fontFamily: "ui-monospace,SFMono-Regular,Menlo,monospace", marginTop: 3, letterSpacing: ".06em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {isRevealed ? k.val : "••••••••••••••••"}
         </div>
       </div>
-      <button className="hov-soft" onClick={() => (isRevealed ? hide(k.id) : reveal(k.id))} title="reveal" style={{ display: "flex", background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 9, padding: 8 }}>
-        <Icon name={isRevealed ? "eyeoff" : "eye"} size={17} color="rgba(11,15,25,.55)" />
+      <button className="hov-soft" onClick={() => (isRevealed ? hide(k.id) : reveal(k.id))} title="reveal" style={{ display: "flex", background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 9, padding: 8 }}>
+        <Icon name={isRevealed ? "eyeoff" : "eye"} size={17} color="rgba(var(--ink-rgb),.55)" />
       </button>
-      <button className="hov-soft" onClick={() => copy(k.val, "copied " + k.label)} title="copy" style={{ display: "flex", background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 9, padding: 8 }}>
-        <Icon name="copy" size={16} color="rgba(11,15,25,.55)" />
+      <button className="hov-soft" onClick={() => copy(k.val, "copied " + k.label)} title="copy" style={{ display: "flex", background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 9, padding: 8 }}>
+        <Icon name="copy" size={16} color="rgba(var(--ink-rgb),.55)" />
       </button>
-      <button className="hov-soft" onClick={() => setConfirmDelete(true)} title="delete" style={{ display: "flex", background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 9, padding: 8 }}>
-        <Icon name="trash" size={16} color="rgba(11,15,25,.55)" />
+      <button className="hov-soft" onClick={() => setConfirmDelete(true)} title="delete" style={{ display: "flex", background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 9, padding: 8 }}>
+        <Icon name="trash" size={16} color="rgba(var(--ink-rgb),.55)" />
       </button>
       <ConfirmDialog
         open={confirmDelete}
@@ -97,8 +97,8 @@ function AddKeyModal({ open, onClose }: { open: boolean; onClose: () => void }) 
         </select>
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-        <button onClick={onClose} style={{ background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 11, padding: "10px 16px", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}>cancel</button>
-        <button onClick={submit} disabled={!label.trim() || !val.trim()} style={{ background: "#0B0F19", color: "#fff", border: "none", borderRadius: 11, padding: "10px 18px", fontSize: 14, fontWeight: 600, fontFamily: "inherit", opacity: label.trim() && val.trim() ? 1 : 0.5 }}>add key</button>
+        <button onClick={onClose} style={{ background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 11, padding: "10px 16px", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}>cancel</button>
+        <button onClick={submit} disabled={!label.trim() || !val.trim()} style={{ background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 11, padding: "10px 18px", fontSize: 14, fontWeight: 600, fontFamily: "inherit", opacity: label.trim() && val.trim() ? 1 : 0.5 }}>add key</button>
       </div>
     </ResponsiveModal>
   );
@@ -142,16 +142,16 @@ export function Vault() {
           <h1 style={{ margin: 0, fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
             the <i style={{ fontWeight: 600 }}>vault</i>
           </h1>
-          <p style={{ margin: 0, fontSize: 14, color: "rgba(11,15,25,.5)" }}>keys grouped by project. revealed keys auto-hide after a few seconds; every action is logged.</p>
+          <p style={{ margin: 0, fontSize: 14, color: "rgba(var(--ink-rgb),.5)" }}>keys grouped by project. revealed keys auto-hide after a few seconds; every action is logged.</p>
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <button className="hov-soft" onClick={openAudit} style={{ display: "flex", alignItems: "center", gap: 7, background: "#fff", border: "1px solid rgba(11,15,25,.1)", borderRadius: 12, padding: "9px 14px", fontSize: 13, fontWeight: 600, color: "#0B0F19", whiteSpace: "nowrap" }}>
+          <button className="hov-soft" onClick={openAudit} style={{ display: "flex", alignItems: "center", gap: 7, background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 12, padding: "9px 14px", fontSize: 13, fontWeight: 600, color: "var(--ink)", whiteSpace: "nowrap" }}>
             audit log
           </button>
-          <button className="hov-soft" onClick={() => setAddOpen(true)} style={{ display: "flex", alignItems: "center", gap: 7, background: "#fff", border: "1px solid rgba(11,15,25,.1)", borderRadius: 12, padding: "9px 14px", fontSize: 13, fontWeight: 600, color: "#0B0F19", whiteSpace: "nowrap" }}>
+          <button className="hov-soft" onClick={() => setAddOpen(true)} style={{ display: "flex", alignItems: "center", gap: 7, background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 12, padding: "9px 14px", fontSize: 13, fontWeight: 600, color: "var(--ink)", whiteSpace: "nowrap" }}>
             <Icon name="plus" size={15} sw={2} /> new key
           </button>
-          <button onClick={copyEnv} style={{ display: "flex", alignItems: "center", gap: 7, background: "#0B0F19", color: "#fff", border: "none", borderRadius: 12, padding: "9px 14px", fontSize: 13, fontWeight: 600, whiteSpace: "nowrap" }}>
+          <button onClick={copyEnv} style={{ display: "flex", alignItems: "center", gap: 7, background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 12, padding: "9px 14px", fontSize: 13, fontWeight: 600, whiteSpace: "nowrap" }}>
             copy as .env
           </button>
         </div>
@@ -162,10 +162,10 @@ export function Vault() {
       <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
         {groups.map((g) => (
           <div key={g.id}>
-            <div style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 700, margin: "0 4px 8px" }}>
+            <div style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 700, margin: "0 4px 8px" }}>
               {g.name} · {g.keys.length}
             </div>
-            <div style={{ background: "#fff", border: "1px solid rgba(11,15,25,.06)", borderRadius: 18, overflow: "hidden", boxShadow: "0 1px 2px rgba(11,15,25,.04),0 18px 40px -28px rgba(11,15,25,.3)" }}>
+            <div style={{ background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.06)", borderRadius: 18, overflow: "hidden", boxShadow: "0 1px 2px rgba(11,15,25,.04),0 18px 40px -28px rgba(11,15,25,.3)" }}>
               {g.keys.map((k) => (
                 <KeyRow key={k.id} k={k} projName={g.name} flash={k.id === highlightId} />
               ))}
@@ -173,10 +173,10 @@ export function Vault() {
           </div>
         ))}
         {keys.length === 0 && (
-          <div style={{ background: "#fff", border: "1px dashed rgba(11,15,25,.14)", borderRadius: 18, padding: "44px 24px", textAlign: "center" }}>
+          <div style={{ background: "var(--card)", border: "1px dashed rgba(var(--ink-rgb),.14)", borderRadius: 18, padding: "44px 24px", textAlign: "center" }}>
             <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>the vault is empty</div>
-            <p style={{ margin: "0 0 16px", fontSize: 13.5, color: "rgba(11,15,25,.5)" }}>store API keys and secrets here — shared team-wide or scoped to a project.</p>
-            <button className="hov-soft" onClick={() => setAddOpen(true)} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#0B0F19", color: "#fff", border: "none", borderRadius: 12, padding: "10px 16px", fontSize: 13.5, fontWeight: 600, fontFamily: "inherit" }}>
+            <p style={{ margin: "0 0 16px", fontSize: 13.5, color: "rgba(var(--ink-rgb),.5)" }}>store API keys and secrets here — shared team-wide or scoped to a project.</p>
+            <button className="hov-soft" onClick={() => setAddOpen(true)} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 12, padding: "10px 16px", fontSize: 13.5, fontWeight: 600, fontFamily: "inherit" }}>
               <Icon name="plus" size={15} sw={2.2} color="#fff" /> add your first key
             </button>
           </div>

@@ -1,3 +1,4 @@
+import type { ThemePref } from "../../lib/theme";
 import type { StoreGet, StoreSet } from "../types";
 
 let toastTimer: ReturnType<typeof setTimeout> | undefined;
@@ -12,6 +13,7 @@ export const createUiSlice = (set: StoreSet, get: StoreGet) => ({
   openProfileId: null as number | null,
   notifOpen: false,
   showRevenue: true,
+  theme: "system" as ThemePref,
   toast: null as string | null,
   syncError: null as string | null,
 
@@ -26,6 +28,7 @@ export const createUiSlice = (set: StoreSet, get: StoreGet) => ({
   closeProfile: () => set({ openProfileId: null }),
   toggleNotif: () => set((s) => ({ notifOpen: !s.notifOpen })),
   setShowRevenue: (v: boolean) => set({ showRevenue: v }),
+  setTheme: (t: ThemePref) => set({ theme: t }),
 
   showToast: (msg: string) => {
     clearTimeout(toastTimer);

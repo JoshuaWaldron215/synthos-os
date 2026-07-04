@@ -13,7 +13,7 @@ export function Toast() {
         // on mobile, float above the bottom tab bar instead of under it
         bottom: isMobile ? "calc(74px + env(safe-area-inset-bottom))" : 26,
         transform: "translateX(-50%)",
-        background: "#0B0F19",
+        background: "var(--btn-ink)",
         color: "#fff",
         fontSize: 13,
         fontWeight: 500,

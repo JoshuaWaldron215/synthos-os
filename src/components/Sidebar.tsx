@@ -28,8 +28,11 @@ export function Sidebar() {
     <aside
       style={{
         gridArea: "side",
-        background: "#fff",
-        borderRight: "1px solid rgba(11,15,25,.06)",
+        // glass over the frame's aurora corners — the lavender tint bleeds through
+        background: "rgba(var(--card-rgb),.66)",
+        backdropFilter: "blur(16px) saturate(1.35)",
+        WebkitBackdropFilter: "blur(16px) saturate(1.35)",
+        borderRight: "1px solid rgba(var(--ink-rgb),.06)",
         display: "flex",
         flexDirection: "column",
         padding: "18px 14px 14px",
@@ -66,7 +69,7 @@ export function Sidebar() {
           {showLabels && (
             <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1 }}>
               <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-.025em" }}>synthos</span>
-              <span style={{ fontSize: 9, letterSpacing: ".22em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 700, marginTop: 3 }}>
+              <span style={{ fontSize: 9, letterSpacing: ".22em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 700, marginTop: 3 }}>
                 workspace os
               </span>
             </span>
@@ -79,7 +82,7 @@ export function Sidebar() {
             title="collapse sidebar"
             style={{ marginLeft: "auto", border: "none", background: "transparent", padding: 5, display: "flex", borderRadius: 9 }}
           >
-            <Icon name="collapse" size={18} color="rgba(11,15,25,.45)" />
+            <Icon name="collapse" size={18} color="rgba(var(--ink-rgb),.45)" />
           </button>
         )}
       </div>
@@ -90,7 +93,7 @@ export function Sidebar() {
           return (
             <button
               key={item.key}
-              className={active ? undefined : "hov-sky"}
+              className={active ? undefined : "hov-sky hov-slide"}
               onClick={() => navigate(item.path)}
               title={collapsed ? item.label : undefined}
               aria-label={item.label}
@@ -106,10 +109,13 @@ export function Sidebar() {
                 textAlign: "left",
                 fontFamily: "inherit",
                 fontSize: 14,
-                transition: "background .15s,color .15s,box-shadow .15s",
+                transition: "background .15s,color .15s,box-shadow .15s,transform .18s cubic-bezier(.22,1,.36,1)",
                 background: active ? "var(--grad-nav)" : "transparent",
-                boxShadow: active ? "inset 0 0 0 1px rgba(96,200,255,.24)" : "none",
-                color: active ? "#0B0F19" : "rgba(11,15,25,.55)",
+                // active pill gets a soft sky glow so "where am I" reads instantly
+                boxShadow: active
+                  ? "inset 0 0 0 1px rgba(96,200,255,.28), 0 8px 20px -12px rgba(51,173,238,.45)"
+                  : "none",
+                color: active ? "var(--ink)" : "rgba(var(--ink-rgb),.55)",
                 fontWeight: active ? 600 : 500,
                 whiteSpace: "nowrap",
               }}
@@ -131,8 +137,8 @@ export function Sidebar() {
             alignItems: "center",
             gap: 10,
             width: "100%",
-            border: "1px solid rgba(11,15,25,.07)",
-            background: "#fff",
+            border: "1px solid rgba(var(--ink-rgb),.07)",
+            background: "rgba(var(--card-rgb),.8)",
             padding: 8,
             borderRadius: 13,
             textAlign: "left",
@@ -142,10 +148,10 @@ export function Sidebar() {
           {showLabels && (
             <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.25, flex: 1, minWidth: 0 }}>
               <span style={{ fontSize: 13, fontWeight: 600 }}>{currentUser.name}</span>
-              <span style={{ fontSize: 11, color: "rgba(11,15,25,.55)" }}>@{currentUser.username}</span>
+              <span style={{ fontSize: 11, color: "rgba(var(--ink-rgb),.55)" }}>@{currentUser.username}</span>
             </span>
           )}
-          {showLabels && <Icon name="chevron" size={15} sw={1.8} color="rgba(11,15,25,.4)" />}
+          {showLabels && <Icon name="chevron" size={15} sw={1.8} color="rgba(var(--ink-rgb),.4)" />}
         </button>
       </div>
     </aside>

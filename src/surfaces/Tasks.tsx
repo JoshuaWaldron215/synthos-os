@@ -55,8 +55,8 @@ function TaskCard({ task }: { task: Task }) {
       }}
       className="hov-task"
       style={{
-        background: "#fff",
-        border: "1px solid rgba(11,15,25,.06)",
+        background: "var(--card)",
+        border: "1px solid rgba(var(--ink-rgb),.06)",
         borderRadius: 14,
         padding: 13,
         boxShadow: "var(--shadow-task)",
@@ -81,7 +81,7 @@ function TaskCard({ task }: { task: Task }) {
               }
             }}
             onBlur={saveEdit}
-            style={{ flex: 1, minWidth: 0, border: "1px solid rgba(96,200,255,.55)", borderRadius: 7, padding: "4px 7px", fontSize: 13.5, fontWeight: 500, fontFamily: "inherit", lineHeight: 1.35, color: "#0B0F19" }}
+            style={{ flex: 1, minWidth: 0, border: "1px solid rgba(96,200,255,.55)", borderRadius: 7, padding: "4px 7px", fontSize: 13.5, fontWeight: 500, fontFamily: "inherit", lineHeight: 1.35, color: "var(--ink)" }}
           />
         ) : (
           <span
@@ -107,7 +107,7 @@ function TaskCard({ task }: { task: Task }) {
               e.stopPropagation();
               navigate("/project/" + task.proj);
             }}
-            style={{ fontSize: 10.5, color: projExists ? "rgba(11,15,25,.5)" : "rgba(11,15,25,.32)", fontWeight: 600, textTransform: "uppercase", letterSpacing: ".06em", cursor: projExists ? "pointer" : "default", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 130 }}
+            style={{ fontSize: 10.5, color: projExists ? "rgba(var(--ink-rgb),.5)" : "rgba(var(--ink-rgb),.32)", fontWeight: 600, textTransform: "uppercase", letterSpacing: ".06em", cursor: projExists ? "pointer" : "default", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 130 }}
           >
             {projName}
           </span>
@@ -117,7 +117,7 @@ function TaskCard({ task }: { task: Task }) {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
           {hasNotes && (
-            <span style={{ display: "flex", color: "rgba(11,15,25,.55)" }}>
+            <span style={{ display: "flex", color: "rgba(var(--ink-rgb),.55)" }}>
               <Icon name="note" size={13} sw={1.6} />
             </span>
           )}
@@ -159,7 +159,7 @@ function Column({ colKey, accent, isMobile }: { colKey: ColKey; accent: (typeof 
   const open = !isMobile || (collapsed === null ? items.length > 0 : !collapsed);
 
   const containerStyle: CSSProperties = {
-    background: "rgba(11,15,25,.025)",
+    background: "rgba(var(--ink-rgb),.025)",
     borderRadius: 18,
     padding: 12,
     display: "flex",
@@ -189,8 +189,8 @@ function Column({ colKey, accent, isMobile }: { colKey: ColKey; accent: (typeof 
         >
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: accent.dot, flex: "0 0 auto" }} />
           <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: "-.01em" }}>{colLabels[colKey]}</span>
-          <span style={{ fontSize: 12, color: "rgba(11,15,25,.55)", fontWeight: 600, background: "#fff", borderRadius: 999, padding: "1px 8px" }}>{items.length}</span>
-          <span style={{ marginLeft: "auto", display: "flex", transform: open ? "rotate(0deg)" : "rotate(-90deg)", transition: "transform .18s", color: "rgba(11,15,25,.55)" }}>
+          <span style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.55)", fontWeight: 600, background: "var(--card)", borderRadius: 999, padding: "1px 8px" }}>{items.length}</span>
+          <span style={{ marginLeft: "auto", display: "flex", transform: open ? "rotate(0deg)" : "rotate(-90deg)", transition: "transform .18s", color: "rgba(var(--ink-rgb),.55)" }}>
             <Icon name="chevron" size={18} sw={2} />
           </span>
         </button>
@@ -211,7 +211,7 @@ function Column({ colKey, accent, isMobile }: { colKey: ColKey; accent: (typeof 
                 }
               }}
               onBlur={saveEditCol}
-              style={{ flex: 1, minWidth: 0, border: "1px solid rgba(96,200,255,.55)", borderRadius: 7, padding: "2px 7px", fontSize: 13.5, fontWeight: 700, letterSpacing: "-.01em", fontFamily: "inherit", color: "#0B0F19" }}
+              style={{ flex: 1, minWidth: 0, border: "1px solid rgba(96,200,255,.55)", borderRadius: 7, padding: "2px 7px", fontSize: 13.5, fontWeight: 700, letterSpacing: "-.01em", fontFamily: "inherit", color: "var(--ink)" }}
             />
           ) : (
             <span
@@ -223,7 +223,7 @@ function Column({ colKey, accent, isMobile }: { colKey: ColKey; accent: (typeof 
               {colLabels[colKey]}
             </span>
           )}
-          <span style={{ fontSize: 12, color: "rgba(11,15,25,.55)", fontWeight: 600, background: "#fff", borderRadius: 999, padding: "1px 8px", flex: "0 0 auto" }}>{items.length}</span>
+          <span style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.55)", fontWeight: 600, background: "var(--card)", borderRadius: 999, padding: "1px 8px", flex: "0 0 auto" }}>{items.length}</span>
         </div>
       )}
 
@@ -232,7 +232,7 @@ function Column({ colKey, accent, isMobile }: { colKey: ColKey; accent: (typeof 
       ))}
 
       {open && (composerOpen ? (
-        <div style={{ background: "#fff", border: "1px solid rgba(96,200,255,.5)", borderRadius: 14, padding: 11, boxShadow: "0 8px 22px -14px rgba(11,15,25,.3)" }}>
+        <div style={{ background: "var(--card)", border: "1px solid rgba(96,200,255,.5)", borderRadius: 14, padding: 11, boxShadow: "0 8px 22px -14px rgba(11,15,25,.3)" }}>
           <textarea
             autoFocus
             value={composerText}
@@ -247,18 +247,18 @@ function Column({ colKey, accent, isMobile }: { colKey: ColKey; accent: (typeof 
             }}
             rows={2}
             placeholder="new task title… (enter to add)"
-            style={{ width: "100%", border: "none", resize: "none", fontSize: 13.5, lineHeight: 1.4, fontFamily: "inherit", color: "#0B0F19", background: "transparent" }}
+            style={{ width: "100%", border: "none", resize: "none", fontSize: 13.5, lineHeight: 1.4, fontFamily: "inherit", color: "var(--ink)", background: "transparent" }}
           />
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 6, marginTop: 4 }}>
-            <button onClick={closeComposer} style={{ background: "transparent", border: "none", borderRadius: 8, padding: "5px 10px", fontSize: 12.5, fontWeight: 600, color: "rgba(11,15,25,.5)", fontFamily: "inherit" }}>cancel</button>
-            <button onClick={saveComposer} style={{ background: "#0B0F19", color: "#fff", border: "none", borderRadius: 8, padding: "5px 13px", fontSize: 12.5, fontWeight: 600, fontFamily: "inherit" }}>add</button>
+            <button onClick={closeComposer} style={{ background: "transparent", border: "none", borderRadius: 8, padding: "5px 10px", fontSize: 12.5, fontWeight: 600, color: "rgba(var(--ink-rgb),.5)", fontFamily: "inherit" }}>cancel</button>
+            <button onClick={saveComposer} style={{ background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 8, padding: "5px 13px", fontSize: 12.5, fontWeight: 600, fontFamily: "inherit" }}>add</button>
           </div>
         </div>
       ) : (
         <button
           className="hov-dashed"
           onClick={() => openComposer(colKey)}
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, width: "100%", border: "1px dashed rgba(11,15,25,.16)", background: "transparent", borderRadius: 11, padding: "9px 11px", fontSize: 12.5, fontWeight: 600, color: "rgba(11,15,25,.5)", fontFamily: "inherit" }}
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, width: "100%", border: "1px dashed rgba(var(--ink-rgb),.16)", background: "transparent", borderRadius: 11, padding: "9px 11px", fontSize: 12.5, fontWeight: 600, color: "rgba(var(--ink-rgb),.5)", fontFamily: "inherit" }}
         >
           <Icon name="plus" size={14} sw={2} /> add task
         </button>
@@ -280,13 +280,13 @@ export function Tasks() {
       <h1 style={{ margin: "0 0 4px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
         tasks, <i style={{ fontWeight: 600 }}>build to ship</i>
       </h1>
-      <p style={{ margin: "0 0 16px", fontSize: 14, color: "rgba(11,15,25,.5)" }}>
+      <p style={{ margin: "0 0 16px", fontSize: 14, color: "rgba(var(--ink-rgb),.5)" }}>
         {isMobile ? "tap a card to open & move it" : "drag to move · click a card to open"}
       </p>
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-        <span style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600 }}>project</span>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 4, background: "rgba(11,15,25,.04)", borderRadius: 10, padding: 3 }}>
+        <span style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600 }}>project</span>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 4, background: "rgba(var(--ink-rgb),.04)", borderRadius: 10, padding: 3 }}>
           <button onClick={() => setBoardProj("all")} style={filterPill(boardProj === "all")}>all</button>
           {projects.map((p) => (
             <button key={p.id} onClick={() => setBoardProj(p.id)} style={filterPill(boardProj === p.id)}>{p.client}</button>
@@ -295,9 +295,9 @@ export function Tasks() {
       </div>
 
       {boardEmpty && (
-        <div style={{ background: "#fff", border: "1px dashed rgba(11,15,25,.14)", borderRadius: 16, padding: "26px 20px", textAlign: "center", marginBottom: 16 }}>
+        <div style={{ background: "var(--card)", border: "1px dashed rgba(var(--ink-rgb),.14)", borderRadius: 16, padding: "26px 20px", textAlign: "center", marginBottom: 16 }}>
           <div style={{ fontSize: 14.5, fontWeight: 600, marginBottom: 4 }}>the board is clear ✦</div>
-          <div style={{ fontSize: 13, color: "rgba(11,15,25,.55)" }}>
+          <div style={{ fontSize: 13, color: "rgba(var(--ink-rgb),.55)" }}>
             add a task with the + in any lane, or paste a scope into intake to draft a batch.
           </div>
         </div>

@@ -36,7 +36,7 @@ export function SyncBanner() {
         aria-label="dismiss sync warning"
         style={{
           marginLeft: 4,
-          background: "rgba(255,255,255,.16)",
+          background: "rgba(var(--card-rgb),.16)",
           color: "#fff",
           border: "none",
           borderRadius: 8,

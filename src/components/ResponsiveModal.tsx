@@ -70,7 +70,7 @@ export function ResponsiveModal({
   const overlayStyle: CSSProperties = {
     position: "absolute",
     inset: 0,
-    background: "rgba(11,15,25,.28)",
+    background: "rgba(var(--ink-rgb),.28)",
     zIndex: 50,
     display: "flex",
     alignItems: isMobile ? "flex-end" : "flex-start",
@@ -85,7 +85,7 @@ export function ResponsiveModal({
         position: "relative",
         width: "100%",
         maxHeight,
-        background: "#fff",
+        background: "var(--card)",
         borderRadius: "22px 22px 0 0",
         boxShadow: "0 -20px 60px -20px rgba(11,15,25,.45)",
         padding: "10px 18px calc(20px + env(safe-area-inset-bottom))",
@@ -98,7 +98,7 @@ export function ResponsiveModal({
         position: "relative",
         width,
         maxWidth: "100%",
-        background: "#fff",
+        background: "var(--card)",
         borderRadius: 20,
         boxShadow: "var(--shadow-modal)",
         padding: 20,
@@ -118,14 +118,14 @@ export function ResponsiveModal({
       >
         {isMobile && showHandle && (
           <div style={{ display: "flex", justifyContent: "center", padding: "2px 0 12px", flex: "0 0 auto" }}>
-            <span style={{ width: 38, height: 4, borderRadius: 999, background: "rgba(11,15,25,.16)" }} />
+            <span style={{ width: 38, height: 4, borderRadius: 999, background: "rgba(var(--ink-rgb),.16)" }} />
           </div>
         )}
         {title && (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flex: "0 0 auto" }}>
-            <span style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600 }}>{title}</span>
+            <span style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600 }}>{title}</span>
             <button onClick={onClose} style={{ display: "flex", background: "transparent", border: "none", padding: 2 }}>
-              <Icon name="close" size={18} sw={1.8} color="rgba(11,15,25,.5)" />
+              <Icon name="close" size={18} sw={1.8} color="rgba(var(--ink-rgb),.5)" />
             </button>
           </div>
         )}

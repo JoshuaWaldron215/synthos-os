@@ -29,10 +29,10 @@ export function AccountSheet() {
     <button
       className="hov-row"
       onClick={onClick}
-      style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", border: "none", background: "transparent", padding: "12px 12px", borderRadius: 12, fontFamily: "inherit", fontSize: 14.5, fontWeight: 500, color: "#0B0F19", textAlign: "left" }}
+      style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", border: "none", background: "transparent", padding: "12px 12px", borderRadius: 12, fontFamily: "inherit", fontSize: 14.5, fontWeight: 500, color: "var(--ink)", textAlign: "left" }}
     >
-      <span style={{ display: "flex", width: 34, height: 34, alignItems: "center", justifyContent: "center", borderRadius: 10, background: "rgba(11,15,25,.05)" }}>
-        <Icon name={icon} size={18} color="rgba(11,15,25,.6)" />
+      <span style={{ display: "flex", width: 34, height: 34, alignItems: "center", justifyContent: "center", borderRadius: 10, background: "rgba(var(--ink-rgb),.05)" }}>
+        <Icon name={icon} size={18} color="rgba(var(--ink-rgb),.6)" />
       </span>
       {label}
     </button>
@@ -48,35 +48,35 @@ export function AccountSheet() {
       >
         <Avatar id={currentUserId} size={52} presence />
         <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: "-.01em", color: "#0B0F19" }}>{me.name}</div>
-          <div style={{ fontSize: 13, color: "rgba(11,15,25,.5)" }}>@{me.username} · {me.role}</div>
-          <div style={{ fontSize: 12.5, color: "rgba(11,15,25,.55)", marginTop: 2, display: "flex", alignItems: "center", gap: 5 }}>
+          <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: "-.01em", color: "var(--ink)" }}>{me.name}</div>
+          <div style={{ fontSize: 13, color: "rgba(var(--ink-rgb),.5)" }}>@{me.username} · {me.role}</div>
+          <div style={{ fontSize: 12.5, color: "rgba(var(--ink-rgb),.55)", marginTop: 2, display: "flex", alignItems: "center", gap: 5 }}>
             <span style={{ width: 7, height: 7, borderRadius: "50%", background: status.color }} />
             {status.label} · {me.email}
           </div>
         </div>
-        <Icon name="arrowr" size={16} color="rgba(11,15,25,.3)" />
+        <Icon name="arrowr" size={16} color="rgba(var(--ink-rgb),.3)" />
       </button>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 8 }}>
         {rowBtn("settings", "profile & settings", () => goto("/settings"))}
 
         <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 12px" }}>
-          <span style={{ display: "flex", width: 34, height: 34, alignItems: "center", justifyContent: "center", borderRadius: 10, background: "rgba(11,15,25,.05)" }}>
-            <Icon name={pushEnabled ? "bell" : "belloff"} size={18} color="rgba(11,15,25,.6)" />
+          <span style={{ display: "flex", width: 34, height: 34, alignItems: "center", justifyContent: "center", borderRadius: 10, background: "rgba(var(--ink-rgb),.05)" }}>
+            <Icon name={pushEnabled ? "bell" : "belloff"} size={18} color="rgba(var(--ink-rgb),.6)" />
           </span>
           <span style={{ flex: 1, fontSize: 14.5, fontWeight: 500 }}>push notifications</span>
           <button
             onClick={togglePush}
             aria-label="toggle push"
-            style={{ width: 44, height: 26, borderRadius: 999, border: "none", padding: 3, background: pushEnabled ? "#2FC197" : "rgba(11,15,25,.18)", display: "flex", justifyContent: pushEnabled ? "flex-end" : "flex-start", transition: "background .15s" }}
+            style={{ width: 44, height: 26, borderRadius: 999, border: "none", padding: 3, background: pushEnabled ? "#2FC197" : "rgba(var(--ink-rgb),.18)", display: "flex", justifyContent: pushEnabled ? "flex-end" : "flex-start", transition: "background .15s" }}
           >
-            <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 3px rgba(11,15,25,.3)" }} />
+            <span style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--card)", boxShadow: "0 1px 3px rgba(11,15,25,.3)" }} />
           </button>
         </div>
       </div>
 
-      <div style={{ marginTop: 6, paddingTop: 10, borderTop: "1px solid rgba(11,15,25,.06)" }}>
+      <div style={{ marginTop: 6, paddingTop: 10, borderTop: "1px solid rgba(var(--ink-rgb),.06)" }}>
         {rowBtn("logout", "sign out", async () => {
           close();
           await signOut();

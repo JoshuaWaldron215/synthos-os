@@ -18,7 +18,7 @@ export function Avatar({ id, size = 26, i = 0, style, presence = false }: Avatar
   const base = avatarStyle(id, i, size);
 
   const inner = u.avatarUrl ? (
-    <img src={u.avatarUrl} alt={u.name} style={{ ...base, objectFit: "cover", background: "#fff", ...style }} />
+    <img src={u.avatarUrl} alt={u.name} style={{ ...base, objectFit: "cover", background: "var(--card)", ...style }} />
   ) : (
     <span style={{ ...base, ...style }}>{u.initials}</span>
   );

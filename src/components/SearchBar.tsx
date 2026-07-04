@@ -161,15 +161,15 @@ function ResultRow({ r }: { r: Result }) {
       {r.avatarId !== undefined ? (
         <Avatar id={r.avatarId} size={30} presence />
       ) : (
-        <span style={{ display: "flex", width: 30, height: 30, alignItems: "center", justifyContent: "center", borderRadius: 9, background: "rgba(11,15,25,.05)", flex: "0 0 auto" }}>
-          <Icon name={KIND_ICON[r.kind]} size={15} color="rgba(11,15,25,.55)" />
+        <span style={{ display: "flex", width: 30, height: 30, alignItems: "center", justifyContent: "center", borderRadius: 9, background: "rgba(var(--ink-rgb),.05)", flex: "0 0 auto" }}>
+          <Icon name={KIND_ICON[r.kind]} size={15} color="rgba(var(--ink-rgb),.55)" />
         </span>
       )}
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ display: "block", fontSize: 13.5, fontWeight: 600, color: "#0B0F19", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.title}</span>
-        <span style={{ display: "block", fontSize: 12, color: "rgba(11,15,25,.55)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.sub}</span>
+        <span style={{ display: "block", fontSize: 13.5, fontWeight: 600, color: "var(--ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.title}</span>
+        <span style={{ display: "block", fontSize: 12, color: "rgba(var(--ink-rgb),.55)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.sub}</span>
       </span>
-      <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(11,15,25,.32)", fontWeight: 700, flex: "0 0 auto" }}>{KIND_LABEL[r.kind]}</span>
+      <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.32)", fontWeight: 700, flex: "0 0 auto" }}>{KIND_LABEL[r.kind]}</span>
     </button>
   );
 }
@@ -177,14 +177,14 @@ function ResultRow({ r }: { r: Result }) {
 function ResultList({ query, results }: { query: string; results: Result[] }) {
   if (!query.trim()) {
     return (
-      <div style={{ padding: "18px 12px", fontSize: 13, color: "rgba(11,15,25,.55)", textAlign: "center" }}>
+      <div style={{ padding: "18px 12px", fontSize: 13, color: "rgba(var(--ink-rgb),.55)", textAlign: "center" }}>
         search people, projects, tasks, keys and files
       </div>
     );
   }
   if (!results.length) {
     return (
-      <div style={{ padding: "18px 12px", fontSize: 13, color: "rgba(11,15,25,.55)", textAlign: "center" }}>
+      <div style={{ padding: "18px 12px", fontSize: 13, color: "rgba(var(--ink-rgb),.55)", textAlign: "center" }}>
         no matches for "{query.trim()}"
       </div>
     );
@@ -233,19 +233,19 @@ export function SearchBar({ mobile }: { mobile?: boolean }) {
           className="hov-sky"
           onClick={() => setOpen(true)}
           title="search"
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, border: "1px solid rgba(11,15,25,.08)", background: "#fff", borderRadius: 11, flex: "0 0 auto", padding: 0 }}
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, border: "1px solid rgba(var(--ink-rgb),.08)", background: "var(--card)", borderRadius: 11, flex: "0 0 auto", padding: 0 }}
         >
-          <Icon name="search" size={19} color="#0B0F19" />
+          <Icon name="search" size={19} color="var(--ink)" />
         </button>
         <ResponsiveModal open={open} onClose={close} title="search" width={460}>
-          <label style={{ display: "flex", alignItems: "center", gap: 9, background: "rgba(11,15,25,.04)", border: "1px solid rgba(11,15,25,.08)", borderRadius: 12, padding: "11px 13px", marginBottom: 10 }}>
-            <Icon name="search" size={18} color="rgba(11,15,25,.4)" />
+          <label style={{ display: "flex", alignItems: "center", gap: 9, background: "rgba(var(--ink-rgb),.04)", border: "1px solid rgba(var(--ink-rgb),.08)", borderRadius: 12, padding: "11px 13px", marginBottom: 10 }}>
+            <Icon name="search" size={18} color="rgba(var(--ink-rgb),.4)" />
             <input
               autoFocus
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="people, projects, tasks, keys…"
-              style={{ border: "none", background: "transparent", fontSize: 16, color: "#0B0F19", flex: 1, minWidth: 0 }}
+              style={{ border: "none", background: "transparent", fontSize: 16, color: "var(--ink)", flex: 1, minWidth: 0 }}
             />
           </label>
           <ResultList query={query} results={results} />
@@ -259,8 +259,8 @@ export function SearchBar({ mobile }: { mobile?: boolean }) {
     top: "calc(100% + 8px)",
     left: 0,
     width: "100%",
-    background: "#fff",
-    border: "1px solid rgba(11,15,25,.08)",
+    background: "var(--card)",
+    border: "1px solid rgba(var(--ink-rgb),.08)",
     borderRadius: 14,
     boxShadow: "0 20px 50px -20px rgba(11,15,25,.4)",
     padding: 6,
@@ -271,8 +271,8 @@ export function SearchBar({ mobile }: { mobile?: boolean }) {
 
   return (
     <div style={{ position: "relative", flex: 1, maxWidth: 420 }}>
-      <label style={{ display: "flex", alignItems: "center", gap: 9, background: "#fff", border: "1px solid rgba(11,15,25,.07)", borderRadius: 12, padding: "8px 12px" }}>
-        <Icon name="search" size={17} color="rgba(11,15,25,.4)" />
+      <label style={{ display: "flex", alignItems: "center", gap: 9, background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.07)", borderRadius: 12, padding: "8px 12px" }}>
+        <Icon name="search" size={17} color="rgba(var(--ink-rgb),.4)" />
         <input
           ref={inputRef}
           value={query}
@@ -283,9 +283,9 @@ export function SearchBar({ mobile }: { mobile?: boolean }) {
             setOpen(true);
           }}
           placeholder="search projects, tasks, keys…"
-          style={{ border: "none", background: "transparent", fontSize: 13.5, color: "#0B0F19", flex: 1, minWidth: 0 }}
+          style={{ border: "none", background: "transparent", fontSize: 13.5, color: "var(--ink)", flex: 1, minWidth: 0 }}
         />
-        <span style={{ fontSize: 11, color: "rgba(11,15,25,.34)", border: "1px solid rgba(11,15,25,.1)", borderRadius: 6, padding: "1px 6px", fontWeight: 600 }}>⌘K</span>
+        <span style={{ fontSize: 11, color: "rgba(var(--ink-rgb),.34)", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 6, padding: "1px 6px", fontWeight: 600 }}>⌘K</span>
       </label>
       {open && (query.trim() !== "" || results.length > 0) && (
         <div style={dropdownStyle}>

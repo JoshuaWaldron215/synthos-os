@@ -46,8 +46,8 @@ function ContentCard({ item }: { item: ContentItem }) {
       }}
       className="hov-task"
       style={{
-        background: "#fff",
-        border: "1px solid rgba(11,15,25,.06)",
+        background: "var(--card)",
+        border: "1px solid rgba(var(--ink-rgb),.06)",
         borderRadius: 14,
         padding: 14,
         boxShadow: "var(--shadow-task)",
@@ -56,7 +56,7 @@ function ContentCard({ item }: { item: ContentItem }) {
       }}
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 9 }}>
-        <span style={{ fontSize: 10.5, color: "rgba(11,15,25,.55)", fontWeight: 600, textTransform: "uppercase", letterSpacing: ".08em" }}>{item.kind}</span>
+        <span style={{ fontSize: 10.5, color: "rgba(var(--ink-rgb),.55)", fontWeight: 600, textTransform: "uppercase", letterSpacing: ".08em" }}>{item.kind}</span>
         <Avatar id={item.who} size={22} />
       </div>
       <p style={{ margin: "0 0 13px", fontSize: 13.5, lineHeight: 1.4, fontWeight: 500 }}>{item.title}</p>
@@ -69,7 +69,7 @@ function ContentCard({ item }: { item: ContentItem }) {
               e.stopPropagation();
               showToast(b + " — drafting with ai ✦");
             }}
-            style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(11,15,25,.04)", border: "none", borderRadius: 8, padding: "5px 9px", fontSize: 11.5, fontWeight: 600, color: "#0B0F19" }}
+            style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(var(--ink-rgb),.04)", border: "none", borderRadius: 8, padding: "5px 9px", fontSize: 11.5, fontWeight: 600, color: "var(--ink)" }}
           >
             <span style={{ fontSize: 11 }}>✦</span>
             {b}
@@ -110,7 +110,7 @@ function Lane({ laneKey, label, accentKey, isMobile }: { laneKey: ContentLane; l
     ...(isMobile
       ? {
           width: "100%",
-          background: isOver ? "rgba(96,200,255,.06)" : "rgba(11,15,25,.025)",
+          background: isOver ? "rgba(96,200,255,.06)" : "rgba(var(--ink-rgb),.025)",
           borderRadius: 16,
           padding: 12,
         }
@@ -142,8 +142,8 @@ function Lane({ laneKey, label, accentKey, isMobile }: { laneKey: ContentLane; l
         >
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: accent.dot, flex: "0 0 auto" }} />
           <span style={{ fontSize: 14, fontWeight: 700 }}>{label}</span>
-          <span style={{ fontSize: 12, color: "rgba(11,15,25,.55)", fontWeight: 600 }}>{items.length}</span>
-          <span style={{ marginLeft: "auto", display: "flex", transform: open ? "rotate(0deg)" : "rotate(-90deg)", transition: "transform .18s", color: "rgba(11,15,25,.55)" }}>
+          <span style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.55)", fontWeight: 600 }}>{items.length}</span>
+          <span style={{ marginLeft: "auto", display: "flex", transform: open ? "rotate(0deg)" : "rotate(-90deg)", transition: "transform .18s", color: "rgba(var(--ink-rgb),.55)" }}>
             <Icon name="chevron" size={18} sw={2} />
           </span>
         </button>
@@ -152,7 +152,7 @@ function Lane({ laneKey, label, accentKey, isMobile }: { laneKey: ContentLane; l
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 4px" }}>
             <span style={{ width: 8, height: 8, borderRadius: "50%", background: accent.dot }} />
             <span style={{ fontSize: 13, fontWeight: 700 }}>{label}</span>
-            <span style={{ fontSize: 12, color: "rgba(11,15,25,.55)", fontWeight: 600 }}>{items.length}</span>
+            <span style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.55)", fontWeight: 600 }}>{items.length}</span>
           </div>
           <div style={{ height: 3, borderRadius: 3, background: accent.bg }} />
         </>
@@ -163,7 +163,7 @@ function Lane({ laneKey, label, accentKey, isMobile }: { laneKey: ContentLane; l
       ))}
 
       {open && (composerOpen ? (
-        <div style={{ background: "#fff", border: "1px solid rgba(96,200,255,.5)", borderRadius: 14, padding: 11, boxShadow: "0 8px 22px -14px rgba(11,15,25,.3)" }}>
+        <div style={{ background: "var(--card)", border: "1px solid rgba(96,200,255,.5)", borderRadius: 14, padding: 11, boxShadow: "0 8px 22px -14px rgba(11,15,25,.3)" }}>
           <textarea
             autoFocus
             value={composerText}
@@ -178,18 +178,18 @@ function Lane({ laneKey, label, accentKey, isMobile }: { laneKey: ContentLane; l
             }}
             rows={2}
             placeholder="content idea… (enter to add)"
-            style={{ width: "100%", border: "none", resize: "none", fontSize: 13.5, lineHeight: 1.4, fontFamily: "inherit", color: "#0B0F19", background: "transparent" }}
+            style={{ width: "100%", border: "none", resize: "none", fontSize: 13.5, lineHeight: 1.4, fontFamily: "inherit", color: "var(--ink)", background: "transparent" }}
           />
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 6, marginTop: 4 }}>
-            <button onClick={closeComposer} style={{ background: "transparent", border: "none", borderRadius: 8, padding: "5px 10px", fontSize: 12.5, fontWeight: 600, color: "rgba(11,15,25,.5)", fontFamily: "inherit" }}>cancel</button>
-            <button onClick={saveComposer} style={{ background: "#0B0F19", color: "#fff", border: "none", borderRadius: 8, padding: "5px 13px", fontSize: 12.5, fontWeight: 600, fontFamily: "inherit" }}>add</button>
+            <button onClick={closeComposer} style={{ background: "transparent", border: "none", borderRadius: 8, padding: "5px 10px", fontSize: 12.5, fontWeight: 600, color: "rgba(var(--ink-rgb),.5)", fontFamily: "inherit" }}>cancel</button>
+            <button onClick={saveComposer} style={{ background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 8, padding: "5px 13px", fontSize: 12.5, fontWeight: 600, fontFamily: "inherit" }}>add</button>
           </div>
         </div>
       ) : (
         <button
           className="hov-dashed"
           onClick={() => openComposer(laneKey)}
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, width: "100%", border: "1px dashed rgba(11,15,25,.16)", background: "transparent", borderRadius: 11, padding: "9px 11px", fontSize: 12.5, fontWeight: 600, color: "rgba(11,15,25,.5)", fontFamily: "inherit" }}
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, width: "100%", border: "1px dashed rgba(var(--ink-rgb),.16)", background: "transparent", borderRadius: 11, padding: "9px 11px", fontSize: 12.5, fontWeight: 600, color: "rgba(var(--ink-rgb),.5)", fontFamily: "inherit" }}
         >
           <Icon name="plus" size={14} sw={2} /> add idea
         </button>
@@ -208,14 +208,14 @@ export function Content() {
       <h1 style={{ margin: "0 0 4px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
         content <i style={{ fontWeight: 600 }}>pipeline</i>
       </h1>
-      <p style={{ margin: "0 0 22px", fontSize: 14, color: "rgba(11,15,25,.5)" }}>
+      <p style={{ margin: "0 0 22px", fontSize: 14, color: "rgba(var(--ink-rgb),.5)" }}>
         idea to posted · {isMobile ? "tap a card to edit & move it" : "drag to move · click a card to edit"}. each card has ai assists — hook, script, repurpose.
       </p>
 
       {pipelineEmpty && (
-        <div style={{ background: "#fff", border: "1px dashed rgba(11,15,25,.14)", borderRadius: 16, padding: "26px 20px", textAlign: "center", marginBottom: 16 }}>
+        <div style={{ background: "var(--card)", border: "1px dashed rgba(var(--ink-rgb),.14)", borderRadius: 16, padding: "26px 20px", textAlign: "center", marginBottom: 16 }}>
           <div style={{ fontSize: 14.5, fontWeight: 600, marginBottom: 4 }}>nothing in the pipeline yet ✦</div>
-          <div style={{ fontSize: 13, color: "rgba(11,15,25,.55)" }}>
+          <div style={{ fontSize: 13, color: "rgba(var(--ink-rgb),.55)" }}>
             drop your first idea into the idea lane — posts, scripts, clips, anything.
           </div>
         </div>

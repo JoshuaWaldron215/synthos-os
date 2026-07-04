@@ -18,9 +18,9 @@ import type { Prefs } from "../types";
 
 function Card({ title, desc, children }: { title: string; desc?: string; children: ReactNode }) {
   return (
-    <div style={{ background: "#fff", border: "1px solid rgba(11,15,25,.06)", borderRadius: 18, padding: 20, boxShadow: "var(--shadow-card)" }}>
-      <div style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600 }}>{title}</div>
-      {desc && <p style={{ margin: "6px 0 0", fontSize: 13, color: "rgba(11,15,25,.5)", lineHeight: 1.5 }}>{desc}</p>}
+    <div style={{ background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.06)", borderRadius: 18, padding: 20, boxShadow: "var(--shadow-card)" }}>
+      <div style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600 }}>{title}</div>
+      {desc && <p style={{ margin: "6px 0 0", fontSize: 13, color: "rgba(var(--ink-rgb),.5)", lineHeight: 1.5 }}>{desc}</p>}
       <div style={{ marginTop: 16 }}>{children}</div>
     </div>
   );
@@ -31,14 +31,14 @@ function Field({ label, value, onChange, placeholder, type = "text" }: { label: 
   const draft = useDraft(value, onChange);
   return (
     <label style={{ display: "block", marginBottom: 14 }}>
-      <span style={{ display: "block", fontSize: 12, fontWeight: 600, color: "rgba(11,15,25,.55)", marginBottom: 6 }}>{label}</span>
+      <span style={{ display: "block", fontSize: 12, fontWeight: 600, color: "rgba(var(--ink-rgb),.55)", marginBottom: 6 }}>{label}</span>
       <input
         type={type}
         value={draft.draft}
         placeholder={placeholder}
         onChange={(e) => draft.onChange(e.target.value)}
         onBlur={draft.flush}
-        style={{ width: "100%", border: "1px solid rgba(11,15,25,.12)", borderRadius: 11, padding: "11px 13px", fontSize: 16, color: "#0B0F19", background: "#fff" }}
+        style={{ width: "100%", border: "1px solid rgba(var(--ink-rgb),.12)", borderRadius: 11, padding: "11px 13px", fontSize: 16, color: "var(--ink)", background: "var(--card)" }}
       />
     </label>
   );
@@ -48,14 +48,14 @@ function BioField({ value, onChange }: { value: string; onChange: (v: string) =>
   const draft = useDraft(value, onChange);
   return (
     <label style={{ display: "block", marginBottom: 14 }}>
-      <span style={{ display: "block", fontSize: 12, fontWeight: 600, color: "rgba(11,15,25,.55)", marginBottom: 6 }}>bio</span>
+      <span style={{ display: "block", fontSize: 12, fontWeight: 600, color: "rgba(var(--ink-rgb),.55)", marginBottom: 6 }}>bio</span>
       <textarea
         value={draft.draft}
         placeholder="a line about what you do — shown on your profile"
         onChange={(e) => draft.onChange(e.target.value)}
         onBlur={draft.flush}
         rows={2}
-        style={{ width: "100%", border: "1px solid rgba(11,15,25,.12)", borderRadius: 11, padding: "11px 13px", fontSize: 16, color: "#0B0F19", background: "#fff", resize: "vertical", lineHeight: 1.5, fontFamily: "inherit", boxSizing: "border-box" }}
+        style={{ width: "100%", border: "1px solid rgba(var(--ink-rgb),.12)", borderRadius: 11, padding: "11px 13px", fontSize: 16, color: "var(--ink)", background: "var(--card)", resize: "vertical", lineHeight: 1.5, fontFamily: "inherit", boxSizing: "border-box" }}
       />
     </label>
   );
@@ -63,17 +63,17 @@ function BioField({ value, onChange }: { value: string; onChange: (v: string) =>
 
 function Toggle({ on, onClick, label, sub }: { on: boolean; onClick: () => void; label: string; sub?: string }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 0", borderBottom: "1px solid rgba(11,15,25,.05)" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 0", borderBottom: "1px solid rgba(var(--ink-rgb),.05)" }}>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 14, fontWeight: 500 }}>{label}</div>
-        {sub && <div style={{ fontSize: 12, color: "rgba(11,15,25,.55)", marginTop: 1 }}>{sub}</div>}
+        {sub && <div style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.55)", marginTop: 1 }}>{sub}</div>}
       </div>
       <button
         onClick={onClick}
         aria-label={label}
-        style={{ width: 44, height: 26, borderRadius: 999, border: "none", padding: 3, flex: "0 0 auto", background: on ? "#2FC197" : "rgba(11,15,25,.18)", display: "flex", justifyContent: on ? "flex-end" : "flex-start", transition: "background .15s" }}
+        style={{ width: 44, height: 26, borderRadius: 999, border: "none", padding: 3, flex: "0 0 auto", background: on ? "#2FC197" : "rgba(var(--ink-rgb),.18)", display: "flex", justifyContent: on ? "flex-end" : "flex-start", transition: "background .15s" }}
       >
-        <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 3px rgba(11,15,25,.3)" }} />
+        <span style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--card)", boxShadow: "0 1px 3px rgba(11,15,25,.3)" }} />
       </button>
     </div>
   );
@@ -93,6 +93,8 @@ export function Settings() {
   const updatePrefs = useStore((s) => s.updatePrefs);
   const showRevenue = useStore((s) => s.showRevenue);
   const setShowRevenue = useStore((s) => s.setShowRevenue);
+  const theme = useStore((s) => s.theme);
+  const setTheme = useStore((s) => s.setTheme);
   const notifPermission = useStore((s) => s.notifPermission);
   const showToast = useStore((s) => s.showToast);
 
@@ -134,18 +136,18 @@ export function Settings() {
       <h1 style={{ margin: "0 0 4px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
         profile & <i style={{ fontWeight: 600 }}>settings</i>
       </h1>
-      <p style={{ margin: "0 0 22px", fontSize: 14, color: "rgba(11,15,25,.5)" }}>your photo, name, notifications and app preferences — saved to this device.</p>
+      <p style={{ margin: "0 0 22px", fontSize: 14, color: "rgba(var(--ink-rgb),.5)" }}>your photo, name, notifications and app preferences — saved to this device.</p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <Card title="profile">
           <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 18, flexWrap: "wrap" }}>
             <Avatar id={currentUserId} size={72} />
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <button onClick={() => fileRef.current?.click()} style={{ display: "flex", alignItems: "center", gap: 7, background: "#0B0F19", color: "#fff", border: "none", borderRadius: 11, padding: "10px 14px", fontSize: 13.5, fontWeight: 600 }}>
+              <button onClick={() => fileRef.current?.click()} style={{ display: "flex", alignItems: "center", gap: 7, background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 11, padding: "10px 14px", fontSize: 13.5, fontWeight: 600 }}>
                 <Icon name="camera" size={16} sw={1.7} color="#fff" /> {p.avatarUrl ? "change photo" : "upload photo"}
               </button>
               {p.avatarUrl && (
-                <button onClick={() => { setAvatar(currentUserId, null); showToast("photo removed"); }} className="hov-soft" style={{ background: "#fff", border: "1px solid rgba(11,15,25,.1)", borderRadius: 11, padding: "10px 14px", fontSize: 13.5, fontWeight: 600, color: "#0B0F19" }}>
+                <button onClick={() => { setAvatar(currentUserId, null); showToast("photo removed"); }} className="hov-soft" style={{ background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 11, padding: "10px 14px", fontSize: 13.5, fontWeight: 600, color: "var(--ink)" }}>
                   remove
                 </button>
               )}
@@ -159,12 +161,12 @@ export function Settings() {
           <Field label="github" value={p.github} onChange={(v) => updateProfile(currentUserId, { github: v })} placeholder="e.g. joshwaldron or github.com/joshwaldron" />
           <BioField value={p.bio} onChange={(v) => updateProfile(currentUserId, { bio: v })} />
           <div style={{ marginBottom: 0 }}>
-            <span style={{ display: "block", fontSize: 12, fontWeight: 600, color: "rgba(11,15,25,.55)", marginBottom: 6 }}>status</span>
+            <span style={{ display: "block", fontSize: 12, fontWeight: 600, color: "rgba(var(--ink-rgb),.55)", marginBottom: 6 }}>status</span>
             <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
               {STATUS_OPTIONS.map((st) => {
                 const on = p.status === st;
                 return (
-                  <button key={st} onClick={() => updateProfile(currentUserId, { status: st })} style={{ border: on ? "1px solid rgba(96,200,255,.55)" : "1px solid rgba(11,15,25,.1)", background: on ? "rgba(96,200,255,.12)" : "#fff", borderRadius: 999, padding: "7px 14px", fontSize: 13, fontWeight: 600, color: "#0B0F19", fontFamily: "inherit" }}>
+                  <button key={st} onClick={() => updateProfile(currentUserId, { status: st })} style={{ border: on ? "1px solid rgba(96,200,255,.55)" : "1px solid rgba(var(--ink-rgb),.1)", background: on ? "rgba(96,200,255,.12)" : "var(--card)", borderRadius: 999, padding: "7px 14px", fontSize: 13, fontWeight: 600, color: "var(--ink)", fontFamily: "inherit" }}>
                     {st}
                   </button>
                 );
@@ -196,7 +198,7 @@ export function Settings() {
                 }
               }}
               className="hov-soft"
-              style={{ background: "#fff", border: "1px solid rgba(11,15,25,.1)", borderRadius: 11, padding: "9px 14px", fontSize: 13, fontWeight: 600, color: "#0B0F19" }}
+              style={{ background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 11, padding: "9px 14px", fontSize: 13, fontWeight: 600, color: "var(--ink)" }}
             >
               test (local)
             </button>
@@ -209,7 +211,7 @@ export function Settings() {
                   showToast("push server unreachable — run: npm run server");
                 }
               }}
-              style={{ background: "#0B0F19", color: "#fff", border: "none", borderRadius: 11, padding: "9px 14px", fontSize: 13, fontWeight: 600 }}
+              style={{ background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 11, padding: "9px 14px", fontSize: 13, fontWeight: 600 }}
             >
               test (server push)
             </button>
@@ -217,6 +219,32 @@ export function Settings() {
         </Card>
 
         <Card title="appearance">
+          <div style={{ paddingBottom: 12, borderBottom: "1px solid rgba(var(--ink-rgb),.05)", marginBottom: 2 }}>
+            <span style={{ display: "block", fontSize: 14, fontWeight: 500, marginBottom: 8 }}>theme</span>
+            <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+              {(["system", "light", "dark"] as const).map((t) => {
+                const on = theme === t;
+                return (
+                  <button
+                    key={t}
+                    onClick={() => setTheme(t)}
+                    style={{
+                      border: on ? "1px solid rgba(96,200,255,.55)" : "1px solid rgba(var(--ink-rgb),.1)",
+                      background: on ? "rgba(96,200,255,.12)" : "var(--card)",
+                      borderRadius: 999,
+                      padding: "7px 14px",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: "var(--ink)",
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    {t === "system" ? "match system" : t}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
           <Toggle on={showRevenue} onClick={() => setShowRevenue(!showRevenue)} label="show revenue" sub="display $/mo on projects and wins" />
         </Card>
 
@@ -227,14 +255,14 @@ export function Settings() {
                 exportWorkspace();
                 showToast("backup downloaded ✦");
               }}
-              style={{ display: "flex", alignItems: "center", gap: 8, background: "#0B0F19", color: "#fff", border: "none", borderRadius: 11, padding: "10px 14px", fontSize: 13.5, fontWeight: 600 }}
+              style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 11, padding: "10px 14px", fontSize: 13.5, fontWeight: 600 }}
             >
               <Icon name="download" size={16} sw={1.7} color="#fff" /> export backup
             </button>
             <button
               onClick={() => backupRef.current?.click()}
               className="hov-soft"
-              style={{ background: "#fff", border: "1px solid rgba(11,15,25,.1)", borderRadius: 11, padding: "10px 14px", fontSize: 13.5, fontWeight: 600, color: "#0B0F19" }}
+              style={{ background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 11, padding: "10px 14px", fontSize: 13.5, fontWeight: 600, color: "var(--ink)" }}
             >
               import backup…
             </button>
@@ -253,13 +281,13 @@ export function Settings() {
                 const r = await promptInstall();
                 if (r === "accepted") showToast("installing Synthos OS ✦");
               }}
-              style={{ display: "flex", alignItems: "center", gap: 8, background: "#0B0F19", color: "#fff", border: "none", borderRadius: 12, padding: "11px 16px", fontSize: 14, fontWeight: 600 }}
+              style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 12, padding: "11px 16px", fontSize: 14, fontWeight: 600 }}
             >
               <Icon name="download" size={18} sw={1.7} color="#fff" /> install Synthos OS
             </button>
           ) : (
-            <p style={{ margin: 0, fontSize: 13.5, color: "rgba(11,15,25,.55)", lineHeight: 1.55 }}>
-              on iOS, tap the share icon then <b style={{ fontWeight: 600, color: "#0B0F19" }}>Add to Home Screen</b>. on desktop Chrome/Edge, use the install icon in the address bar.
+            <p style={{ margin: 0, fontSize: 13.5, color: "rgba(var(--ink-rgb),.55)", lineHeight: 1.55 }}>
+              on iOS, tap the share icon then <b style={{ fontWeight: 600, color: "var(--ink)" }}>Add to Home Screen</b>. on desktop Chrome/Edge, use the install icon in the address bar.
             </p>
           )}
         </Card>

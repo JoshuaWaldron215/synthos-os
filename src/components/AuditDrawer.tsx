@@ -13,7 +13,7 @@ export function AuditDrawer() {
 
   return (
     <>
-      <div onClick={closeAudit} style={{ position: "absolute", inset: 0, background: "rgba(11,15,25,.18)", zIndex: 40, animation: "fadeIn .18s ease" }} />
+      <div onClick={closeAudit} style={{ position: "absolute", inset: 0, background: "rgba(var(--ink-rgb),.18)", zIndex: 40, animation: "fadeIn .18s ease" }} />
       <div
         style={{
           position: "absolute",
@@ -22,7 +22,7 @@ export function AuditDrawer() {
           bottom: 0,
           width: 340,
           maxWidth: "86%",
-          background: "#fff",
+          background: "var(--card)",
           zIndex: 41,
           boxShadow: "-20px 0 50px -20px rgba(11,15,25,.3)",
           animation: "drawerIn .22s cubic-bezier(.2,.8,.2,1)",
@@ -30,27 +30,27 @@ export function AuditDrawer() {
           flexDirection: "column",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px", borderBottom: "1px solid rgba(11,15,25,.06)" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px", borderBottom: "1px solid rgba(var(--ink-rgb),.06)" }}>
           <div>
-            <div style={{ fontSize: 10.5, letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 600 }}>vault</div>
+            <div style={{ fontSize: 10.5, letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600 }}>vault</div>
             <h3 style={{ margin: "3px 0 0", fontSize: 17, fontWeight: 700 }}>audit log</h3>
           </div>
           <button onClick={closeAudit} style={{ display: "flex", background: "transparent", border: "none", padding: 4 }}>
-            <Icon name="close" size={18} sw={1.8} color="rgba(11,15,25,.5)" />
+            <Icon name="close" size={18} sw={1.8} color="rgba(var(--ink-rgb),.5)" />
           </button>
         </div>
         <div style={{ overflowY: "auto", padding: "8px 12px" }}>
           {activity.map((a) => (
-            <div key={a.id} style={{ display: "flex", gap: 11, padding: "12px 8px", borderBottom: "1px solid rgba(11,15,25,.05)" }}>
+            <div key={a.id} style={{ display: "flex", gap: 11, padding: "12px 8px", borderBottom: "1px solid rgba(var(--ink-rgb),.05)" }}>
               <Avatar id={a.who} size={24} />
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 13.5, lineHeight: 1.4 }}>
                   <b style={{ fontWeight: 600 }}>{effectiveUser(a.who, profiles).name}</b> {a.action}
                 </div>
-                <div style={{ fontSize: 12, color: "rgba(11,15,25,.5)", fontFamily: "ui-monospace,monospace", marginTop: 1 }}>{a.target}</div>
+                <div style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.5)", fontFamily: "ui-monospace,monospace", marginTop: 1 }}>{a.target}</div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "rgba(11,15,25,.55)", whiteSpace: "nowrap" }}>
-                <Icon name="clock" size={15} sw={1.6} color="rgba(11,15,25,.4)" />
+              <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "rgba(var(--ink-rgb),.55)", whiteSpace: "nowrap" }}>
+                <Icon name="clock" size={15} sw={1.6} color="rgba(var(--ink-rgb),.4)" />
                 {whenLabel(a.at, a.time)}
               </div>
             </div>

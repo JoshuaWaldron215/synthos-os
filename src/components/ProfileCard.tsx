@@ -10,14 +10,14 @@ import { ResponsiveModal } from "./ResponsiveModal";
 function DetailRow({ icon, label, value, href, onCopy }: { icon: IconName; label: string; value: string; href?: string; onCopy?: () => void }) {
   const body: ReactNode = (
     <>
-      <span style={{ display: "flex", width: 34, height: 34, alignItems: "center", justifyContent: "center", borderRadius: 10, background: "rgba(11,15,25,.05)", flex: "0 0 auto" }}>
-        <Icon name={icon} size={17} color="rgba(11,15,25,.55)" />
+      <span style={{ display: "flex", width: 34, height: 34, alignItems: "center", justifyContent: "center", borderRadius: 10, background: "rgba(var(--ink-rgb),.05)", flex: "0 0 auto" }}>
+        <Icon name={icon} size={17} color="rgba(var(--ink-rgb),.55)" />
       </span>
       <span style={{ minWidth: 0, flex: 1 }}>
-        <span style={{ display: "block", fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 700 }}>{label}</span>
-        <span style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#0B0F19", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{value}</span>
+        <span style={{ display: "block", fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 700 }}>{label}</span>
+        <span style={{ display: "block", fontSize: 14, fontWeight: 600, color: "var(--ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{value}</span>
       </span>
-      {href && <Icon name="arrowr" size={16} color="rgba(11,15,25,.3)" />}
+      {href && <Icon name="arrowr" size={16} color="rgba(var(--ink-rgb),.3)" />}
     </>
   );
 
@@ -57,12 +57,12 @@ export function ProfileCard() {
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", padding: "6px 4px 4px" }}>
         <Avatar id={u.id} size={84} presence />
         <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-.015em", marginTop: 12 }}>{u.name}</div>
-        <div style={{ fontSize: 13.5, color: "rgba(11,15,25,.5)", marginTop: 1 }}>@{u.username} · {u.role}</div>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 10, background: "rgba(11,15,25,.04)", borderRadius: 999, padding: "5px 12px" }}>
+        <div style={{ fontSize: 13.5, color: "rgba(var(--ink-rgb),.5)", marginTop: 1 }}>@{u.username} · {u.role}</div>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 10, background: "rgba(var(--ink-rgb),.04)", borderRadius: 999, padding: "5px 12px" }}>
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: status.color }} />
-          <span style={{ fontSize: 12.5, fontWeight: 600, color: "#0B0F19" }}>{status.label}</span>
+          <span style={{ fontSize: 12.5, fontWeight: 600, color: "var(--ink)" }}>{status.label}</span>
         </div>
-        {u.bio && <p style={{ margin: "13px 4px 0", fontSize: 13.5, lineHeight: 1.5, color: "rgba(11,15,25,.6)" }}>{u.bio}</p>}
+        {u.bio && <p style={{ margin: "13px 4px 0", fontSize: 13.5, lineHeight: 1.5, color: "rgba(var(--ink-rgb),.6)" }}>{u.bio}</p>}
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 1, margin: "16px 0 4px" }}>
@@ -81,7 +81,7 @@ export function ProfileCard() {
               close();
               navigate("/settings");
             }}
-            style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#0B0F19", color: "#fff", border: "none", borderRadius: 12, padding: "12px 16px", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}
+            style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 12, padding: "12px 16px", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}
           >
             <Icon name="settings" size={17} color="#fff" /> edit profile
           </button>
@@ -93,7 +93,7 @@ export function ProfileCard() {
                 selectConvo("dm" + u.id);
                 navigate("/team");
               }}
-              style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#0B0F19", color: "#fff", border: "none", borderRadius: 12, padding: "12px 16px", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}
+              style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 12, padding: "12px 16px", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}
             >
               <Icon name="send" size={16} color="#fff" /> message
             </button>
@@ -101,9 +101,9 @@ export function ProfileCard() {
               onClick={() => copy(u.email, "copied " + u.email)}
               className="hov-soft"
               title="copy email"
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 46, background: "#fff", border: "1px solid rgba(11,15,25,.1)", borderRadius: 12, fontFamily: "inherit" }}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 46, background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 12, fontFamily: "inherit" }}
             >
-              <Icon name="copy" size={17} color="#0B0F19" />
+              <Icon name="copy" size={17} color="var(--ink)" />
             </button>
           </>
         )}

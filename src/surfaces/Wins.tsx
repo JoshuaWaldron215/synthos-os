@@ -13,8 +13,8 @@ import type { Win } from "../types";
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ flex: "1 1 150px", background: "#fff", border: "1px solid rgba(11,15,25,.06)", borderRadius: 16, padding: "16px 18px", boxShadow: "var(--shadow-card)" }}>
-      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(11,15,25,.55)", fontWeight: 700 }}>{label}</div>
+    <div style={{ flex: "1 1 150px", background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.06)", borderRadius: 16, padding: "16px 18px", boxShadow: "var(--shadow-card)" }}>
+      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 700 }}>{label}</div>
       <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-.02em", fontVariantNumeric: "tabular-nums", marginTop: 4 }}>{value}</div>
     </div>
   );
@@ -30,8 +30,8 @@ function WinRow({ win, num, onEdit }: { win: Win; num: number; onEdit: (w: Win) 
   const meta = [win.note, projName].filter(Boolean).join(" · ");
 
   return (
-    <div className="hov-task" style={{ display: "flex", alignItems: "center", gap: 14, background: "#fff", border: "1px solid rgba(11,15,25,.06)", borderRadius: 16, padding: "16px 18px", boxShadow: "var(--shadow-card)" }}>
-      <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(11,15,25,.28)", fontVariantNumeric: "tabular-nums", letterSpacing: ".04em", flex: "0 0 auto" }}>{String(num).padStart(2, "0")}</span>
+    <div className="hov-task" style={{ display: "flex", alignItems: "center", gap: 14, background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.06)", borderRadius: 16, padding: "16px 18px", boxShadow: "var(--shadow-card)" }}>
+      <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(var(--ink-rgb),.28)", fontVariantNumeric: "tabular-nums", letterSpacing: ".04em", flex: "0 0 auto" }}>{String(num).padStart(2, "0")}</span>
       <span style={{ width: 9, height: 9, borderRadius: "50%", background: "#2FC197", boxShadow: "0 0 0 4px rgba(126,230,193,.22)", flex: "0 0 auto" }} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -39,23 +39,23 @@ function WinRow({ win, num, onEdit }: { win: Win; num: number; onEdit: (w: Win) 
           {win.tag && <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", color: "#1F8F6E", background: "rgba(126,230,193,.22)", padding: "2px 8px", borderRadius: 6 }}>{win.tag}</span>}
           {win.amount && showRevenue && <span style={{ fontSize: 12.5, fontWeight: 700, color: "#1F8F6E", fontVariantNumeric: "tabular-nums" }}>+{win.amount}</span>}
         </div>
-        <div style={{ fontSize: 12.5, color: "rgba(11,15,25,.55)", marginTop: 2 }}>
+        <div style={{ fontSize: 12.5, color: "rgba(var(--ink-rgb),.55)", marginTop: 2 }}>
           {meta}
           {meta && " · "}
           {timeAgo(win.createdAt)}
         </div>
       </div>
       {win.proj && projName && (
-        <button className="hov-soft" onClick={() => navigate("/project/" + win.proj)} title={"go to " + projName} style={{ display: "flex", background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 9, padding: 8 }}>
-          <Icon name="arrowr" size={15} color="rgba(11,15,25,.5)" />
+        <button className="hov-soft" onClick={() => navigate("/project/" + win.proj)} title={"go to " + projName} style={{ display: "flex", background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 9, padding: 8 }}>
+          <Icon name="arrowr" size={15} color="rgba(var(--ink-rgb),.5)" />
         </button>
       )}
       <Avatar id={win.who} size={28} />
-      <button className="hov-soft" onClick={() => onEdit(win)} title="edit" style={{ display: "flex", background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 9, padding: 8 }}>
-        <Icon name="note" size={15} color="rgba(11,15,25,.5)" />
+      <button className="hov-soft" onClick={() => onEdit(win)} title="edit" style={{ display: "flex", background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 9, padding: 8 }}>
+        <Icon name="note" size={15} color="rgba(var(--ink-rgb),.5)" />
       </button>
-      <button className="hov-soft" onClick={() => setConfirmDelete(true)} title="delete" style={{ display: "flex", background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 9, padding: 8 }}>
-        <Icon name="trash" size={15} color="rgba(11,15,25,.5)" />
+      <button className="hov-soft" onClick={() => setConfirmDelete(true)} title="delete" style={{ display: "flex", background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 9, padding: 8 }}>
+        <Icon name="trash" size={15} color="rgba(var(--ink-rgb),.5)" />
       </button>
       <ConfirmDialog
         open={confirmDelete}
@@ -96,9 +96,9 @@ export function Wins() {
           <h1 style={{ margin: "0 0 4px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
             recent <i style={{ fontWeight: 600 }}>wins</i>
           </h1>
-          <p style={{ margin: 0, fontSize: 14, color: "rgba(11,15,25,.5)" }}>the stuff worth celebrating. shipped, fixed, and crossed.</p>
+          <p style={{ margin: 0, fontSize: 14, color: "rgba(var(--ink-rgb),.5)" }}>the stuff worth celebrating. shipped, fixed, and crossed.</p>
         </div>
-        <button onClick={openAdd} style={{ display: "flex", alignItems: "center", gap: 7, background: "#0B0F19", color: "#fff", border: "none", borderRadius: 12, padding: "10px 15px", fontSize: 13.5, fontWeight: 600, fontFamily: "inherit", whiteSpace: "nowrap" }}>
+        <button onClick={openAdd} style={{ display: "flex", alignItems: "center", gap: 7, background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 12, padding: "10px 15px", fontSize: 13.5, fontWeight: 600, fontFamily: "inherit", whiteSpace: "nowrap" }}>
           <Icon name="plus" size={16} sw={2} color="#fff" /> log a win
         </button>
       </div>
@@ -112,9 +112,9 @@ export function Wins() {
       <WinFormModal open={formOpen} onClose={() => setFormOpen(false)} win={editing} />
 
       {wins.length === 0 ? (
-        <div style={{ background: "#fff", border: "1px dashed rgba(11,15,25,.14)", borderRadius: 16, padding: "32px 20px", textAlign: "center" }}>
+        <div style={{ background: "var(--card)", border: "1px dashed rgba(var(--ink-rgb),.14)", borderRadius: 16, padding: "32px 20px", textAlign: "center" }}>
           <div style={{ fontSize: 14.5, fontWeight: 600, marginBottom: 4 }}>no wins logged yet</div>
-          <div style={{ fontSize: 13, color: "rgba(11,15,25,.55)" }}>ship something, then come back and brag a little.</div>
+          <div style={{ fontSize: 13, color: "rgba(var(--ink-rgb),.55)" }}>ship something, then come back and brag a little.</div>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

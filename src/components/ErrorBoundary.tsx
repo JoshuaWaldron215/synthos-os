@@ -38,8 +38,8 @@ export class ErrorBoundary extends Component<Props, State> {
           justifyContent: "center",
           gap: 10,
           padding: 32,
-          background: app ? "#F6F8FA" : "transparent",
-          color: "#0B0F19",
+          background: app ? "var(--cloud)" : "transparent",
+          color: "var(--ink)",
           textAlign: "center",
         }}
       >
@@ -47,7 +47,7 @@ export class ErrorBoundary extends Component<Props, State> {
           ✦
         </div>
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, letterSpacing: "-.02em" }}>something broke</h1>
-        <p style={{ margin: 0, fontSize: 13.5, color: "rgba(11,15,25,.55)", maxWidth: 380, lineHeight: 1.55 }}>
+        <p style={{ margin: 0, fontSize: 13.5, color: "rgba(var(--ink-rgb),.55)", maxWidth: 380, lineHeight: 1.55 }}>
           {app
             ? "the workspace hit an unexpected error. your data is safe — reload to pick up where you left off."
             : "this view hit an unexpected error. your data is safe — try again, or switch to another view."}
@@ -56,7 +56,7 @@ export class ErrorBoundary extends Component<Props, State> {
           onClick={() => (app ? window.location.reload() : this.setState({ error: null }))}
           style={{
             marginTop: 8,
-            background: "#0B0F19",
+            background: "var(--btn-ink)",
             color: "#fff",
             border: "none",
             borderRadius: 12,

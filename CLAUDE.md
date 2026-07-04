@@ -89,6 +89,7 @@ Profiles (name, username, avatar, status, github, bio) are editable in Settings 
 ## Design system
 
 - **Palette:** Cloud `#F6F8FA` bg, Midnight `#0B0F19` ink, pastel status dots only (sky/mint/blush/lav)
+- **Theming:** every color is a CSS var (`--ink`/`--card`/`--cloud` + `-rgb` tuples in `src/index.css`); dark mode flips them under `[data-theme=dark]` (`src/lib/theme.ts`, toggle in Settings → appearance). Never hardcode `#0B0F19`/`#fff`/ink-rgba in new code — use the tokens. Shadows stay literal (they should not flip).
 - **Typography:** Plus Jakarta Sans, lowercase page headings, numbered `Eyebrow` sections matching sidebar order
 - **Links:** `↗` reserved for external navigation only; primary actions use `✦` or icons
 - **Mobile:** breakpoint `760px` (`useIsMobile`), bottom tabs, slide drawer, bottom-sheet modals, stacked collapsible kanban lanes

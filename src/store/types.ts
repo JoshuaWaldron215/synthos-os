@@ -21,6 +21,7 @@ import type {
   VaultKey,
   Win,
 } from "../types";
+import type { ThemePref } from "../lib/theme";
 
 // Full store contract. State and actions are implemented in domain slices
 // (src/store/slices/*) and combined in useStore.ts.
@@ -34,6 +35,7 @@ export interface StoreState {
   openProfileId: number | null;
   notifOpen: boolean;
   showRevenue: boolean;
+  theme: ThemePref;
   toast: string | null;
   syncError: string | null;
 
@@ -109,6 +111,7 @@ export interface StoreState {
   closeProfile: () => void;
   toggleNotif: () => void;
   setShowRevenue: (v: boolean) => void;
+  setTheme: (t: ThemePref) => void;
   showToast: (msg: string) => void;
   clearToast: () => void;
   syncCatch: (context: string) => (err: unknown) => void;

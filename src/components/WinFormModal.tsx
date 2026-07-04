@@ -58,7 +58,7 @@ export function WinFormModal({ open, onClose, win }: { open: boolean; onClose: (
           {USERS.map((u) => {
             const on = who === u.id;
             return (
-              <button key={u.id} onClick={() => setWho(u.id)} style={{ display: "flex", alignItems: "center", gap: 7, border: on ? "1px solid rgba(96,200,255,.55)" : "1px solid rgba(11,15,25,.08)", background: on ? "rgba(96,200,255,.12)" : "#fff", padding: "4px 12px 4px 4px", borderRadius: 999, fontFamily: "inherit", fontSize: 13, fontWeight: 600, color: "#0B0F19" }}>
+              <button key={u.id} onClick={() => setWho(u.id)} style={{ display: "flex", alignItems: "center", gap: 7, border: on ? "1px solid rgba(96,200,255,.55)" : "1px solid rgba(var(--ink-rgb),.08)", background: on ? "rgba(96,200,255,.12)" : "var(--card)", padding: "4px 12px 4px 4px", borderRadius: 999, fontFamily: "inherit", fontSize: 13, fontWeight: 600, color: "var(--ink)" }}>
                 <Avatar id={u.id} size={26} />
                 {u.first}
               </button>
@@ -73,7 +73,7 @@ export function WinFormModal({ open, onClose, win }: { open: boolean; onClose: (
           {TAGS.map((t) => {
             const on = tag === t;
             return (
-              <button key={t} onClick={() => setTag(t)} style={{ border: on ? "1px solid rgba(47,193,151,.6)" : "1px solid rgba(11,15,25,.1)", background: on ? "rgba(126,230,193,.2)" : "#fff", color: "#0B0F19", fontSize: 13, fontWeight: 600, padding: "6px 12px", borderRadius: 999, fontFamily: "inherit" }}>
+              <button key={t} onClick={() => setTag(t)} style={{ border: on ? "1px solid rgba(47,193,151,.6)" : "1px solid rgba(var(--ink-rgb),.1)", background: on ? "rgba(126,230,193,.2)" : "var(--card)", color: "var(--ink)", fontSize: 13, fontWeight: 600, padding: "6px 12px", borderRadius: 999, fontFamily: "inherit" }}>
                 {t}
               </button>
             );
@@ -103,8 +103,8 @@ export function WinFormModal({ open, onClose, win }: { open: boolean; onClose: (
       </div>
 
       <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-        <button onClick={onClose} style={{ background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 11, padding: "10px 16px", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}>cancel</button>
-        <button onClick={save} disabled={!title.trim()} style={{ background: "#0B0F19", color: "#fff", border: "none", borderRadius: 11, padding: "10px 18px", fontSize: 14, fontWeight: 600, fontFamily: "inherit", opacity: title.trim() ? 1 : 0.5 }}>
+        <button onClick={onClose} style={{ background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 11, padding: "10px 16px", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}>cancel</button>
+        <button onClick={save} disabled={!title.trim()} style={{ background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 11, padding: "10px 18px", fontSize: 14, fontWeight: 600, fontFamily: "inherit", opacity: title.trim() ? 1 : 0.5 }}>
           {win ? "save win" : "log win ✦"}
         </button>
       </div>

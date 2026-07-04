@@ -18,6 +18,7 @@ export type { StoreState } from "./types";
 export const persistSnapshot = (s: StoreState) => ({
   currentUserId: s.currentUserId,
   showRevenue: s.showRevenue,
+  theme: s.theme,
   profiles: s.profiles,
   prefs: s.prefs,
   notifications: s.notifications,

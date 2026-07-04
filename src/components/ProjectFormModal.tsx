@@ -57,7 +57,7 @@ export function ProjectFormModal({ open, onClose }: { open: boolean; onClose: ()
               <button
                 key={s}
                 onClick={() => setStatus(s)}
-                style={{ border: on ? "1px solid rgba(96,200,255,.55)" : "1px solid rgba(11,15,25,.1)", background: on ? "rgba(96,200,255,.12)" : "#fff", color: "#0B0F19", fontSize: 13, fontWeight: 600, padding: "7px 12px", borderRadius: 999, fontFamily: "inherit" }}
+                style={{ border: on ? "1px solid rgba(96,200,255,.55)" : "1px solid rgba(var(--ink-rgb),.1)", background: on ? "rgba(96,200,255,.12)" : "var(--card)", color: "var(--ink)", fontSize: 13, fontWeight: 600, padding: "7px 12px", borderRadius: 999, fontFamily: "inherit" }}
               >
                 {s}
               </button>
@@ -66,10 +66,10 @@ export function ProjectFormModal({ open, onClose }: { open: boolean; onClose: ()
         </div>
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-        <button onClick={onClose} style={{ background: "transparent", border: "1px solid rgba(11,15,25,.1)", borderRadius: 11, padding: "10px 16px", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}>
+        <button onClick={onClose} style={{ background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 11, padding: "10px 16px", fontSize: 14, fontWeight: 600, fontFamily: "inherit" }}>
           cancel
         </button>
-        <button onClick={create} disabled={!client.trim()} style={{ background: "#0B0F19", color: "#fff", border: "none", borderRadius: 11, padding: "10px 18px", fontSize: 14, fontWeight: 600, fontFamily: "inherit", opacity: client.trim() ? 1 : 0.5 }}>
+        <button onClick={create} disabled={!client.trim()} style={{ background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 11, padding: "10px 18px", fontSize: 14, fontWeight: 600, fontFamily: "inherit", opacity: client.trim() ? 1 : 0.5 }}>
           create project ✦
         </button>
       </div>

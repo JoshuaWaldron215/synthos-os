@@ -48,8 +48,8 @@ export function priDot(pri: Priority): CSSProperties {
 export function filterPill(active: boolean): CSSProperties {
   return {
     border: "none",
-    background: active ? "#fff" : "transparent",
-    color: active ? "#0B0F19" : "rgba(11,15,25,.5)",
+    background: active ? "var(--card)" : "transparent",
+    color: active ? "var(--ink)" : "rgba(var(--ink-rgb),.5)",
     fontSize: 12.5,
     fontWeight: 600,
     padding: "5px 11px",

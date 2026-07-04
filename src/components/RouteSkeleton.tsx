@@ -8,7 +8,7 @@ export function RouteSkeleton() {
     width: w,
     height: h,
     borderRadius: r,
-    background: "linear-gradient(90deg, rgba(11,15,25,.05) 25%, rgba(11,15,25,.09) 50%, rgba(11,15,25,.05) 75%)",
+    background: "linear-gradient(90deg, rgba(var(--ink-rgb),.05) 25%, rgba(var(--ink-rgb),.09) 50%, rgba(var(--ink-rgb),.05) 75%)",
     backgroundSize: "600px 100%",
     animation: "lgShimmer 1.4s ease-in-out infinite",
   });

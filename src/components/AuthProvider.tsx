@@ -1,10 +1,19 @@
-import { type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { useAuth } from "../lib/useAuth";
 import { AuthContext } from "../lib/authContext";
+import { applyTheme, watchSystemTheme } from "../lib/theme";
+import { useStore } from "../store/useStore";
 import { Login } from "../surfaces/Login";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const auth = useAuth();
+  const theme = useStore((s) => s.theme);
+
+  // resolve + apply the palette on <html>; track OS changes while on "system"
+  useEffect(() => {
+    applyTheme(theme);
+    if (theme === "system") return watchSystemTheme(() => applyTheme("system"));
+  }, [theme]);
 
   if (auth.loading) {
     return (
@@ -14,8 +23,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(165deg,#F1ECFF 0%,#EAF2FF 48%,#FFF1EC 100%)",
-          color: "rgba(11,15,25,.55)",
+          background: "var(--cloud)",
+          color: "rgba(var(--ink-rgb),.55)",
           fontSize: 13,
           letterSpacing: ".06em",
         }}

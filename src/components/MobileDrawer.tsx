@@ -24,7 +24,7 @@ export function MobileDrawer() {
     <>
       <div
         onClick={closeMobileNav}
-        style={{ position: "absolute", inset: 0, background: "rgba(11,15,25,.30)", zIndex: 60, animation: "fadeIn .18s ease" }}
+        style={{ position: "absolute", inset: 0, background: "rgba(var(--ink-rgb),.30)", zIndex: 60, animation: "fadeIn .18s ease" }}
       />
       <div
         style={{
@@ -34,7 +34,7 @@ export function MobileDrawer() {
           bottom: 0,
           width: "84%",
           maxWidth: 318,
-          background: "#fff",
+          background: "var(--card)",
           zIndex: 61,
           boxShadow: "24px 0 60px -18px rgba(11,15,25,.45)",
           animation: "drawerLeftIn .24s cubic-bezier(.2,.8,.2,1)",
@@ -42,17 +42,17 @@ export function MobileDrawer() {
           flexDirection: "column",
         }}
       >
-        <div style={{ padding: "calc(20px + env(safe-area-inset-top)) 18px 18px", background: "var(--grad-drawer)", borderBottom: "1px solid rgba(11,15,25,.05)" }}>
+        <div style={{ padding: "calc(20px + env(safe-area-inset-top)) 18px 18px", background: "var(--grad-drawer)", borderBottom: "1px solid rgba(var(--ink-rgb),.05)" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 11, minWidth: 0 }}>
               <img src={appIcon} alt="synthos" style={{ width: 34, height: 34, borderRadius: 11, flex: "0 0 auto", boxShadow: "0 1px 4px rgba(11,15,25,.2),0 0 0 4px rgba(255,255,255,.4)" }} />
               <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.05 }}>
                 <span style={{ fontSize: 19, fontWeight: 700, letterSpacing: "-.025em" }}>synthos</span>
-                <span style={{ fontSize: 9, letterSpacing: ".22em", textTransform: "uppercase", color: "rgba(11,15,25,.5)", fontWeight: 700, marginTop: 3 }}>workspace os</span>
+                <span style={{ fontSize: 9, letterSpacing: ".22em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.5)", fontWeight: 700, marginTop: 3 }}>workspace os</span>
               </span>
             </div>
-            <button onClick={closeMobileNav} title="close" style={{ display: "flex", background: "rgba(255,255,255,.6)", border: "1px solid rgba(11,15,25,.06)", borderRadius: 10, padding: 7 }}>
-              <Icon name="close" size={18} sw={1.8} color="rgba(11,15,25,.5)" />
+            <button onClick={closeMobileNav} title="close" style={{ display: "flex", background: "rgba(var(--card-rgb),.6)", border: "1px solid rgba(var(--ink-rgb),.06)", borderRadius: 10, padding: 7 }}>
+              <Icon name="close" size={18} sw={1.8} color="rgba(var(--ink-rgb),.5)" />
             </button>
           </div>
         </div>
@@ -78,7 +78,7 @@ export function MobileDrawer() {
                   fontSize: 14,
                   background: active ? "var(--grad-nav)" : "transparent",
                   boxShadow: active ? "inset 0 0 0 1px rgba(96,200,255,.24)" : "none",
-                  color: active ? "#0B0F19" : "rgba(11,15,25,.55)",
+                  color: active ? "var(--ink)" : "rgba(var(--ink-rgb),.55)",
                   fontWeight: active ? 600 : 500,
                   whiteSpace: "nowrap",
                 }}
@@ -90,20 +90,20 @@ export function MobileDrawer() {
           })}
         </div>
 
-        <div style={{ padding: "14px 16px calc(18px + env(safe-area-inset-bottom))", borderTop: "1px solid rgba(11,15,25,.06)" }}>
+        <div style={{ padding: "14px 16px calc(18px + env(safe-area-inset-bottom))", borderTop: "1px solid rgba(var(--ink-rgb),.06)" }}>
           <button
             className="hov-sky"
             onClick={() => goto("/settings")}
-            style={{ display: "flex", alignItems: "center", gap: 11, width: "100%", border: "1px solid rgba(11,15,25,.08)", background: "#fff", padding: "10px 12px", borderRadius: 12, fontFamily: "inherit", textAlign: "left" }}
+            style={{ display: "flex", alignItems: "center", gap: 11, width: "100%", border: "1px solid rgba(var(--ink-rgb),.08)", background: "var(--card)", padding: "10px 12px", borderRadius: 12, fontFamily: "inherit", textAlign: "left" }}
           >
             <Avatar id={currentUserId} size={36} presence />
             <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.25, flex: 1, minWidth: 0 }}>
-              <span style={{ fontSize: 14, fontWeight: 700, color: "#0B0F19" }}>{me.name}</span>
-              <span style={{ fontSize: 12, color: "rgba(11,15,25,.55)" }}>@{me.username}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: "var(--ink)" }}>{me.name}</span>
+              <span style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.55)" }}>@{me.username}</span>
             </span>
-            <Icon name="settings" size={18} color="rgba(11,15,25,.5)" />
+            <Icon name="settings" size={18} color="rgba(var(--ink-rgb),.5)" />
           </button>
-          <div style={{ marginTop: 15, fontSize: 12.5, color: "rgba(11,15,25,.5)", fontWeight: 500, lineHeight: 1.4 }}>
+          <div style={{ marginTop: 15, fontSize: 12.5, color: "rgba(var(--ink-rgb),.5)", fontWeight: 500, lineHeight: 1.4 }}>
             Connect. Understand. <span style={{ color: "#2FA7D0", fontWeight: 600 }}>Build the future.</span>
           </div>
         </div>
@@ -124,10 +124,10 @@ export function BottomTabs() {
       style={{
         gridArea: "tabs",
         display: "flex",
-        background: "rgba(255,255,255,.94)",
+        background: "rgba(var(--card-rgb),.94)",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
-        borderTop: "1px solid rgba(11,15,25,.07)",
+        borderTop: "1px solid rgba(var(--ink-rgb),.07)",
         // sit above the iOS home indicator without wasting space on other phones
         paddingTop: 4,
         paddingBottom: "calc(6px + env(safe-area-inset-bottom))",
@@ -151,7 +151,7 @@ export function BottomTabs() {
               border: "none",
               background: "transparent",
               flex: "1 1 0",
-              color: active ? "#0B0F19" : "rgba(11,15,25,.42)",
+              color: active ? "var(--ink)" : "rgba(var(--ink-rgb),.42)",
               fontFamily: "inherit",
               fontSize: 10.5,
               fontWeight: active ? 600 : 500,

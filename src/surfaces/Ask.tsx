@@ -27,7 +27,7 @@ export function Ask() {
         <h1 style={{ margin: 0, fontSize: isMobile ? 21 : 26, fontWeight: 700, letterSpacing: "-.02em", lineHeight: 1.12 }}>
           what do you want to <i style={{ fontWeight: 600 }}>know?</i>
         </h1>
-        <p style={{ margin: "7px 0 0", fontSize: 13.5, color: "rgba(11,15,25,.5)" }}>grounded in your projects, tasks and vault.</p>
+        <p style={{ margin: "7px 0 0", fontSize: 13.5, color: "rgba(var(--ink-rgb),.5)" }}>grounded in your projects, tasks and vault.</p>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12, flex: 1, marginBottom: 16 }}>
@@ -44,9 +44,9 @@ export function Ask() {
                   borderRadius: me ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
                   whiteSpace: "pre-wrap",
                   animation: "msgIn .25s ease",
-                  background: me ? "#0B0F19" : "#fff",
-                  color: me ? "#fff" : "#0B0F19",
-                  border: me ? "none" : "1px solid rgba(11,15,25,.06)",
+                  background: me ? "var(--btn-ink)" : "var(--card)",
+                  color: me ? "#fff" : "var(--ink)",
+                  border: me ? "none" : "1px solid rgba(var(--ink-rgb),.06)",
                   boxShadow: "var(--shadow-card)",
                 }}
               >
@@ -59,13 +59,13 @@ export function Ask() {
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 12 }}>
         {SUGGESTIONS.map((s) => (
-          <button key={s} className="hov-soft" onClick={() => ask(s)} style={{ background: "#fff", border: "1px solid rgba(11,15,25,.09)", borderRadius: 999, padding: "7px 13px", fontSize: 12.5, fontWeight: 500, color: "rgba(11,15,25,.7)" }}>
+          <button key={s} className="hov-soft" onClick={() => ask(s)} style={{ background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.09)", borderRadius: 999, padding: "7px 13px", fontSize: 12.5, fontWeight: 500, color: "rgba(var(--ink-rgb),.7)" }}>
             {s}
           </button>
         ))}
       </div>
 
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 9, background: "#fff", border: "1px solid rgba(11,15,25,.1)", borderRadius: 18, padding: "9px 9px 9px 16px", boxShadow: "0 4px 20px -10px rgba(11,15,25,.18)", position: "sticky", bottom: 8 }}>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 9, background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 18, padding: "9px 9px 9px 16px", boxShadow: "0 4px 20px -10px rgba(11,15,25,.18)", position: "sticky", bottom: 8 }}>
         <textarea
           value={chatInput}
           onChange={(e) => setChatInput(e.target.value)}
@@ -77,9 +77,9 @@ export function Ask() {
           }}
           rows={1}
           placeholder="ask synthos anything…"
-          style={{ flex: 1, border: "none", resize: "none", fontSize: 14.5, lineHeight: 1.5, color: "#0B0F19", background: "transparent", padding: "6px 0", maxHeight: 120 }}
+          style={{ flex: 1, border: "none", resize: "none", fontSize: 14.5, lineHeight: 1.5, color: "var(--ink)", background: "transparent", padding: "6px 0", maxHeight: 120 }}
         />
-        <button onClick={sendChat} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, background: "#0B0F19", border: "none", borderRadius: 12, flex: "0 0 auto" }}>
+        <button onClick={sendChat} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, background: "var(--btn-ink)", border: "none", borderRadius: 12, flex: "0 0 auto" }}>
           <Icon name="send" size={17} sw={1.8} color="#fff" />
         </button>
       </div>
