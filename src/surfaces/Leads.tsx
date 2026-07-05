@@ -26,15 +26,6 @@ function pillStyle(key: string, small = false): CSSProperties {
   };
 }
 
-function StatCard({ label, value, accent }: { label: string; value: string; accent?: string }) {
-  return (
-    <div style={{ background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.06)", borderRadius: 16, padding: "14px 18px", minWidth: 128, boxShadow: "var(--shadow-card)" }}>
-      <div style={{ fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600 }}>{label}</div>
-      <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-.02em", marginTop: 3, color: accent ?? "var(--ink)" }}>{value}</div>
-    </div>
-  );
-}
-
 const filterPill = (on: boolean): CSSProperties => ({
   border: "none",
   background: on ? "var(--card)" : "transparent",
@@ -66,10 +57,6 @@ export function Leads() {
       .filter((l) => (fStatus === "all" || l.status === fStatus) && (fQuality === "all" || l.quality === fQuality))
       .sort((a, b) => (a.nextFollowUp ?? Infinity) - (b.nextFollowUp ?? Infinity) || b.createdAt - a.createdAt);
   }, [leads, fStatus, fQuality]);
-
-  const hot = leads.filter((l) => l.quality === "hot" && l.status !== "won" && l.status !== "lost").length;
-  const booked = leads.filter((l) => l.status === "call booked").length;
-  const overdue = leads.filter((l) => l.nextFollowUp !== null && l.nextFollowUp < today && l.status !== "won" && l.status !== "lost").length;
 
   const openNew = () => {
     setEditing(null);
@@ -104,12 +91,9 @@ export function Leads() {
       <Eyebrow index="08" label="outbound" color="#FF8A63" />
       <div style={{ display: "flex", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
         <div style={{ flex: 1, minWidth: 220 }}>
-          <h1 style={{ margin: "0 0 4px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
+          <h1 style={{ margin: "0 0 18px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
             client <i style={{ fontWeight: 600 }}>crm</i>
           </h1>
-          <p style={{ margin: "0 0 18px", fontSize: 14, color: "rgba(var(--ink-rgb),.5)" }}>
-            every lead from first touch to closed — source, quality, status and follow-ups.
-          </p>
         </div>
         <button
           onClick={openNew}
@@ -117,13 +101,6 @@ export function Leads() {
         >
           <Icon name="plus" size={16} sw={2} color="#fff" /> new lead
         </button>
-      </div>
-
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>
-        <StatCard label="leads" value={String(leads.length)} />
-        <StatCard label="hot" value={String(hot)} accent={hot ? "#E5484D" : undefined} />
-        <StatCard label="calls booked" value={String(booked)} accent={booked ? "#8A84F0" : undefined} />
-        <StatCard label="overdue follow-ups" value={String(overdue)} accent={overdue ? "var(--danger)" : undefined} />
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
