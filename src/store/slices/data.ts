@@ -4,6 +4,7 @@ import type {
   AuditEntry,
   ContentItem,
   Conversation,
+  Lead,
   Profile,
   Project,
   ProjectFile,
@@ -75,6 +76,7 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
           conversations: data.conversations.length ? data.conversations : get().conversations,
           teamMsgs: mergeTeamMsgs(get().teamMsgs, data.teamMsgs),
           content: data.content.length ? data.content : get().content,
+          leads: data.leads.length ? data.leads : get().leads,
           profiles: mergeProfiles(get().profiles, data.profiles),
         });
         get().startRealtime();
@@ -190,6 +192,10 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
             });
           }
         },
+        lead: (ev, data) =>
+          set((s) => ({
+            leads: ev === "delete" ? s.leads.filter((l) => l.id !== data) : upsertBy(s.leads, data as Lead),
+          })),
         profile: (builderId, patch) =>
           set((s) => ({
             profiles: s.profiles[builderId]

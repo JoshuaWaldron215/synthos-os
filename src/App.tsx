@@ -12,6 +12,7 @@ const Vault = lazy(() => import("./surfaces/Vault").then((m) => ({ default: m.Va
 const Intake = lazy(() => import("./surfaces/Intake").then((m) => ({ default: m.Intake })));
 const Wins = lazy(() => import("./surfaces/Wins").then((m) => ({ default: m.Wins })));
 const Team = lazy(() => import("./surfaces/Team").then((m) => ({ default: m.Team })));
+const Leads = lazy(() => import("./surfaces/Leads").then((m) => ({ default: m.Leads })));
 const Ask = lazy(() => import("./surfaces/Ask").then((m) => ({ default: m.Ask })));
 const Settings = lazy(() => import("./surfaces/Settings").then((m) => ({ default: m.Settings })));
 
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/project/:id" element={<ProjectDetail />} />
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/content" element={<Content />} />
+          <Route path="/leads" element={<Leads />} />
           <Route path="/vault" element={<Vault />} />
           <Route path="/intake" element={<Intake />} />
           <Route path="/wins" element={<Wins />} />

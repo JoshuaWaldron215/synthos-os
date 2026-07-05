@@ -4,6 +4,7 @@ import type {
   AuditEntry,
   ContentItem,
   Conversation,
+  Lead,
   MessageAttachment,
   Profile,
   Project,
@@ -30,6 +31,7 @@ export interface Dataset {
   conversations: Conversation[];
   teamMsgs: Record<string, TeamMessage[]>;
   content: ContentItem[];
+  leads: Lead[];
   /** per-builder profile fields that have been saved to the server */
   profiles: Record<number, Partial<Profile>>;
 }
@@ -242,6 +244,46 @@ const fromContent = (c: ContentItem): ContentRow => ({
   who: c.who,
 });
 
+interface LeadRow {
+  id: string;
+  name: string;
+  contact: string | null;
+  source: Lead["from"];
+  quality: Lead["quality"];
+  status: Lead["status"];
+  notes: string | null;
+  last_follow_up: number | null;
+  next_follow_up: number | null;
+  who: number;
+  created_at: number;
+}
+const toLead = (r: LeadRow): Lead => ({
+  id: r.id,
+  name: r.name,
+  contact: r.contact ?? "",
+  from: r.source,
+  quality: r.quality,
+  status: r.status,
+  notes: r.notes ?? "",
+  lastFollowUp: r.last_follow_up,
+  nextFollowUp: r.next_follow_up,
+  who: r.who,
+  createdAt: r.created_at,
+});
+const fromLead = (l: Lead): LeadRow => ({
+  id: l.id,
+  name: l.name,
+  contact: l.contact,
+  source: l.from,
+  quality: l.quality,
+  status: l.status,
+  notes: l.notes,
+  last_follow_up: l.lastFollowUp,
+  next_follow_up: l.nextFollowUp,
+  who: l.who,
+  created_at: l.createdAt,
+});
+
 interface ProfileRow {
   builder_id: number | null;
   name: string | null;
@@ -273,7 +315,7 @@ const toProfilePatch = (r: ProfileRow): Partial<Profile> => {
 export async function fetchAll(): Promise<Dataset | null> {
   const sb = await getSupabase();
   if (!sb) return null;
-  const [projects, tasks, keys, activity, files, wins, convos, messages, content, profiles] = await Promise.all([
+  const [projects, tasks, keys, activity, files, wins, convos, messages, content, profiles, leads] = await Promise.all([
     sb.from("projects").select("*"),
     sb.from("tasks").select("*"),
     sb.from("vault_keys").select("*"),
@@ -284,6 +326,7 @@ export async function fetchAll(): Promise<Dataset | null> {
     sb.from("messages").select("*").order("at", { ascending: true }),
     sb.from("content_items").select("*"),
     sb.from("profiles").select("*"),
+    sb.from("leads").select("*"),
   ]);
   const teamMsgs: Record<string, TeamMessage[]> = {};
   for (const r of (messages.data ?? []) as MessageRow[]) {
@@ -303,6 +346,7 @@ export async function fetchAll(): Promise<Dataset | null> {
     conversations: ((convos.data ?? []) as ConvoRow[]).map(toConvo),
     teamMsgs,
     content: ((content.data ?? []) as ContentRow[]).map(toContent),
+    leads: ((leads.data ?? []) as LeadRow[]).map(toLead),
     profiles: profilePatches,
   };
 }
@@ -382,6 +426,17 @@ export async function removeContent(id: string): Promise<void> {
   if (!sb) return;
   await sb.from("content_items").delete().eq("id", id);
 }
+export async function saveLead(l: Lead): Promise<void> {
+  const sb = await getSupabase();
+  if (!sb) return;
+  await sb.from("leads").upsert(fromLead(l));
+}
+export async function removeLead(id: string): Promise<void> {
+  const sb = await getSupabase();
+  if (!sb) return;
+  await sb.from("leads").delete().eq("id", id);
+}
+
 export async function saveProfile(builderId: number, p: Profile): Promise<void> {
   const sb = await getSupabase();
   if (!sb) return;
@@ -415,6 +470,7 @@ export interface RealtimeHandlers {
   convo: (ev: "upsert" | "delete", data: Conversation | string) => void;
   message: (convoId: string, msg: TeamMessage) => void;
   content: (ev: "upsert" | "delete", data: ContentItem | string) => void;
+  lead: (ev: "upsert" | "delete", data: Lead | string) => void;
   profile: (builderId: number, patch: Partial<Profile>) => void;
 }
 
@@ -463,6 +519,7 @@ export async function subscribeRealtime(h: RealtimeHandlers): Promise<void> {
     if (e.eventType !== "DELETE") h.message(e.new.convo, toMessage(e.new));
   });
   on<ContentRow>("content_items", crud(toContent, h.content));
+  on<LeadRow>("leads", crud(toLead, h.lead));
   on<ProfileRow>("profiles", (e) => {
     if (e.eventType !== "DELETE" && e.new.builder_id !== null) h.profile(e.new.builder_id, toProfilePatch(e.new));
   });

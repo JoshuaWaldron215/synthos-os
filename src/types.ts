@@ -96,6 +96,25 @@ export interface Win {
   createdAt: number;
 }
 
+export type LeadSource = "outbound" | "inbound" | "referral" | "other";
+export type LeadQuality = "cold" | "warm" | "hot";
+export type LeadStatus = "new" | "contacted" | "call booked" | "proposal" | "won" | "lost";
+
+export interface Lead {
+  id: string;
+  name: string;
+  /** email / phone / handle — wherever the conversation lives */
+  contact: string;
+  from: LeadSource;
+  quality: LeadQuality;
+  status: LeadStatus;
+  notes: string;
+  lastFollowUp: number | null;
+  nextFollowUp: number | null;
+  who: number;
+  createdAt: number;
+}
+
 export interface DraftTask {
   id: string;
   title: string;

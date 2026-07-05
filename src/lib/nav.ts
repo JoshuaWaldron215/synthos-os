@@ -15,6 +15,7 @@ export const NAV_ITEMS: NavDef[] = [
   { key: "wins", label: "wins", path: "/wins", icon: "wins" },
   { key: "team", label: "team", path: "/team", icon: "team" },
   { key: "content", label: "content", path: "/content", icon: "content" },
+  { key: "leads", label: "leads", path: "/leads", icon: "bolt" },
   { key: "ask", label: "ask ai", path: "/ask", icon: "ask" },
 ];
 

@@ -132,7 +132,7 @@ export function Settings() {
 
   return (
     <div style={{ maxWidth: 720, margin: "0 auto" }} className="anim-sc">
-      <Eyebrow index="09" label="account" color="#8A84F0" />
+      <Eyebrow index="10" label="account" color="#8A84F0" />
       <h1 style={{ margin: "0 0 4px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
         profile & <i style={{ fontWeight: 600 }}>settings</i>
       </h1>

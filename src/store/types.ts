@@ -1,6 +1,10 @@
 import type {
   AuditEntry,
   ChatMessage,
+  Lead,
+  LeadQuality,
+  LeadSource,
+  LeadStatus,
   ColKey,
   ColLabels,
   ContentItem,
@@ -98,6 +102,11 @@ export interface StoreState {
   intakeText: string;
   draftTasks: DraftTask[] | null;
   intakeBusy: boolean;
+
+  // leads (outbound CRM)
+  leads: Lead[];
+  fLeadStatus: string;
+  fLeadQuality: string;
 
   // ui / shell actions
   setCurrentUser: (id: number) => void;
@@ -227,6 +236,22 @@ export interface StoreState {
   cycleContentAssignee: (id: string) => void;
   syncContent: (id: string) => void;
   deleteContent: (id: string) => void;
+
+  // lead actions
+  setLeadFilter: (group: "status" | "quality", val: string) => void;
+  addLead: (input: {
+    name: string;
+    contact?: string;
+    from?: LeadSource;
+    quality?: LeadQuality;
+    status?: LeadStatus;
+    notes?: string;
+    lastFollowUp?: number | null;
+    nextFollowUp?: number | null;
+    who?: number;
+  }) => void;
+  updateLead: (id: string, patch: Partial<Lead>) => void;
+  deleteLead: (id: string) => void;
 
   // intake actions
   setIntakeText: (v: string) => void;

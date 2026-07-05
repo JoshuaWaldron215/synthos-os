@@ -155,6 +155,23 @@ create table if not exists public.content_items (
 );
 
 -- ---------------------------------------------------------------------------
+-- leads (outbound client CRM)
+-- ---------------------------------------------------------------------------
+create table if not exists public.leads (
+  id text primary key,
+  name text not null,
+  contact text default '',
+  source text not null default 'outbound',
+  quality text not null default 'warm',
+  status text not null default 'new',
+  notes text default '',
+  last_follow_up bigint,
+  next_follow_up bigint,
+  who int not null default 0,
+  created_at bigint not null
+);
+
+-- ---------------------------------------------------------------------------
 -- push_subscriptions (Web Push; one row per browser endpoint, owned by a builder)
 -- ---------------------------------------------------------------------------
 create table if not exists public.push_subscriptions (
@@ -187,11 +204,12 @@ alter table public.conversations enable row level security;
 alter table public.messages      enable row level security;
 alter table public.content_items enable row level security;
 alter table public.push_subscriptions enable row level security;
+alter table public.leads         enable row level security;
 
 do $$
 declare t text;
 begin
-  foreach t in array array['profiles','projects','tasks','vault_keys','activity','wins','project_files','conversations','messages','content_items','push_subscriptions']
+  foreach t in array array['profiles','projects','tasks','vault_keys','activity','wins','project_files','conversations','messages','content_items','push_subscriptions','leads']
   loop
     execute format('drop policy if exists %I on public.%I;', t || '_team_rw', t);
     execute format(
@@ -207,7 +225,7 @@ end $$;
 do $$
 declare t text;
 begin
-  foreach t in array array['projects','tasks','vault_keys','activity','wins','project_files','profiles','conversations','messages','content_items']
+  foreach t in array array['projects','tasks','vault_keys','activity','wins','project_files','profiles','conversations','messages','content_items','leads']
   loop
     if not exists (
       select 1 from pg_publication_tables

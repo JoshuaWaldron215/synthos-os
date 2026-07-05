@@ -5,6 +5,7 @@ import { createChatSlice } from "./slices/chat";
 import { createContentSlice } from "./slices/content";
 import { createDataSlice } from "./slices/data";
 import { createIntakeSlice } from "./slices/intake";
+import { createLeadsSlice } from "./slices/leads";
 import { createProfilesSlice } from "./slices/profiles";
 import { createTasksSlice } from "./slices/tasks";
 import { createTeamSlice } from "./slices/team";
@@ -32,6 +33,7 @@ export const persistSnapshot = (s: StoreState) => ({
   conversations: s.conversations,
   teamMsgs: s.teamMsgs,
   content: s.content,
+  leads: s.leads,
 });
 
 export type PersistedState = ReturnType<typeof persistSnapshot>;
@@ -48,6 +50,7 @@ export const useStore = create<StoreState>()(
       ...createTeamSlice(set, get),
       ...createContentSlice(set, get),
       ...createIntakeSlice(set, get),
+      ...createLeadsSlice(set, get),
     }),
     {
       name: "synthos-os-v2",
