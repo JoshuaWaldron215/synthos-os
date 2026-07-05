@@ -8,9 +8,10 @@ export const createLeadsSlice = (set: StoreSet, get: StoreGet) => ({
   leads: [] as Lead[],
   fLeadStatus: "all",
   fLeadQuality: "all",
+  fLeadDate: "all",
 
-  setLeadFilter: (group: "status" | "quality", val: string) =>
-    set(group === "status" ? { fLeadStatus: val } : { fLeadQuality: val }),
+  setLeadFilter: (group: "status" | "quality" | "date", val: string) =>
+    set(group === "status" ? { fLeadStatus: val } : group === "quality" ? { fLeadQuality: val } : { fLeadDate: val }),
 
   addLead: (input: {
     name: string;

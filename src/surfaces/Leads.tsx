@@ -44,6 +44,7 @@ export function Leads() {
   const leads = useStore((s) => s.leads);
   const fStatus = useStore((s) => s.fLeadStatus);
   const fQuality = useStore((s) => s.fLeadQuality);
+  const fDate = useStore((s) => s.fLeadDate);
   const setLeadFilter = useStore((s) => s.setLeadFilter);
   const updateLead = useStore((s) => s.updateLead);
 
@@ -51,12 +52,31 @@ export function Leads() {
   const [editing, setEditing] = useState<Lead | null>(null);
 
   const today = startOfToday();
+  const DAY = 86400000;
+
+  // next follow-up buckets — "open" means the lead is still in play
+  const matchesDate = (l: Lead): boolean => {
+    const open = l.status !== "won" && l.status !== "lost";
+    switch (fDate) {
+      case "overdue":
+        return l.nextFollowUp !== null && l.nextFollowUp < today && open;
+      case "today":
+        return l.nextFollowUp !== null && l.nextFollowUp >= today && l.nextFollowUp < today + DAY;
+      case "this week":
+        return l.nextFollowUp !== null && l.nextFollowUp >= today && l.nextFollowUp < today + 7 * DAY;
+      case "no date":
+        return l.nextFollowUp === null;
+      default:
+        return true;
+    }
+  };
 
   const filtered = useMemo(() => {
     return leads
-      .filter((l) => (fStatus === "all" || l.status === fStatus) && (fQuality === "all" || l.quality === fQuality))
+      .filter((l) => (fStatus === "all" || l.status === fStatus) && (fQuality === "all" || l.quality === fQuality) && matchesDate(l))
       .sort((a, b) => (a.nextFollowUp ?? Infinity) - (b.nextFollowUp ?? Infinity) || b.createdAt - a.createdAt);
-  }, [leads, fStatus, fQuality]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leads, fStatus, fQuality, fDate]);
 
   const openNew = () => {
     setEditing(null);
@@ -114,6 +134,12 @@ export function Leads() {
         <div style={{ display: "flex", flexWrap: "wrap", gap: 4, background: "rgba(var(--ink-rgb),.04)", borderRadius: 10, padding: 3 }}>
           {["all", ...LEAD_QUALITIES].map((q) => (
             <button key={q} onClick={() => setLeadFilter("quality", q)} style={filterPill(fQuality === q)}>{q}</button>
+          ))}
+        </div>
+        <span style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600, marginLeft: isMobile ? 0 : 6 }}>follow-up</span>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 4, background: "rgba(var(--ink-rgb),.04)", borderRadius: 10, padding: 3 }}>
+          {["all", "overdue", "today", "this week", "no date"].map((d) => (
+            <button key={d} onClick={() => setLeadFilter("date", d)} style={filterPill(fDate === d)}>{d}</button>
           ))}
         </div>
       </div>

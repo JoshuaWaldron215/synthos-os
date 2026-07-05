@@ -107,6 +107,7 @@ export interface StoreState {
   leads: Lead[];
   fLeadStatus: string;
   fLeadQuality: string;
+  fLeadDate: string;
 
   // ui / shell actions
   setCurrentUser: (id: number) => void;
@@ -238,7 +239,7 @@ export interface StoreState {
   deleteContent: (id: string) => void;
 
   // lead actions
-  setLeadFilter: (group: "status" | "quality", val: string) => void;
+  setLeadFilter: (group: "status" | "quality" | "date", val: string) => void;
   addLead: (input: {
     name: string;
     contact?: string;
