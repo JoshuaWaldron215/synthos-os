@@ -95,6 +95,7 @@ interface TaskRow {
   blocked: boolean;
   proj: string;
   notes: string | null;
+  due: number | null;
 }
 const toTask = (r: TaskRow): Task => ({
   id: r.id,
@@ -105,6 +106,7 @@ const toTask = (r: TaskRow): Task => ({
   blocked: r.blocked,
   proj: r.proj,
   notes: r.notes ?? "",
+  due: r.due,
 });
 
 interface FileRow {
@@ -180,7 +182,7 @@ interface ConvoRow {
 }
 const toConvo = (r: ConvoRow): Conversation => ({
   id: r.id,
-  type: "channel",
+  type: r.type === "dm" ? "dm" : "channel",
   name: r.name,
   proj: r.proj ?? undefined,
   members: r.members ?? [],

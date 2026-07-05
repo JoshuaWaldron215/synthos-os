@@ -38,7 +38,7 @@ export const createTeamSlice = (set: StoreSet, get: StoreGet) => ({
     const others = (convo?.members ?? []).filter((m) => m !== currentUserId);
     if (repo.usingSupabase && others.length) {
       const sender = effectiveUser(currentUserId, get().profiles).name;
-      const label = convo ? "#" + convo.name : "team chat";
+      const label = !convo ? "team chat" : convo.type === "dm" ? "dm" : "#" + convo.name;
       sendServerPush(sender, label + ": " + (t || "sent an attachment"), "msg-" + activeConvo, others, "/team").catch(() => {
         /* push is non-critical; delivery for open tabs comes via realtime */
       });
@@ -153,7 +153,7 @@ export const createTeamSlice = (set: StoreSet, get: StoreGet) => ({
     const st = get();
     if (msg.who === st.currentUserId) return;
     const convo = st.conversations.find((c) => c.id === convoId);
-    const label = convo ? "#" + convo.name : "team chat";
+    const label = !convo ? "team chat" : convo.type === "dm" ? "dm" : "#" + convo.name;
     const sender = effectiveUser(msg.who, st.profiles).name;
     const body = label + ": " + (msg.text || "sent an attachment");
     st.notifyCategory("mentions", { dot: "#8A84F0", title: sender, body, tag: "msg-" + convoId, url: "/team" });

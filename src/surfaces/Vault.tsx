@@ -138,7 +138,7 @@ export function Vault() {
     <div style={{ maxWidth: 880, margin: "0 auto" }} className="anim-sc">
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 14, flexWrap: "wrap", marginBottom: 22 }}>
         <div>
-          <Eyebrow index="03" label="secrets" />
+          <Eyebrow index="08" label="secrets" />
           <h1 style={{ margin: 0, fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
             the <i style={{ fontWeight: 600 }}>vault</i>
           </h1>

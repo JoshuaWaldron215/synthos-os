@@ -109,17 +109,22 @@ export function Team() {
     requestAnimationFrame(() => textRef.current?.focus());
   };
 
+  // canonical pair ids (dm-<lo>-<hi>) — identical for both participants, so
+  // DM messages sync through the same conversations/messages tables
   const dms: DmConvo[] = useMemo(
     () =>
       USERS.filter((u) => u.id !== currentUserId).map((u) => ({
-        id: "dm" + u.id,
+        id: `dm-${Math.min(currentUserId, u.id)}-${Math.max(currentUserId, u.id)}`,
         name: effectiveUser(u.id, profiles).name,
         user: u.id,
       })),
     [currentUserId, profiles],
   );
 
-  const channel = conversations.find((c) => c.id === activeConvo);
+  // dm rows live in the store too (hydrated from the backend) — keep them out
+  // of the channels list and out of the channel-header path
+  const channels = useMemo(() => conversations.filter((c) => c.type !== "dm"), [conversations]);
+  const channel = channels.find((c) => c.id === activeConvo);
   const dm = dms.find((d) => d.id === activeConvo);
   const messages = teamMsgs[activeConvo] || [];
 
@@ -230,7 +235,7 @@ export function Team() {
 
   return (
     <div style={rootStyle} className="anim-sc">
-      <Eyebrow index="06" label="team" />
+      <Eyebrow index="05" label="team" />
       <h1 style={{ margin: isMobile ? "0 0 10px" : "0 0 4px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
         team <i style={{ fontWeight: 600 }}>chat</i>
       </h1>
@@ -247,7 +252,7 @@ export function Team() {
                 <Icon name="plus" size={14} sw={2} color="rgba(var(--ink-rgb),.55)" />
               </button>
             </div>
-            {conversations.map((c) => (
+            {channels.map((c) => (
               <button key={c.id} onClick={() => selectConvo(c.id)} style={convoItemStyle(activeConvo === c.id)}>
                 <span style={{ fontSize: 15, color: "rgba(var(--ink-rgb),.55)", fontWeight: 700 }}>#</span>
                 <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.name}</span>
@@ -269,7 +274,7 @@ export function Team() {
             <button onClick={openNew} title="new group chat" style={{ border: "none", borderRadius: 999, padding: "7px 12px", fontSize: 12.5, fontWeight: 700, whiteSpace: "nowrap", fontFamily: "inherit", background: "rgba(var(--ink-rgb),.05)", color: "rgba(var(--ink-rgb),.6)", display: "flex", alignItems: "center", gap: 4, flex: "0 0 auto" }}>
               <Icon name="plus" size={13} sw={2.2} color="rgba(var(--ink-rgb),.6)" /> new
             </button>
-            {conversations.map((c) => {
+            {channels.map((c) => {
               const active = activeConvo === c.id;
               return (
                 <button key={c.id} onClick={() => selectConvo(c.id)} style={{ border: "none", borderRadius: 999, padding: "7px 13px", fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", fontFamily: "inherit", background: active ? "var(--btn-ink)" : "rgba(var(--ink-rgb),.05)", color: active ? "#fff" : "rgba(var(--ink-rgb),.6)", flex: "0 0 auto" }}>

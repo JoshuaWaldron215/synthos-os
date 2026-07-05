@@ -92,7 +92,7 @@ export function Wins() {
     <div style={{ maxWidth: 880, margin: "0 auto" }} className="anim-sc">
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 14, flexWrap: "wrap", marginBottom: 18 }}>
         <div>
-          <Eyebrow index="05" label="momentum" color="#2FC197" />
+          <Eyebrow index="07" label="momentum" color="#2FC197" />
           <h1 style={{ margin: "0 0 4px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
             recent <i style={{ fontWeight: 600 }}>wins</i>
           </h1>

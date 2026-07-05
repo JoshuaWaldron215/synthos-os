@@ -106,6 +106,14 @@ function TaskModalInner({ t }: { t: Task }) {
         ))}
       </select>
 
+      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600, marginBottom: 8 }}>due date</div>
+      <input
+        type="date"
+        value={t.due ? new Date(t.due).toISOString().slice(0, 10) : ""}
+        onChange={(e) => patchTask(t.id, { due: e.target.value ? new Date(e.target.value + "T12:00:00").getTime() : null })}
+        style={{ width: "100%", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 12, padding: "10px 12px", fontSize: 16, fontFamily: "inherit", color: "var(--ink)", marginBottom: 18, background: "var(--card)", boxSizing: "border-box" }}
+      />
+
       <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600, marginBottom: 8 }}>notes</div>
       <textarea
         value={notes.draft}

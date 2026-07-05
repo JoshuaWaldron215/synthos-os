@@ -56,6 +56,8 @@ export interface Task {
   blocked: boolean;
   proj: string;
   notes: string;
+  /** optional deadline, epoch ms */
+  due?: number | null;
 }
 
 export interface VaultKey {
@@ -151,7 +153,8 @@ export interface TeamMessage {
 
 export interface Conversation {
   id: string;
-  type: "channel";
+  /** dm rows exist server-side with canonical pair ids (dm-<lo>-<hi>) */
+  type: "channel" | "dm";
   name: string;
   proj?: string;
   members: number[];
@@ -193,4 +196,6 @@ export interface NotifItem {
   at?: number;
   read: boolean;
   category: NotifCategory;
+  /** in-app destination when tapped (e.g. /tasks) */
+  url?: string;
 }

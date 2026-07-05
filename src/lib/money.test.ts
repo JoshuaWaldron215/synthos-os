@@ -43,3 +43,16 @@ describe("sumMoney", () => {
     expect(sumMoney([...projectEarned, ...winAmounts])).toBe("$127k");
   });
 });
+
+describe("perMonth", () => {
+  it("appends / mo when missing", async () => {
+    const { perMonth } = await import("./money");
+    expect(perMonth("$2k")).toBe("$2k / mo");
+  });
+  it("doesn't double an existing /mo suffix", async () => {
+    const { perMonth } = await import("./money");
+    expect(perMonth("$2k/mo")).toBe("$2k/mo");
+    expect(perMonth("$500 / month")).toBe("$500 / month");
+    expect(perMonth("")).toBe("");
+  });
+});

@@ -65,6 +65,7 @@ export interface StoreState {
   // tasks
   tasks: Task[];
   boardProj: string;
+  boardWho: number | "all";
   dragId: string | null;
   dragOver: ColKey | null;
   editingId: string | null;
@@ -140,6 +141,7 @@ export interface StoreState {
     n: { dot: string; title: string; body: string; tag?: string; url?: string },
   ) => void;
   markAllNotifsRead: () => void;
+  markNotifRead: (id: string) => void;
   clearNotifs: () => void;
 
   // data sync + activity
@@ -169,6 +171,7 @@ export interface StoreState {
 
   setFilter: (group: "status" | "builder" | "stack", val: string) => void;
   setBoardProj: (val: string) => void;
+  setBoardWho: (val: number | "all") => void;
 
   // task actions
   setDragId: (id: string | null) => void;

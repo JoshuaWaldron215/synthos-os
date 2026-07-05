@@ -58,12 +58,14 @@ export const createProfilesSlice = (set: StoreSet, get: StoreGet) => ({
     const st = get();
     const prefs = st.prefs[st.currentUserId];
     if (!prefs?.[category]) return;
-    st.pushNotification({ dot: n.dot, title: n.title, body: n.body, category });
+    st.pushNotification({ dot: n.dot, title: n.title, body: n.body, category, url: n.url });
     if (prefs.pushEnabled && st.notifPermission === "granted") {
       showOSNotification(n.title, n.body, n.tag, n.url);
     }
   },
   markAllNotifsRead: () =>
     set((s) => ({ notifications: s.notifications.map((n) => ({ ...n, read: true })) })),
+  markNotifRead: (id: string) =>
+    set((s) => ({ notifications: s.notifications.map((n) => (n.id === id ? { ...n, read: true } : n)) })),
   clearNotifs: () => set({ notifications: [] }),
 });

@@ -54,6 +54,7 @@ create table if not exists public.tasks (
   blocked boolean not null default false,
   proj text references public.projects (id) on delete set null,
   notes text default '',
+  due bigint,
   updated_at timestamptz not null default now()
 );
 
@@ -188,6 +189,13 @@ insert into public.conversations (id, type, name, members, guests, system) value
   ('general', 'channel', 'general', '[0,1,2]', '[]', true),
   ('builds',  'channel', 'builds',  '[0,1,2]', '[]', true),
   ('clients', 'channel', 'clients', '[0,1,2]', '[]', true)
+on conflict (id) do nothing;
+
+-- DM pair rows (viewer-independent ids) so messages.convo FK accepts DMs
+insert into public.conversations (id, type, name, members, guests, system) values
+  ('dm-0-1', 'dm', 'dm', '[0,1]', '[]', true),
+  ('dm-0-2', 'dm', 'dm', '[0,2]', '[]', true),
+  ('dm-1-2', 'dm', 'dm', '[1,2]', '[]', true)
 on conflict (id) do nothing;
 
 -- ---------------------------------------------------------------------------

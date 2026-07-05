@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { Icon } from "../lib/Icon";
-import { BOTTOM_TABS, NAV_ITEMS, activeKeyFor } from "../lib/nav";
+import { BOTTOM_TABS, NAV_GROUPS, NAV_ITEMS, activeKeyFor } from "../lib/nav";
 import { useStore } from "../store/useStore";
 import { useUser } from "../lib/useUser";
 import { Avatar } from "./Avatar";
@@ -58,9 +58,12 @@ export function MobileDrawer() {
         </div>
 
         <div style={{ flex: 1, overflowY: "auto", padding: "12px 12px 8px", display: "flex", flexDirection: "column", gap: 3 }}>
-          {NAV_ITEMS.map((item) => {
-            const active = activeKey === item.key;
-            return (
+          {NAV_GROUPS.map((group, gi) => (
+            <div key={group} style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              {gi > 0 && <div style={{ height: 1, background: "rgba(var(--ink-rgb),.07)", margin: "7px 12px" }} />}
+              {NAV_ITEMS.filter((i) => i.group === group).map((item) => {
+                const active = activeKey === item.key;
+                return (
               <button
                 key={item.key}
                 className={active ? undefined : "hov-sky"}
@@ -86,8 +89,10 @@ export function MobileDrawer() {
                 <Icon name={item.icon} size={19} />
                 <span>{item.label}</span>
               </button>
-            );
-          })}
+                );
+              })}
+            </div>
+          ))}
         </div>
 
         <div style={{ padding: "14px 16px calc(18px + env(safe-area-inset-bottom))", borderTop: "1px solid rgba(var(--ink-rgb),.06)" }}>

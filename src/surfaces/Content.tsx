@@ -204,7 +204,7 @@ export function Content() {
 
   return (
     <div className="anim-sc">
-      <Eyebrow index="07" label="marketing" />
+      <Eyebrow index="06" label="marketing" />
       <h1 style={{ margin: "0 0 4px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
         content <i style={{ fontWeight: 600 }}>pipeline</i>
       </h1>

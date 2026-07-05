@@ -26,3 +26,10 @@ export function formatMoney(n: number): string {
 export function sumMoney(values: string[]): string {
   return formatMoney(values.reduce((acc, v) => acc + parseMoney(v), 0));
 }
+
+// Appends "/ mo" only when the string doesn't already carry a per-month
+// suffix — users naturally type "$2k/mo", which would otherwise double up.
+export function perMonth(rev: string): string {
+  if (!rev) return rev;
+  return /\/\s*mo(nth)?\.?\s*$/i.test(rev) ? rev : rev + " / mo";
+}

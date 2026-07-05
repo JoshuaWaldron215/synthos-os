@@ -26,7 +26,7 @@ export function Intake() {
 
   return (
     <div style={{ maxWidth: 860, margin: "0 auto" }} className="anim-sc">
-      <Eyebrow index="04" label="intake" />
+      <Eyebrow index="02" label="intake" />
       <h1 style={{ margin: "0 0 4px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
         scope in, <i style={{ fontWeight: 600 }}>tasks out</i>
       </h1>

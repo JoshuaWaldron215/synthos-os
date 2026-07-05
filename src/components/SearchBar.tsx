@@ -7,7 +7,7 @@ import { useStore } from "../store/useStore";
 import { Avatar } from "./Avatar";
 import { ResponsiveModal } from "./ResponsiveModal";
 
-type ResultKind = "person" | "project" | "task" | "key" | "file";
+type ResultKind = "person" | "project" | "task" | "key" | "file" | "lead";
 interface Result {
   kind: ResultKind;
   id: string;
@@ -23,6 +23,7 @@ const KIND_LABEL: Record<ResultKind, string> = {
   task: "tasks",
   key: "vault",
   file: "files",
+  lead: "leads",
 };
 const KIND_ICON: Record<ResultKind, Parameters<typeof Icon>[0]["name"]> = {
   person: "team",
@@ -30,6 +31,7 @@ const KIND_ICON: Record<ResultKind, Parameters<typeof Icon>[0]["name"]> = {
   task: "tasks",
   key: "vault",
   file: "note",
+  lead: "bolt",
 };
 
 function useResults(query: string, onPicked: () => void): Result[] {
@@ -38,6 +40,7 @@ function useResults(query: string, onPicked: () => void): Result[] {
   const tasks = useStore((s) => s.tasks);
   const keys = useStore((s) => s.keys);
   const files = useStore((s) => s.files);
+  const leads = useStore((s) => s.leads);
   const profiles = useStore((s) => s.profiles);
   const openTask = useStore((s) => s.openTask);
   const openProfile = useStore((s) => s.openProfile);
@@ -132,8 +135,26 @@ function useResults(query: string, onPicked: () => void): Result[] {
         });
       }
     }
+    for (const l of leads) {
+      if (
+        l.name.toLowerCase().includes(q) ||
+        l.contact.toLowerCase().includes(q) ||
+        l.notes.toLowerCase().includes(q)
+      ) {
+        out.push({
+          kind: "lead",
+          id: l.id,
+          title: l.name,
+          sub: l.status + (l.contact ? " · " + l.contact : ""),
+          go: () => {
+            navigate("/leads");
+            onPicked();
+          },
+        });
+      }
+    }
     return out.slice(0, 12);
-  }, [query, projects, tasks, keys, files, profiles, navigate, openTask, openProfile, onPicked]);
+  }, [query, projects, tasks, keys, files, leads, profiles, navigate, openTask, openProfile, onPicked]);
 }
 
 function ResultRow({ r }: { r: Result }) {
@@ -178,7 +199,7 @@ function ResultList({ query, results }: { query: string; results: Result[] }) {
   if (!query.trim()) {
     return (
       <div style={{ padding: "18px 12px", fontSize: 13, color: "rgba(var(--ink-rgb),.55)", textAlign: "center" }}>
-        search people, projects, tasks, keys and files
+        search people, projects, tasks, keys, files and leads
       </div>
     );
   }

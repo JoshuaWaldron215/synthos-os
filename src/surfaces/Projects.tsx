@@ -5,7 +5,8 @@ import { Avatar } from "../components/Avatar";
 import { ProjectThumb } from "../components/ProjectThumb";
 import { ProjectFormModal } from "../components/ProjectFormModal";
 import { Icon } from "../lib/Icon";
-import { SM, filterPill, statusKey } from "../lib/style";
+import { perMonth } from "../lib/money";
+import { SM, filterPill, healthLabel, statusKey } from "../lib/style";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
 import type { Project } from "../types";
@@ -88,7 +89,7 @@ function ProjectCard({ p }: { p: Project }) {
         <div style={{ display: "flex", alignItems: "center", gap: 11, minWidth: 0 }}>
           <ProjectThumb project={p} size={38} radius={11} />
           <div style={{ minWidth: 0, display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ width: 9, height: 9, borderRadius: "50%", background: healthDot, flex: "0 0 auto", boxShadow: "0 0 0 4px rgba(11,15,25,.03)" }} />
+            <span title={"health: " + healthLabel(p.health)} style={{ width: 9, height: 9, borderRadius: "50%", background: healthDot, flex: "0 0 auto", boxShadow: "0 0 0 4px rgba(11,15,25,.03)" }} />
             <h3 style={{ margin: 0, fontSize: 16.5, fontWeight: 700, letterSpacing: "-.01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.client}</h3>
           </div>
         </div>
@@ -113,7 +114,7 @@ function ProjectCard({ p }: { p: Project }) {
           <span style={{ fontSize: 12.5, color: "rgba(var(--ink-rgb),.55)", fontWeight: 500 }}>{openCount} open</span>
         </div>
         <span style={{ fontSize: 12.5, color: "rgba(var(--ink-rgb),.34)", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>
-          {showRevenue ? p.rev + " / mo" : "•••"}
+          {showRevenue ? perMonth(p.rev) : "•••"}
         </span>
       </div>
     </div>
@@ -140,7 +141,7 @@ export function Projects() {
     <div style={{ maxWidth: 1200, margin: "0 auto" }} className="anim-sc">
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16, flexWrap: "wrap", marginBottom: 22 }}>
         <div>
-          <Eyebrow index="01" label="workspace" />
+          <Eyebrow index="03" label="workspace" />
           <h1 style={{ margin: 0, fontSize: isMobile ? 23 : 32, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.08 }}>
             your <i style={{ fontWeight: 600 }}>projects</i>, at a glance
           </h1>

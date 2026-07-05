@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Icon } from "../lib/Icon";
-import { NAV_ITEMS, activeKeyFor } from "../lib/nav";
+import { NAV_GROUPS, NAV_ITEMS, activeKeyFor } from "../lib/nav";
 import { useStore } from "../store/useStore";
 import { useUser } from "../lib/useUser";
 import { Avatar } from "./Avatar";
@@ -88,9 +88,13 @@ export function Sidebar() {
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-        {NAV_ITEMS.map((item) => {
-          const active = activeKey === item.key;
-          return (
+        {NAV_GROUPS.map((group, gi) => (
+          <div key={group} style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            {/* whisper separator between workflow sections */}
+            {gi > 0 && <div style={{ height: 1, background: "rgba(var(--ink-rgb),.06)", margin: collapsed ? "7px 8px" : "7px 12px" }} />}
+            {NAV_ITEMS.filter((i) => i.group === group).map((item) => {
+              const active = activeKey === item.key;
+              return (
             <button
               key={item.key}
               className={active ? undefined : "hov-sky hov-slide"}
@@ -123,8 +127,10 @@ export function Sidebar() {
               <Icon name={item.icon} size={19} />
               {!collapsed && <span>{item.label}</span>}
             </button>
-          );
-        })}
+              );
+            })}
+          </div>
+        ))}
       </div>
 
       <div style={{ marginTop: "auto" }}>

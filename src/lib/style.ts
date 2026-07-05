@@ -16,6 +16,14 @@ export function statusKey(s: ProjectStatus): StatusKey {
   return "mint";
 }
 
+// human name for a health dot (it mirrors project status via statusKey)
+export function healthLabel(k: StatusKey): string {
+  if (k === "sky") return "in progress";
+  if (k === "lav") return "in qa";
+  if (k === "blush") return "blocked";
+  return "shipped";
+}
+
 export function priColor(pri: Priority): string {
   return pri === "high" ? "#E5484D" : pri === "med" ? "#F5A524" : "#98A0B0";
 }

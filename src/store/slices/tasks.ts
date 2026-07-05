@@ -11,6 +11,7 @@ const PRI_ORDER: Priority[] = ["low", "med", "high"];
 export const createTasksSlice = (set: StoreSet, get: StoreGet) => ({
   tasks: BASE_TASKS.map((t) => ({ ...t })),
   boardProj: "all",
+  boardWho: "all" as number | "all",
   dragId: null as string | null,
   dragOver: null as ColKey | null,
   editingId: null as string | null,
@@ -23,6 +24,7 @@ export const createTasksSlice = (set: StoreSet, get: StoreGet) => ({
   editColText: "",
 
   setBoardProj: (val: string) => set({ boardProj: val }),
+  setBoardWho: (val: number | "all") => set({ boardWho: val }),
 
   // Real Web Push to a teammate's devices when a task lands on their plate.
   // Open tabs get the in-app notification via Realtime; this reaches phones

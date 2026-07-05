@@ -3,12 +3,31 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eyebrow } from "../components/Eyebrow";
 import { Avatar } from "../components/Avatar";
+import { USERS } from "../data/seed";
 import { Icon } from "../lib/Icon";
 import { COLS } from "../lib/board";
 import { SM, filterPill, priDot } from "../lib/style";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
 import type { ColKey, Task } from "../types";
+
+// deadline chip: red when overdue, amber when due today, quiet otherwise
+function DueChip({ due }: { due: number }) {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const today = start.getTime();
+  const overdue = due < today;
+  const isToday = due >= today && due < today + 86400000;
+  const label = new Date(due).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  const fg = overdue ? "var(--danger)" : isToday ? "#9A6712" : "rgba(var(--ink-rgb),.5)";
+  const bg = overdue ? "rgba(229,72,77,.12)" : isToday ? "rgba(245,165,36,.16)" : "rgba(var(--ink-rgb),.05)";
+  return (
+    <span style={{ fontSize: 10, fontWeight: 600, color: fg, background: bg, padding: "2px 7px", borderRadius: 6, whiteSpace: "nowrap" }}>
+      {overdue ? "overdue · " : ""}
+      {label}
+    </span>
+  );
+}
 
 function TaskCard({ task }: { task: Task }) {
   const navigate = useNavigate();
@@ -114,6 +133,7 @@ function TaskCard({ task }: { task: Task }) {
           {task.blocked && (
             <span style={{ fontSize: 10, fontWeight: 600, color: "#B5462A", background: "rgba(255,150,120,.18)", padding: "2px 7px", borderRadius: 6 }}>blocked</span>
           )}
+          {task.due != null && task.col !== "done" && <DueChip due={task.due} />}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
           {hasNotes && (
@@ -131,6 +151,7 @@ function TaskCard({ task }: { task: Task }) {
 function Column({ colKey, accent, isMobile }: { colKey: ColKey; accent: (typeof SM)[keyof typeof SM]; isMobile: boolean }) {
   const tasks = useStore((s) => s.tasks);
   const boardProj = useStore((s) => s.boardProj);
+  const boardWho = useStore((s) => s.boardWho);
   const colLabels = useStore((s) => s.colLabels);
   const editingCol = useStore((s) => s.editingCol);
   const editColText = useStore((s) => s.editColText);
@@ -152,7 +173,9 @@ function Column({ colKey, accent, isMobile }: { colKey: ColKey; accent: (typeof 
   // null = follow default (open when the column has cards); otherwise an explicit toggle
   const [collapsed, setCollapsed] = useState<boolean | null>(null);
 
-  const items = tasks.filter((t) => t.col === colKey && (boardProj === "all" || t.proj === boardProj));
+  const items = tasks.filter(
+    (t) => t.col === colKey && (boardProj === "all" || t.proj === boardProj) && (boardWho === "all" || t.who === boardWho),
+  );
   const colEditing = editingCol === colKey;
   const composerOpen = composerCol === colKey;
   const isOver = dragOver === colKey;
@@ -272,11 +295,15 @@ export function Tasks() {
   const projects = useStore((s) => s.projects);
   const boardProj = useStore((s) => s.boardProj);
   const setBoardProj = useStore((s) => s.setBoardProj);
-  const boardEmpty = useStore((s) => !s.tasks.some((t) => boardProj === "all" || t.proj === boardProj));
+  const boardWho = useStore((s) => s.boardWho);
+  const setBoardWho = useStore((s) => s.setBoardWho);
+  const boardEmpty = useStore(
+    (s) => !s.tasks.some((t) => (boardProj === "all" || t.proj === boardProj) && (boardWho === "all" || t.who === boardWho)),
+  );
 
   return (
     <div className="anim-sc">
-      <Eyebrow index="02" label="flow" />
+      <Eyebrow index="04" label="flow" />
       <h1 style={{ margin: "0 0 4px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
         tasks, <i style={{ fontWeight: 600 }}>build to ship</i>
       </h1>
@@ -290,6 +317,29 @@ export function Tasks() {
           <button onClick={() => setBoardProj("all")} style={filterPill(boardProj === "all")}>all</button>
           {projects.map((p) => (
             <button key={p.id} onClick={() => setBoardProj(p.id)} style={filterPill(boardProj === p.id)}>{p.client}</button>
+          ))}
+        </div>
+        {/* assignee filter: tap an avatar to see just their plate */}
+        <span style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600, marginLeft: isMobile ? 0 : 6 }}>who</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(var(--ink-rgb),.04)", borderRadius: 10, padding: 3 }}>
+          <button onClick={() => setBoardWho("all")} style={filterPill(boardWho === "all")}>all</button>
+          {USERS.map((u) => (
+            <button
+              key={u.id}
+              onClick={() => setBoardWho(boardWho === u.id ? "all" : u.id)}
+              title={u.name}
+              style={{
+                border: "none",
+                background: "transparent",
+                padding: 2,
+                borderRadius: "50%",
+                opacity: boardWho === "all" || boardWho === u.id ? 1 : 0.4,
+                boxShadow: boardWho === u.id ? "0 0 0 2px var(--sky-dot)" : "none",
+                display: "flex",
+              }}
+            >
+              <Avatar id={u.id} size={26} />
+            </button>
           ))}
         </div>
       </div>

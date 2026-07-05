@@ -110,7 +110,7 @@ export function Leads() {
 
   return (
     <div className="anim-sc">
-      <Eyebrow index="08" label="outbound" color="#FF8A63" />
+      <Eyebrow index="01" label="outbound" color="#FF8A63" />
       <div style={{ display: "flex", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
         <div style={{ flex: 1, minWidth: 220 }}>
           <h1 style={{ margin: "0 0 18px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>

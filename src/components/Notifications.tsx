@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Icon } from "../lib/Icon";
 import { whenLabel } from "../lib/time";
 import { useIsMobile } from "../lib/useMediaQuery";
@@ -6,7 +7,7 @@ import { useStore } from "../store/useStore";
 import { ResponsiveModal } from "./ResponsiveModal";
 import type { NotifItem } from "../types";
 
-function List({ items, onClear }: { items: NotifItem[]; onClear: () => void }) {
+function List({ items, onClear, onOpen }: { items: NotifItem[]; onClear: () => void; onOpen: (n: NotifItem) => void }) {
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 6px 8px" }}>
@@ -19,15 +20,22 @@ function List({ items, onClear }: { items: NotifItem[]; onClear: () => void }) {
         <div style={{ padding: "26px 12px", textAlign: "center", fontSize: 13, color: "rgba(var(--ink-rgb),.55)" }}>you're all caught up ✦</div>
       ) : (
         items.map((n) => (
-          <div key={n.id} className="hov-soft" style={{ display: "flex", gap: 9, padding: "10px 10px", borderRadius: 11, background: n.read ? "transparent" : "rgba(96,200,255,.07)" }}>
+          // tapping jumps to where the event lives (task → /tasks, chat → /team, …)
+          <button
+            key={n.id}
+            className="hov-soft"
+            onClick={() => onOpen(n)}
+            style={{ display: "flex", gap: 9, padding: "10px 10px", borderRadius: 11, background: n.read ? "transparent" : "rgba(96,200,255,.07)", border: "none", width: "100%", textAlign: "left", fontFamily: "inherit", cursor: n.url ? "pointer" : "default" }}
+          >
             <span style={{ width: 7, height: 7, borderRadius: "50%", background: n.dot, marginTop: 6, flex: "0 0 auto" }} />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12.5, lineHeight: 1.4 }}>
+              <div style={{ fontSize: 12.5, lineHeight: 1.4, color: "var(--ink)" }}>
                 <b style={{ fontWeight: 600 }}>{n.title}</b> {n.body}
               </div>
               <div style={{ fontSize: 11, color: "rgba(var(--ink-rgb),.55)", marginTop: 2 }}>{whenLabel(n.at, n.time)}</div>
             </div>
-          </div>
+            {n.url && <Icon name="chevron" size={13} sw={2} color="rgba(var(--ink-rgb),.3)" />}
+          </button>
         ))
       )}
     </div>
@@ -36,11 +44,20 @@ function List({ items, onClear }: { items: NotifItem[]; onClear: () => void }) {
 
 export function Notifications() {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const notifOpen = useStore((s) => s.notifOpen);
   const toggleNotif = useStore((s) => s.toggleNotif);
   const notifications = useStore((s) => s.notifications);
   const markAllNotifsRead = useStore((s) => s.markAllNotifsRead);
+  const markNotifRead = useStore((s) => s.markNotifRead);
   const clearNotifs = useStore((s) => s.clearNotifs);
+
+  const openNotif = (n: NotifItem) => {
+    markNotifRead(n.id);
+    if (!n.url) return;
+    navigate(n.url);
+    toggleNotif();
+  };
 
   // mark everything read shortly after opening
   useEffect(() => {
@@ -64,7 +81,7 @@ export function Notifications() {
   if (isMobile) {
     return (
       <ResponsiveModal open={notifOpen} onClose={toggleNotif} maxHeight="80vh">
-        <List items={notifications} onClear={clearNotifs} />
+        <List items={notifications} onClear={clearNotifs} onOpen={openNotif} />
       </ResponsiveModal>
     );
   }
@@ -89,7 +106,7 @@ export function Notifications() {
           zIndex: 32,
         }}
       >
-        <List items={notifications} onClear={clearNotifs} />
+        <List items={notifications} onClear={clearNotifs} onOpen={openNotif} />
       </div>
     </>
   );

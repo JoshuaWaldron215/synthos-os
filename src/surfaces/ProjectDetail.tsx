@@ -7,7 +7,7 @@ import { ProjectFiles } from "../components/ProjectFiles";
 import { Icon } from "../lib/Icon";
 import { fileToAvatarDataUrl } from "../lib/image";
 import { USERS } from "../data/seed";
-import { SM, priDot, statusKey } from "../lib/style";
+import { SM, healthLabel, priDot, statusKey } from "../lib/style";
 import { whenLabel } from "../lib/time";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
@@ -210,7 +210,7 @@ export function ProjectDetail() {
 
         <div style={{ flex: 1, minWidth: 220 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 11, flexWrap: "wrap" }}>
-            <span style={{ width: 11, height: 11, borderRadius: "50%", background: SM[project.health].dot, flex: "0 0 auto" }} />
+            <span title={"health: " + healthLabel(project.health)} style={{ width: 11, height: 11, borderRadius: "50%", background: SM[project.health].dot, flex: "0 0 auto" }} />
             <InlineText
               value={project.client}
               onSave={(v) => updateProject(pid, { client: v || project.client })}
@@ -295,7 +295,10 @@ export function ProjectDetail() {
                     {showRevenue ? (
                       <>
                         <InlineText value={project.rev} onSave={(v) => updateProject(pid, { rev: v })} placeholder="$0" style={{ fontSize: 18, fontWeight: 700 }} />
-                        <span style={{ fontSize: 12.5, fontWeight: 600, color: "rgba(var(--ink-rgb),.55)" }}> / mo</span>
+                        {/* value may already end in "/mo" — don't double the suffix */}
+                        {!/\/\s*mo(nth)?\.?\s*$/i.test(project.rev) && (
+                          <span style={{ fontSize: 12.5, fontWeight: 600, color: "rgba(var(--ink-rgb),.55)" }}> / mo</span>
+                        )}
                       </>
                     ) : (
                       "•••"
