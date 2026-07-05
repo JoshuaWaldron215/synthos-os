@@ -31,12 +31,14 @@ const filterPill = (on: boolean): CSSProperties => ({
   background: on ? "var(--card)" : "transparent",
   boxShadow: on ? "0 1px 2px rgba(11,15,25,.12)" : "none",
   borderRadius: 8,
-  padding: "6px 11px",
+  padding: "7px 12px", // comfortable touch target on mobile rails
   fontSize: 12.5,
   fontWeight: 600,
   color: on ? "var(--ink)" : "rgba(var(--ink-rgb),.55)",
   fontFamily: "inherit",
   whiteSpace: "nowrap",
+  flex: "0 0 auto",
+  transition: "background .15s, color .15s",
 });
 
 export function Leads() {
@@ -123,25 +125,28 @@ export function Leads() {
         </button>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
-        <span style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600 }}>status</span>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 4, background: "rgba(var(--ink-rgb),.04)", borderRadius: 10, padding: 3 }}>
-          {["all", ...LEAD_STATUSES].map((s) => (
-            <button key={s} onClick={() => setLeadFilter("status", s)} style={filterPill(fStatus === s)}>{s}</button>
-          ))}
-        </div>
-        <span style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600, marginLeft: isMobile ? 0 : 6 }}>quality</span>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 4, background: "rgba(var(--ink-rgb),.04)", borderRadius: 10, padding: 3 }}>
-          {["all", ...LEAD_QUALITIES].map((q) => (
-            <button key={q} onClick={() => setLeadFilter("quality", q)} style={filterPill(fQuality === q)}>{q}</button>
-          ))}
-        </div>
-        <span style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600, marginLeft: isMobile ? 0 : 6 }}>follow-up</span>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 4, background: "rgba(var(--ink-rgb),.04)", borderRadius: 10, padding: 3 }}>
-          {["all", "overdue", "today", "this week", "no date"].map((d) => (
-            <button key={d} onClick={() => setLeadFilter("date", d)} style={filterPill(fDate === d)}>{d}</button>
-          ))}
-        </div>
+      <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "stretch" : "center", gap: isMobile ? 8 : 14, marginBottom: 16, flexWrap: isMobile ? "nowrap" : "wrap" }}>
+        {(
+          [
+            { label: "status", options: ["all", ...LEAD_STATUSES], active: fStatus, group: "status" as const },
+            { label: "quality", options: ["all", ...LEAD_QUALITIES], active: fQuality, group: "quality" as const },
+            { label: "due", options: ["all", "overdue", "today", "this week", "no date"], active: fDate, group: "date" as const },
+          ]
+        ).map((g) => (
+          <div key={g.group} style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+            <span style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600, flex: "0 0 auto", width: isMobile ? 68 : undefined }}>
+              {g.label}
+            </span>
+            {/* one rail per group — scrolls sideways on mobile instead of wrapping */}
+            <div style={{ display: "flex", gap: 4, background: "rgba(var(--ink-rgb),.04)", borderRadius: 10, padding: 3, overflowX: isMobile ? "auto" : undefined, flexWrap: isMobile ? "nowrap" : "wrap", maxWidth: "100%", WebkitOverflowScrolling: "touch" }}>
+              {g.options.map((opt) => (
+                <button key={opt} onClick={() => setLeadFilter(g.group, opt)} style={filterPill(g.active === opt)}>
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
 
       {filtered.length === 0 ? (
@@ -158,30 +163,76 @@ export function Leads() {
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {filtered.map((l) => {
-            const closed = l.status === "won" || l.status === "lost";
-            return (
-              <button
-                key={l.id}
-                className="hov-lift"
-                onClick={() => openEdit(l)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  width: "100%",
-                  textAlign: "left",
-                  background: "var(--card)",
-                  border: "1px solid rgba(var(--ink-rgb),.06)",
-                  borderRadius: 15,
-                  padding: isMobile ? "12px 14px" : "12px 18px",
-                  fontFamily: "inherit",
-                  boxShadow: "var(--shadow-card)",
-                  opacity: closed && l.status === "lost" ? 0.6 : 1,
-                  flexWrap: isMobile ? "wrap" : "nowrap",
-                  cursor: "pointer",
+            const qualityPill = (
+              <span
+                role="button"
+                title="cycle quality"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  updateLead(l.id, { quality: nextOf(LEAD_QUALITIES, l.quality) });
                 }}
+                style={pillStyle(l.quality, true)}
               >
-                <div style={{ flex: isMobile ? "1 1 100%" : 2, minWidth: 0 }}>
+                {l.quality}
+              </span>
+            );
+            const statusPill = (
+              <span
+                role="button"
+                title="cycle status"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  updateLead(l.id, { status: nextOf(LEAD_STATUSES, l.status) });
+                }}
+                style={pillStyle(l.status, true)}
+              >
+                {l.status}
+              </span>
+            );
+            const cardStyle = {
+              width: "100%",
+              textAlign: "left" as const,
+              background: "var(--card)",
+              border: "1px solid rgba(var(--ink-rgb),.06)",
+              borderRadius: 15,
+              fontFamily: "inherit",
+              boxShadow: "var(--shadow-card)",
+              opacity: l.status === "lost" ? 0.6 : 1,
+              cursor: "pointer",
+            };
+
+            if (isMobile) {
+              // stacked card: identity row → notes → pills + follow-up
+              return (
+                <button key={l.id} onClick={() => openEdit(l)} style={{ ...cardStyle, display: "flex", flexDirection: "column", alignItems: "stretch", gap: 8, padding: "13px 14px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 15, fontWeight: 600, color: "var(--ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.name}</div>
+                      {l.contact && (
+                        <div style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.5)", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.contact}</div>
+                      )}
+                    </div>
+                    <Avatar id={l.who} size={30} />
+                  </div>
+                  {l.notes && (
+                    <div style={{ fontSize: 12.5, color: "rgba(var(--ink-rgb),.55)", lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                      {l.notes}
+                    </div>
+                  )}
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                    <span style={pillStyle(l.from, true)}>{l.from}</span>
+                    {qualityPill}
+                    {statusPill}
+                    <span style={{ marginLeft: "auto" }}>{followUpBadge(l)}</span>
+                  </div>
+                </button>
+              );
+            }
+
+            // desktop: single scannable row
+            return (
+              <button key={l.id} className="hov-lift" onClick={() => openEdit(l)} style={{ ...cardStyle, display: "flex", alignItems: "center", gap: 12, padding: "12px 18px" }}>
+                <div style={{ flex: 2, minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
                     <span style={{ fontSize: 14.5, fontWeight: 600, color: "var(--ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.name}</span>
                     {l.contact && (
@@ -194,35 +245,10 @@ export function Leads() {
                     </div>
                   )}
                 </div>
-
                 <span style={pillStyle(l.from, true)}>{l.from}</span>
-
-                <span
-                  role="button"
-                  title="cycle quality"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    updateLead(l.id, { quality: nextOf(LEAD_QUALITIES, l.quality) });
-                  }}
-                  style={pillStyle(l.quality, true)}
-                >
-                  {l.quality}
-                </span>
-
-                <span
-                  role="button"
-                  title="cycle status"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    updateLead(l.id, { status: nextOf(LEAD_STATUSES, l.status) });
-                  }}
-                  style={pillStyle(l.status, true)}
-                >
-                  {l.status}
-                </span>
-
-                <div style={{ minWidth: isMobile ? undefined : 96, textAlign: isMobile ? "left" : "right" }}>{followUpBadge(l)}</div>
-
+                {qualityPill}
+                {statusPill}
+                <div style={{ minWidth: 96, textAlign: "right" }}>{followUpBadge(l)}</div>
                 <Avatar id={l.who} size={28} />
               </button>
             );
