@@ -1,4 +1,4 @@
-import { useMemo, type CSSProperties, type ReactNode } from "react";
+import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar } from "../components/Avatar";
 import { Eyebrow } from "../components/Eyebrow";
@@ -10,7 +10,7 @@ import { SM, priDot } from "../lib/style";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useUser } from "../lib/useUser";
 import { useStore } from "../store/useStore";
-import { DEFAULT_DASHBOARD, type WidgetKey } from "../store/slices/dashboard";
+import { fullLayout, type WidgetKey } from "../store/slices/dashboard";
 
 const DAY = 86400000;
 const startOfToday = () => {
@@ -20,6 +20,7 @@ const startOfToday = () => {
 };
 
 const WIDGET_TITLES: Record<WidgetKey, string> = {
+  ask: "ask ai",
   today: "today",
   tasks: "my tasks",
   pipeline: "pipeline",
@@ -111,6 +112,48 @@ function WidgetCard({
         )}
       </div>
       {children}
+    </div>
+  );
+}
+
+const ASK_HINTS = ["assign a task", "what's blocked?", "any updates today?"];
+
+function AskWidget() {
+  const navigate = useNavigate();
+  const ask = useStore((s) => s.ask);
+  const [text, setText] = useState("");
+
+  const send = (q: string) => {
+    const v = q.trim();
+    if (!v) return;
+    setText("");
+    ask(v);
+    navigate("/ask");
+  };
+
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(var(--ink-rgb),.04)", border: "1px solid rgba(var(--ink-rgb),.08)", borderRadius: 12, padding: "4px 4px 4px 12px", marginBottom: 8 }}>
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") send(text);
+          }}
+          placeholder="assign a task, ask about a project…"
+          style={{ flex: 1, minWidth: 0, border: "none", background: "transparent", fontSize: 13.5, fontFamily: "inherit", color: "var(--ink)", padding: "8px 0" }}
+        />
+        <button onClick={() => send(text)} title="ask" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, background: "var(--btn-ink)", border: "none", borderRadius: 9, flex: "0 0 auto", cursor: "pointer" }}>
+          <Icon name="send" size={14} sw={1.8} color="#fff" />
+        </button>
+      </div>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+        {ASK_HINTS.map((h) => (
+          <button key={h} className="hov-soft" onClick={() => send(h)} style={{ background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 999, padding: "5px 11px", fontSize: 11.5, fontWeight: 600, color: "rgba(var(--ink-rgb),.55)", fontFamily: "inherit", cursor: "pointer" }}>
+            {h}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -322,6 +365,7 @@ function WinsWidget() {
 }
 
 const WIDGETS: Record<WidgetKey, { component: () => ReactNode; path: string }> = {
+  ask: { component: AskWidget, path: "/ask" },
   today: { component: TodayWidget, path: "/tasks" },
   tasks: { component: TasksWidget, path: "/tasks" },
   pipeline: { component: PipelineWidget, path: "/leads" },
@@ -335,7 +379,7 @@ export function Home() {
   const navigate = useNavigate();
   const me = useStore((s) => s.currentUserId);
   const user = useUser(me);
-  const layout = useStore((s) => s.dashboards[s.currentUserId] ?? DEFAULT_DASHBOARD);
+  const layout = useStore((s) => fullLayout(s.dashboards[s.currentUserId]));
   const editing = useStore((s) => s.dashEditing);
   const setDashEditing = useStore((s) => s.setDashEditing);
   const toggleWidget = useStore((s) => s.toggleWidget);

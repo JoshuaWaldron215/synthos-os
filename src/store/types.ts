@@ -85,6 +85,7 @@ export interface StoreState {
   // chat (ask ai)
   chat: ChatMessage[];
   chatInput: string;
+  chatBusy: boolean;
 
   // team
   activeConvo: string;

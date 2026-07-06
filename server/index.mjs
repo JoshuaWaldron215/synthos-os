@@ -13,8 +13,18 @@ import webpush from "web-push";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import askHandler from "../api/ask.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// pick up VITE_SUPABASE_* / ANTHROPIC_API_KEY for the ask agent
+for (const f of [".env.local", ".env"]) {
+  try {
+    process.loadEnvFile(join(__dirname, "..", f));
+  } catch {
+    /* missing file — ask degrades to the client's canned responder */
+  }
+}
 const DATA_DIR = join(__dirname, ".data");
 const VAPID_FILE = join(DATA_DIR, "vapid.json");
 const SUBS_FILE = join(DATA_DIR, "subscriptions.json");
@@ -54,6 +64,9 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/api/health", (_req, res) => res.json({ ok: true, subscribers: Object.keys(subs).length }));
+
+// same handler Vercel runs in prod — express req/res are shape-compatible
+app.post("/api/ask", (req, res) => askHandler(req, res));
 
 app.get("/api/vapid-public-key", (_req, res) => res.json({ key: vapid.publicKey }));
 

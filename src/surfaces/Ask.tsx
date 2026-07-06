@@ -14,6 +14,7 @@ const SUGGESTIONS = [
 export function Ask() {
   const isMobile = useIsMobile();
   const chat = useStore((s) => s.chat);
+  const chatBusy = useStore((s) => s.chatBusy);
   const chatInput = useStore((s) => s.chatInput);
   const setChatInput = useStore((s) => s.setChatInput);
   const sendChat = useStore((s) => s.sendChat);
@@ -55,6 +56,24 @@ export function Ask() {
             </div>
           );
         })}
+        {chatBusy && (
+          <div style={{ display: "flex", justifyContent: "flex-start" }}>
+            <div
+              style={{
+                fontSize: 14,
+                padding: "13px 16px",
+                borderRadius: "16px 16px 16px 4px",
+                animation: "msgIn .25s ease",
+                background: "var(--card)",
+                color: "rgba(var(--ink-rgb),.5)",
+                border: "1px solid rgba(var(--ink-rgb),.06)",
+                boxShadow: "var(--shadow-card)",
+              }}
+            >
+              thinking<span className="dots">…</span>
+            </div>
+          </div>
+        )}
       </div>
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 12 }}>
@@ -79,7 +98,7 @@ export function Ask() {
           placeholder="ask synthos anything…"
           style={{ flex: 1, border: "none", resize: "none", fontSize: 14.5, lineHeight: 1.5, color: "var(--ink)", background: "transparent", padding: "6px 0", maxHeight: 120 }}
         />
-        <button onClick={sendChat} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, background: "var(--btn-ink)", border: "none", borderRadius: 12, flex: "0 0 auto" }}>
+        <button onClick={sendChat} disabled={chatBusy} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, background: "var(--btn-ink)", border: "none", borderRadius: 12, flex: "0 0 auto", opacity: chatBusy ? 0.5 : 1 }}>
           <Icon name="send" size={17} sw={1.8} color="#fff" />
         </button>
       </div>

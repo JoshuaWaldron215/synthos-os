@@ -154,6 +154,19 @@ a {
     transform: none;
   }
 }
+/* ask ai "thinking…" pulse */
+.dots {
+  animation: dotsPulse 1.2s ease-in-out infinite;
+}
+@keyframes dotsPulse {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
 @keyframes toastIn {
   from {
     opacity: 0;
