@@ -55,6 +55,7 @@ create table if not exists public.tasks (
   proj text references public.projects (id) on delete set null,
   notes text default '',
   due bigint,
+  done_at bigint,
   updated_at timestamptz not null default now()
 );
 

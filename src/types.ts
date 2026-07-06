@@ -58,6 +58,8 @@ export interface Task {
   notes: string;
   /** optional deadline, epoch ms */
   due?: number | null;
+  /** when the task landed in "done" — drives the board's auto-archive */
+  doneAt?: number | null;
 }
 
 export interface VaultKey {

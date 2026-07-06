@@ -91,6 +91,7 @@ export interface StoreState {
   teamInput: string;
   teamMsgs: Record<string, TeamMessage[]>;
   conversations: Conversation[];
+  convoReads: Record<string, number>;
 
   // content pipeline
   content: ContentItem[];
@@ -220,6 +221,7 @@ export interface StoreState {
 
   // team actions
   selectConvo: (id: string) => void;
+  markConvoRead: (id: string) => void;
   setTeamInput: (v: string) => void;
   teamSend: (attachments?: MessageAttachment[]) => void;
   toggleReaction: (convoId: string, index: number, emoji: string) => void;

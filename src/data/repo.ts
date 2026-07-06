@@ -93,9 +93,10 @@ interface TaskRow {
   who: number;
   pri: Task["pri"];
   blocked: boolean;
-  proj: string;
+  proj: string | null;
   notes: string | null;
   due: number | null;
+  done_at: number | null;
 }
 const toTask = (r: TaskRow): Task => ({
   id: r.id,
@@ -104,9 +105,23 @@ const toTask = (r: TaskRow): Task => ({
   who: r.who,
   pri: r.pri,
   blocked: r.blocked,
-  proj: r.proj,
+  proj: r.proj ?? "",
   notes: r.notes ?? "",
   due: r.due,
+  doneAt: r.done_at,
+});
+const fromTask = (t: Task): TaskRow => ({
+  id: t.id,
+  title: t.title,
+  col: t.col,
+  who: t.who,
+  pri: t.pri,
+  blocked: t.blocked,
+  // "" means unassigned in the app; the column's FK needs null instead
+  proj: t.proj || null,
+  notes: t.notes,
+  due: t.due ?? null,
+  done_at: t.doneAt ?? null,
 });
 
 interface FileRow {
@@ -166,7 +181,9 @@ const fromWin = (w: Win): WinRow => ({
   title: w.title,
   tag: w.tag,
   amount: w.amount,
-  proj: w.proj,
+  // "" means "no project" in the app; the FK column needs null, else the
+  // whole insert is rejected and the win never leaves the author's device
+  proj: w.proj || null,
   note: w.note,
   created_at: w.createdAt,
 });
@@ -368,7 +385,7 @@ export async function removeProject(id: string): Promise<void> {
 export async function saveTask(t: Task): Promise<void> {
   const sb = await getSupabase();
   if (!sb) return;
-  await sb.from("tasks").upsert(t);
+  await sb.from("tasks").upsert(fromTask(t));
 }
 export async function removeTask(id: string): Promise<void> {
   const sb = await getSupabase();

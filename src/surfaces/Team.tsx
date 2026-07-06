@@ -9,6 +9,7 @@ import { Icon } from "../lib/Icon";
 import { fmtSize, kindOf } from "../lib/format";
 import { effectiveUser, statusMeta } from "../lib/profile";
 import { whenLabel } from "../lib/time";
+import { convoUnread } from "../lib/unread";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
 import type { Conversation, MessageAttachment } from "../types";
@@ -41,6 +42,14 @@ interface DmConvo {
   user: number;
 }
 
+function UnreadPill({ n }: { n: number }) {
+  return (
+    <span style={{ minWidth: 17, height: 17, padding: "0 5px", borderRadius: 999, background: "#33ADEE", color: "#fff", fontSize: 10.5, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flex: "0 0 auto" }}>
+      {n > 9 ? "9+" : n}
+    </span>
+  );
+}
+
 function convoItemStyle(active: boolean): CSSProperties {
   return {
     display: "flex",
@@ -67,6 +76,8 @@ export function Team() {
   const activeConvo = useStore((s) => s.activeConvo);
   const selectConvo = useStore((s) => s.selectConvo);
   const teamMsgs = useStore((s) => s.teamMsgs);
+  const convoReads = useStore((s) => s.convoReads);
+  const markConvoRead = useStore((s) => s.markConvoRead);
   const teamInput = useStore((s) => s.teamInput);
   const setTeamInput = useStore((s) => s.setTeamInput);
   const teamSend = useStore((s) => s.teamSend);
@@ -137,6 +148,11 @@ export function Team() {
     selectConvo(c);
     setSearchParams({}, { replace: true });
   }, [searchParams, selectConvo, setSearchParams]);
+
+  // while this surface is open, the active conversation stays read
+  useEffect(() => {
+    markConvoRead(activeConvo);
+  }, [activeConvo, messages.length, markConvoRead]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -262,20 +278,28 @@ export function Team() {
                 <Icon name="plus" size={14} sw={2} color="rgba(var(--ink-rgb),.55)" />
               </button>
             </div>
-            {channels.map((c) => (
-              <button key={c.id} onClick={() => selectConvo(c.id)} style={convoItemStyle(activeConvo === c.id)}>
-                <span style={{ fontSize: 15, color: "rgba(var(--ink-rgb),.55)", fontWeight: 700 }}>#</span>
-                <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.name}</span>
-                {c.proj && <span title={projectName(c.proj)} style={{ width: 7, height: 7, borderRadius: "50%", background: "#60C8FF", flex: "0 0 auto" }} />}
-              </button>
-            ))}
+            {channels.map((c) => {
+              const unread = activeConvo === c.id ? 0 : convoUnread(teamMsgs[c.id], convoReads[c.id] ?? 0, currentUserId);
+              return (
+                <button key={c.id} onClick={() => selectConvo(c.id)} style={convoItemStyle(activeConvo === c.id)}>
+                  <span style={{ fontSize: 15, color: "rgba(var(--ink-rgb),.55)", fontWeight: 700 }}>#</span>
+                  <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: unread ? 700 : undefined }}>{c.name}</span>
+                  {unread > 0 && <UnreadPill n={unread} />}
+                  {c.proj && <span title={projectName(c.proj)} style={{ width: 7, height: 7, borderRadius: "50%", background: "#60C8FF", flex: "0 0 auto" }} />}
+                </button>
+              );
+            })}
             <div style={{ fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600, padding: "14px 10px 6px" }}>direct messages</div>
-            {dms.map((c) => (
-              <button key={c.id} onClick={() => selectConvo(c.id)} style={convoItemStyle(activeConvo === c.id)}>
-                <Avatar id={c.user} size={26} presence />
-                {c.name}
-              </button>
-            ))}
+            {dms.map((c) => {
+              const unread = activeConvo === c.id ? 0 : convoUnread(teamMsgs[c.id], convoReads[c.id] ?? 0, currentUserId);
+              return (
+                <button key={c.id} onClick={() => selectConvo(c.id)} style={convoItemStyle(activeConvo === c.id)}>
+                  <Avatar id={c.user} size={26} presence />
+                  <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: unread ? 700 : undefined }}>{c.name}</span>
+                  {unread > 0 && <UnreadPill n={unread} />}
+                </button>
+              );
+            })}
           </div>
         )}
 
@@ -284,19 +308,13 @@ export function Team() {
             <button onClick={openNew} title="new group chat" style={{ border: "none", borderRadius: 999, padding: "7px 12px", fontSize: 12.5, fontWeight: 700, whiteSpace: "nowrap", fontFamily: "inherit", background: "rgba(var(--ink-rgb),.05)", color: "rgba(var(--ink-rgb),.6)", display: "flex", alignItems: "center", gap: 4, flex: "0 0 auto" }}>
               <Icon name="plus" size={13} sw={2.2} color="rgba(var(--ink-rgb),.6)" /> new
             </button>
-            {channels.map((c) => {
+            {[...channels.map((c) => ({ id: c.id, label: "# " + c.name })), ...dms.map((c) => ({ id: c.id, label: c.name }))].map((c) => {
               const active = activeConvo === c.id;
+              const unread = active ? 0 : convoUnread(teamMsgs[c.id], convoReads[c.id] ?? 0, currentUserId);
               return (
-                <button key={c.id} onClick={() => selectConvo(c.id)} style={{ border: "none", borderRadius: 999, padding: "7px 13px", fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", fontFamily: "inherit", background: active ? "var(--btn-ink)" : "rgba(var(--ink-rgb),.05)", color: active ? "#fff" : "rgba(var(--ink-rgb),.6)", flex: "0 0 auto" }}>
-                  # {c.name}
-                </button>
-              );
-            })}
-            {dms.map((c) => {
-              const active = activeConvo === c.id;
-              return (
-                <button key={c.id} onClick={() => selectConvo(c.id)} style={{ border: "none", borderRadius: 999, padding: "7px 13px", fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", fontFamily: "inherit", background: active ? "var(--btn-ink)" : "rgba(var(--ink-rgb),.05)", color: active ? "#fff" : "rgba(var(--ink-rgb),.6)", flex: "0 0 auto" }}>
-                  {c.name}
+                <button key={c.id} onClick={() => selectConvo(c.id)} style={{ display: "flex", alignItems: "center", gap: 6, border: "none", borderRadius: 999, padding: "7px 13px", fontSize: 12.5, fontWeight: unread ? 700 : 600, whiteSpace: "nowrap", fontFamily: "inherit", background: active ? "var(--btn-ink)" : "rgba(var(--ink-rgb),.05)", color: active ? "#fff" : "rgba(var(--ink-rgb),.6)", flex: "0 0 auto" }}>
+                  {c.label}
+                  {unread > 0 && <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#33ADEE", flex: "0 0 auto" }} />}
                 </button>
               );
             })}

@@ -6,6 +6,7 @@ import { ProjectThumb } from "../components/ProjectThumb";
 import { ProjectFiles } from "../components/ProjectFiles";
 import { Icon } from "../lib/Icon";
 import { fileToAvatarDataUrl } from "../lib/image";
+import { normalizeMoney } from "../lib/money";
 import { USERS } from "../data/seed";
 import { SM, healthLabel, priDot, statusKey } from "../lib/style";
 import { whenLabel } from "../lib/time";
@@ -294,7 +295,7 @@ export function ProjectDetail() {
                   <div style={{ fontSize: 18, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>
                     {showRevenue ? (
                       <>
-                        <InlineText value={project.rev} onSave={(v) => updateProject(pid, { rev: v })} placeholder="$0" style={{ fontSize: 18, fontWeight: 700 }} />
+                        <InlineText value={project.rev} onSave={(v) => updateProject(pid, { rev: normalizeMoney(v) })} placeholder="$0" style={{ fontSize: 18, fontWeight: 700 }} />
                         {/* value may already end in "/mo" — don't double the suffix */}
                         {!/\/\s*mo(nth)?\.?\s*$/i.test(project.rev) && (
                           <span style={{ fontSize: 12.5, fontWeight: 600, color: "rgba(var(--ink-rgb),.55)" }}> / mo</span>
@@ -309,7 +310,7 @@ export function ProjectDetail() {
                   <div style={{ ...sectionLabel, marginBottom: 6 }}>total earned</div>
                   <div style={{ fontSize: 18, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>
                     {showRevenue ? (
-                      <InlineText value={project.earned} onSave={(v) => updateProject(pid, { earned: v })} placeholder="$0" style={{ fontSize: 18, fontWeight: 700 }} />
+                      <InlineText value={project.earned} onSave={(v) => updateProject(pid, { earned: normalizeMoney(v) })} placeholder="$0" style={{ fontSize: 18, fontWeight: 700 }} />
                     ) : (
                       "•••"
                     )}

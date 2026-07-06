@@ -172,10 +172,16 @@ function Column({ colKey, accent, isMobile }: { colKey: ColKey; accent: (typeof 
 
   // null = follow default (open when the column has cards); otherwise an explicit toggle
   const [collapsed, setCollapsed] = useState<boolean | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
 
-  const items = tasks.filter(
+  const all = tasks.filter(
     (t) => t.col === colKey && (boardProj === "all" || t.proj === boardProj) && (boardWho === "all" || t.who === boardWho),
   );
+  // done cards older than two weeks slide into a quiet archive
+  const ARCHIVE_AFTER = 14 * 86400000;
+  const cutoff = Date.now() - ARCHIVE_AFTER;
+  const archived = colKey === "done" ? all.filter((t) => t.doneAt != null && t.doneAt < cutoff) : [];
+  const items = colKey === "done" && !showArchived ? all.filter((t) => !(t.doneAt != null && t.doneAt < cutoff)) : all;
   const colEditing = editingCol === colKey;
   const composerOpen = composerCol === colKey;
   const isOver = dragOver === colKey;
@@ -253,6 +259,16 @@ function Column({ colKey, accent, isMobile }: { colKey: ColKey; accent: (typeof 
       {open && items.map((t) => (
         <TaskCard key={t.id} task={t} />
       ))}
+
+      {open && archived.length > 0 && (
+        <button
+          onClick={() => setShowArchived(!showArchived)}
+          className="hov-soft"
+          style={{ border: "none", background: "transparent", borderRadius: 9, padding: "6px 8px", fontSize: 11.5, fontWeight: 600, color: "rgba(var(--ink-rgb),.45)", fontFamily: "inherit", textAlign: "center" }}
+        >
+          {showArchived ? "hide archive" : archived.length + " archived · show"}
+        </button>
+      )}
 
       {open && (composerOpen ? (
         <div style={{ background: "var(--card)", border: "1px solid rgba(96,200,255,.5)", borderRadius: 14, padding: 11, boxShadow: "0 8px 22px -14px rgba(11,15,25,.3)" }}>

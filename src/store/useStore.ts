@@ -33,6 +33,7 @@ export const persistSnapshot = (s: StoreState) => ({
   colLabels: s.colLabels,
   conversations: s.conversations,
   teamMsgs: s.teamMsgs,
+  convoReads: s.convoReads,
   content: s.content,
   leads: s.leads,
   dashboards: s.dashboards,
@@ -61,10 +62,15 @@ export const useStore = create<StoreState>()(
       // data in `migrate` — without this, zustand drops mismatched state and
       // the user's local workspace is wiped. Version history:
       //   1: baseline (Phase C) — same shape as the unversioned v0 store
-      version: 1,
-      migrate: (persisted, _version) => {
-        // v0 → v1: no shape change; earlier unversioned data passes through
-        return persisted;
+      //   2: convoReads added — existing chats start as read (no badge storm)
+      version: 2,
+      migrate: (persisted, version) => {
+        const p = persisted as Partial<StoreState>;
+        if (version < 2 && p.teamMsgs && !p.convoReads) {
+          const now = Date.now();
+          p.convoReads = Object.fromEntries(Object.keys(p.teamMsgs).map((id) => [id, now]));
+        }
+        return p as PersistedState;
       },
       partialize: persistSnapshot,
     }

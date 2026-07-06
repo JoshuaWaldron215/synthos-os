@@ -56,3 +56,17 @@ describe("perMonth", () => {
     expect(perMonth("")).toBe("");
   });
 });
+
+describe("normalizeMoney", () => {
+  it("canonicalizes typed money into $N,NNN", async () => {
+    const { normalizeMoney } = await import("./money");
+    expect(normalizeMoney("2k")).toBe("$2,000");
+    expect(normalizeMoney("$2,000/mo")).toBe("$2,000");
+    expect(normalizeMoney("2350")).toBe("$2,350");
+  });
+  it("passes through non-money text and blanks", async () => {
+    const { normalizeMoney } = await import("./money");
+    expect(normalizeMoney("TBD")).toBe("TBD");
+    expect(normalizeMoney("  ")).toBe("");
+  });
+});

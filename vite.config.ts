@@ -22,7 +22,7 @@ export default defineConfig({
         enabled: true,
         type: "module",
       },
-      includeAssets: ["favicon.svg", "apple-touch-icon.png"],
+      includeAssets: ["favicon-32.png", "favicon-16.png", "apple-touch-icon.png"],
       manifest: {
         name: "Synthos OS",
         short_name: "Synthos",

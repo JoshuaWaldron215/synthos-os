@@ -11,8 +11,14 @@ export const createTeamSlice = (set: StoreSet, get: StoreGet) => ({
   teamInput: "",
   teamMsgs: seedTeam(),
   conversations: seedConversations(),
+  // per-convo last-read timestamps — unread badges count newer messages
+  convoReads: {} as Record<string, number>,
 
-  selectConvo: (id: string) => set({ activeConvo: id }),
+  markConvoRead: (id: string) => set((s) => ({ convoReads: { ...s.convoReads, [id]: Date.now() } })),
+  selectConvo: (id: string) => {
+    set({ activeConvo: id });
+    get().markConvoRead(id);
+  },
   setTeamInput: (v: string) => set({ teamInput: v }),
   teamSend: (attachments?: MessageAttachment[]) => {
     const t = (get().teamInput || "").trim();

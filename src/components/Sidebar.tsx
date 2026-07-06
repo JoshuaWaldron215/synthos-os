@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Icon } from "../lib/Icon";
 import { NAV_GROUPS, NAV_ITEMS, activeKeyFor } from "../lib/nav";
+import { totalUnread } from "../lib/unread";
 import { useStore } from "../store/useStore";
 import { useUser } from "../lib/useUser";
 import { Avatar } from "./Avatar";
@@ -17,6 +18,7 @@ export function Sidebar() {
   const currentUserId = useStore((s) => s.currentUserId);
   const openAccountSheet = useStore((s) => s.openAccountSheet);
   const currentUser = useUser(currentUserId);
+  const teamUnread = useStore((s) => totalUnread(s.teamMsgs, s.convoReads, s.currentUserId));
   const showLabels = !collapsed;
 
   const logoClick = () => {
@@ -125,7 +127,12 @@ export function Sidebar() {
               }}
             >
               <Icon name={item.icon} size={19} />
-              {!collapsed && <span>{item.label}</span>}
+              {!collapsed && <span style={{ flex: 1 }}>{item.label}</span>}
+              {item.key === "team" && teamUnread > 0 && (
+                <span style={{ minWidth: 17, height: 17, padding: "0 5px", borderRadius: 999, background: "#33ADEE", color: "#fff", fontSize: 10.5, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flex: "0 0 auto", marginLeft: collapsed ? -8 : 0 }}>
+                  {teamUnread > 9 ? "9+" : teamUnread}
+                </span>
+              )}
             </button>
               );
             })}

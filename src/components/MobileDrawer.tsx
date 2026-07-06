@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { Icon } from "../lib/Icon";
 import { BOTTOM_TABS, NAV_GROUPS, NAV_ITEMS, activeKeyFor } from "../lib/nav";
+import { totalUnread } from "../lib/unread";
 import { useStore } from "../store/useStore";
 import { useUser } from "../lib/useUser";
 import { Avatar } from "./Avatar";
@@ -121,6 +122,7 @@ export function BottomTabs() {
   const navigate = useNavigate();
   const location = useLocation();
   const activeKey = activeKeyFor(location.pathname);
+  const teamUnread = useStore((s) => totalUnread(s.teamMsgs, s.convoReads, s.currentUserId));
   // bottom tabs imported lazily to avoid circular import noise
   const tabs = BOTTOM_TABS;
 
@@ -163,7 +165,14 @@ export function BottomTabs() {
               letterSpacing: ".01em",
             }}
           >
-            <Icon name={t.icon} size={21} sw={1.8} />
+            <span style={{ position: "relative", display: "flex" }}>
+              <Icon name={t.icon} size={21} sw={1.8} />
+              {t.key === "team" && teamUnread > 0 && (
+                <span style={{ position: "absolute", top: -4, right: -8, minWidth: 15, height: 15, padding: "0 4px", borderRadius: 999, background: "#33ADEE", color: "#fff", fontSize: 9.5, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  {teamUnread > 9 ? "9+" : teamUnread}
+                </span>
+              )}
+            </span>
             <span>{label}</span>
           </button>
         );

@@ -160,7 +160,7 @@ export function Projects() {
         <FilterGroup label="status" options={STATUS_OPTS} value={fStatus} onPick={(v) => setFilter("status", v)} isMobile={isMobile} />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(282px,1fr))", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(340px,1fr))", gap: 16 }}>
         {projects.map((p) => (
           <ProjectCard key={p.id} p={p} />
         ))}

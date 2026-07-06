@@ -33,3 +33,12 @@ export function perMonth(rev: string): string {
   if (!rev) return rev;
   return /\/\s*mo(nth)?\.?\s*$/i.test(rev) ? rev : rev + " / mo";
 }
+
+// Canonicalizes user-typed money ("2k", "2,000/mo", "$2000") into "$2,000"
+// so parse → format round-trips are exact. Non-money text passes through.
+export function normalizeMoney(input: string): string {
+  const raw = input.trim();
+  if (!raw) return "";
+  const n = parseMoney(raw);
+  return n > 0 ? "$" + n.toLocaleString("en-US") : raw;
+}

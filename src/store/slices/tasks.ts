@@ -43,7 +43,11 @@ export const createTasksSlice = (set: StoreSet, get: StoreGet) => ({
   dropOnCol: (col: ColKey) => {
     const id = get().dragId;
     if (id) {
-      set((s) => ({ tasks: s.tasks.map((t) => (t.id === id ? { ...t, col } : t)) }));
+      set((s) => ({
+        tasks: s.tasks.map((t) =>
+          t.id === id ? { ...t, col, doneAt: col === "done" ? (t.col === "done" ? t.doneAt : Date.now()) : null } : t,
+        ),
+      }));
       const moved = get().tasks.find((t) => t.id === id);
       if (moved) repo.saveTask(moved).catch(get().syncCatch("task write"));
     }
@@ -103,6 +107,10 @@ export const createTasksSlice = (set: StoreSet, get: StoreGet) => ({
   closeTask: () => set({ openTaskId: null }),
   patchTask: (id: string, patch: Partial<Task>) => {
     const before = get().tasks.find((t) => t.id === id);
+    // entering done starts the archive clock; leaving clears it
+    if (patch.col && before && patch.col !== before.col) {
+      patch = { ...patch, doneAt: patch.col === "done" ? Date.now() : null };
+    }
     set((s) => ({ tasks: s.tasks.map((t) => (t.id === id ? { ...t, ...patch } : t)) }));
     const updated = get().tasks.find((t) => t.id === id);
     if (updated) repo.saveTask(updated).catch(get().syncCatch("task write"));
