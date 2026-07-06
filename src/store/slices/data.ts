@@ -174,6 +174,14 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
           }
         },
         message: (convoId, msg) => get().receiveTeamMessage(convoId, msg),
+        messageDeleted: (id) =>
+          set((s) => {
+            const msgs: typeof s.teamMsgs = {};
+            for (const [convo, list] of Object.entries(s.teamMsgs)) {
+              msgs[convo] = list.filter((m) => m.id !== id);
+            }
+            return { teamMsgs: msgs };
+          }),
         content: (ev, data) => {
           if (ev === "delete") {
             set((s) => ({ content: s.content.filter((c) => c.id !== data) }));

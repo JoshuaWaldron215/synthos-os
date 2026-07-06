@@ -471,6 +471,7 @@ export interface RealtimeHandlers {
   activity: (entry: AuditEntry) => void;
   convo: (ev: "upsert" | "delete", data: Conversation | string) => void;
   message: (convoId: string, msg: TeamMessage) => void;
+  messageDeleted: (id: string) => void;
   content: (ev: "upsert" | "delete", data: ContentItem | string) => void;
   lead: (ev: "upsert" | "delete", data: Lead | string) => void;
   profile: (builderId: number, patch: Partial<Profile>) => void;
@@ -517,8 +518,11 @@ export async function subscribeRealtime(h: RealtimeHandlers): Promise<void> {
   });
   on<ConvoRow>("conversations", crud(toConvo, h.convo));
   on<MessageRow>("messages", (e) => {
-    // deletes only happen via conversation cascade; the convo handler clears them
-    if (e.eventType !== "DELETE") h.message(e.new.convo, toMessage(e.new));
+    if (e.eventType === "DELETE") {
+      if (e.old.id) h.messageDeleted(e.old.id);
+    } else {
+      h.message(e.new.convo, toMessage(e.new));
+    }
   });
   on<ContentRow>("content_items", crud(toContent, h.content));
   on<LeadRow>("leads", crud(toLead, h.lead));

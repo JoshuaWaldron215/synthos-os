@@ -676,3 +676,11 @@ button:active:not(:disabled) {
 [data-theme="dark"] .hov-sky:hover {
   background: rgba(96, 200, 255, 0.14);
 }
+
+/* home dashboard rows: full thumb-size targets on touch screens */
+@media (max-width: 760px) {
+  .dash-row {
+    padding: 11px 6px !important;
+    min-height: 44px;
+  }
+}

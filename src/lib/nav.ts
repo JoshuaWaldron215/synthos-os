@@ -6,12 +6,13 @@ export interface NavDef {
   path: string;
   icon: IconName;
   /** sidebar/drawer section — items render grouped in this order */
-  group: "sell" | "build" | "grow" | "ops";
+  group: "home" | "sell" | "build" | "grow" | "ops";
 }
 
 // Ordered by how the agency actually works: find clients → scope → build →
 // ship → tell the world. Eyebrow numbers on each surface follow this order.
 export const NAV_ITEMS: NavDef[] = [
+  { key: "home", label: "home", path: "/home", icon: "spark", group: "home" },
   { key: "leads", label: "leads", path: "/leads", icon: "bolt", group: "sell" },
   { key: "intake", label: "intake", path: "/intake", icon: "intake", group: "sell" },
   { key: "projects", label: "projects", path: "/projects", icon: "projects", group: "build" },
@@ -23,11 +24,11 @@ export const NAV_ITEMS: NavDef[] = [
   { key: "ask", label: "ask ai", path: "/ask", icon: "ask", group: "ops" },
 ];
 
-export const NAV_GROUPS: Array<NavDef["group"]> = ["sell", "build", "grow", "ops"];
+export const NAV_GROUPS: Array<NavDef["group"]> = ["home", "sell", "build", "grow", "ops"];
 
 // bottom tab bar: the five daily drivers, roomier touch targets
 export const BOTTOM_TABS: NavDef[] = [
-  { key: "projects", label: "projects", path: "/projects", icon: "projects", group: "build" },
+  { key: "home", label: "home", path: "/home", icon: "spark", group: "home" },
   { key: "tasks", label: "tasks", path: "/tasks", icon: "tasks", group: "build" },
   { key: "leads", label: "leads", path: "/leads", icon: "bolt", group: "sell" },
   { key: "team", label: "team", path: "/team", icon: "team", group: "build" },
@@ -37,6 +38,6 @@ export const BOTTOM_TABS: NavDef[] = [
 // the active nav key for a given pathname (project detail maps to "projects")
 export function activeKeyFor(pathname: string): string {
   if (pathname.startsWith("/project/")) return "projects";
-  const seg = pathname.split("/")[1] || "projects";
+  const seg = pathname.split("/")[1] || "home";
   return seg;
 }

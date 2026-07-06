@@ -21,7 +21,7 @@ export function Sidebar() {
 
   const logoClick = () => {
     if (collapsed) setSidebarCollapsed(false);
-    else navigate("/projects");
+    else navigate("/home");
   };
 
   return (

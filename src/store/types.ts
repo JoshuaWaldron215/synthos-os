@@ -26,6 +26,7 @@ import type {
   Win,
 } from "../types";
 import type { ThemePref } from "../lib/theme";
+import type { DashboardItem, WidgetKey } from "./slices/dashboard";
 
 // Full store contract. State and actions are implemented in domain slices
 // (src/store/slices/*) and combined in useStore.ts.
@@ -103,6 +104,13 @@ export interface StoreState {
   intakeText: string;
   draftTasks: DraftTask[] | null;
   intakeBusy: boolean;
+
+  // home dashboard (layout per builder id)
+  dashboards: Record<number, DashboardItem[]>;
+  dashEditing: boolean;
+  setDashEditing: (v: boolean) => void;
+  moveWidget: (key: WidgetKey, dir: -1 | 1) => void;
+  toggleWidget: (key: WidgetKey) => void;
 
   // leads (outbound CRM)
   leads: Lead[];

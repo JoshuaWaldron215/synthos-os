@@ -4,6 +4,7 @@ import { Shell } from "./components/Shell";
 
 // Route-level code splitting: each surface loads on first visit, keeping the
 // initial bundle small. The Shell (nav, modals, store) stays in the main chunk.
+const Home = lazy(() => import("./surfaces/Home").then((m) => ({ default: m.Home })));
 const Projects = lazy(() => import("./surfaces/Projects").then((m) => ({ default: m.Projects })));
 const ProjectDetail = lazy(() => import("./surfaces/ProjectDetail").then((m) => ({ default: m.ProjectDetail })));
 const Tasks = lazy(() => import("./surfaces/Tasks").then((m) => ({ default: m.Tasks })));
@@ -21,7 +22,8 @@ export default function App() {
     <Suspense fallback={null}>
       <Routes>
         <Route element={<Shell />}>
-          <Route index element={<Navigate to="/projects" replace />} />
+          <Route index element={<Navigate to="/home" replace />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/project/:id" element={<ProjectDetail />} />
           <Route path="/tasks" element={<Tasks />} />
