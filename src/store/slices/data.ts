@@ -20,6 +20,33 @@ import type { StoreGet, StoreSet, StoreState } from "../types";
 const upsertBy = <T extends { id: string }>(list: T[], item: T): T[] =>
   list.some((x) => x.id === item.id) ? list.map((x) => (x.id === item.id ? item : x)) : list.concat(item);
 
+// Union server + local by id (server wins on conflict). Local-only records —
+// ones a failed or offline write never delivered — are kept, not dropped.
+const unionById = <T extends { id: string }>(server: T[], local: T[]): T[] => {
+  const ids = new Set(server.map((x) => x.id));
+  return server.concat(local.filter((x) => !ids.has(x.id)));
+};
+
+// Re-push local records the server has never seen, so a write that silently
+// failed (FK reject, offline, transient) eventually reaches the team instead
+// of being stranded on one device. Push-only — never deletes.
+function reconcileToServer(
+  server: { projects: Project[]; tasks: Task[]; keys: VaultKey[]; wins: Win[]; content: ContentItem[]; leads: Lead[] },
+  local: { projects: Project[]; tasks: Task[]; keys: VaultKey[]; wins: Win[]; content: ContentItem[]; leads: Lead[] },
+): void {
+  const missing = <T extends { id: string }>(srv: T[], loc: T[]): T[] => {
+    const ids = new Set(srv.map((x) => x.id));
+    return loc.filter((x) => !ids.has(x.id));
+  };
+  const swallow = () => {};
+  missing(server.projects, local.projects).forEach((p) => repo.saveProject(p).catch(swallow));
+  missing(server.tasks, local.tasks).forEach((t) => repo.saveTask(t).catch(swallow));
+  missing(server.keys, local.keys).forEach((k) => repo.saveKey(k).catch(swallow));
+  missing(server.wins, local.wins).forEach((w) => repo.saveWin(w).catch(swallow));
+  missing(server.content, local.content).forEach((c) => repo.saveContent(c).catch(swallow));
+  missing(server.leads, local.leads).forEach((l) => repo.saveLead(l).catch(swallow));
+}
+
 // Server messages win per id; locally-persisted messages the server has never
 // seen (offline sends, pre-sync history) are kept rather than dropped.
 const mergeTeamMsgs = (
@@ -66,20 +93,25 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
     try {
       const data = await repo.fetchAll();
       if (data) {
+        const local = get();
+        // union everything id-keyed so a locally-stranded record (failed or
+        // offline write) is never dropped; server copy wins on conflict
         set({
-          projects: data.projects.length ? data.projects : get().projects,
-          keys: data.keys.length ? data.keys : get().keys,
-          activity: data.activity.length ? data.activity : get().activity,
+          projects: unionById(data.projects, local.projects),
+          keys: unionById(data.keys, local.keys),
+          activity: data.activity.length ? data.activity : local.activity,
           files: data.files,
-          wins: data.wins.length ? data.wins : get().wins,
-          tasks: data.tasks.length ? data.tasks : get().tasks,
-          conversations: data.conversations.length ? data.conversations : get().conversations,
-          teamMsgs: mergeTeamMsgs(get().teamMsgs, data.teamMsgs),
-          content: data.content.length ? data.content : get().content,
-          leads: data.leads.length ? data.leads : get().leads,
-          profiles: mergeProfiles(get().profiles, data.profiles),
+          wins: unionById(data.wins, local.wins),
+          tasks: unionById(data.tasks, local.tasks),
+          conversations: data.conversations.length ? data.conversations : local.conversations,
+          teamMsgs: mergeTeamMsgs(local.teamMsgs, data.teamMsgs),
+          content: unionById(data.content, local.content),
+          leads: unionById(data.leads, local.leads),
+          profiles: mergeProfiles(local.profiles, data.profiles),
         });
         get().startRealtime();
+        // recover any of those local-only records to the server
+        reconcileToServer(data, local);
       }
     } catch (e) {
       // stay on local cache, but let the user know the shared copy didn't load
