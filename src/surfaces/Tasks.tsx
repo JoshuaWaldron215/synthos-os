@@ -136,6 +136,11 @@ function TaskCard({ task }: { task: Task }) {
           {task.due != null && task.col !== "done" && <DueChip due={task.due} />}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+          {(task.attachments?.length ?? 0) > 0 && (
+            <span title={task.attachments!.length + " attachment" + (task.attachments!.length === 1 ? "" : "s")} style={{ display: "flex", color: "rgba(var(--ink-rgb),.55)" }}>
+              <Icon name="paperclip" size={13} sw={1.6} />
+            </span>
+          )}
           {hasNotes && (
             <span style={{ display: "flex", color: "rgba(var(--ink-rgb),.55)" }}>
               <Icon name="note" size={13} sw={1.6} />

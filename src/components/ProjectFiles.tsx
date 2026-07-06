@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Avatar } from "./Avatar";
 import { Icon } from "../lib/Icon";
+import { downloadStoredFile, openStoredFile } from "../lib/download";
 import { fmtSize, kindOf } from "../lib/format";
 import * as repo from "../data/repo";
 import { useStore } from "../store/useStore";
@@ -54,9 +55,12 @@ export function ProjectFiles({ projId }: { projId: string }) {
   };
 
   const open = async (f: ProjectFile) => {
-    const url = await repo.fileObjectUrl(f.path);
-    if (url) window.open(url, "_blank", "noopener");
-    else showToast("file unavailable");
+    await openStoredFile(f.path);
+  };
+
+  const download = async (f: ProjectFile) => {
+    const ok = await downloadStoredFile(f.path, f.name);
+    if (!ok) showToast("file unavailable");
   };
 
   return (
@@ -114,7 +118,10 @@ export function ProjectFiles({ projId }: { projId: string }) {
                 </div>
               </div>
               <Avatar id={f.who} size={24} />
-              <button className="hov-soft" onClick={() => open(f)} title="open" style={{ display: "flex", background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 9, padding: 8 }}>
+              <button className="hov-soft" onClick={() => open(f)} title="preview in a new tab" style={{ display: "flex", background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 9, padding: 8 }}>
+                <Icon name="eye" size={16} color="rgba(var(--ink-rgb),.55)" />
+              </button>
+              <button className="hov-soft" onClick={() => download(f)} title="download" style={{ display: "flex", background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 9, padding: 8 }}>
                 <Icon name="download" size={16} color="rgba(var(--ink-rgb),.55)" />
               </button>
               <button

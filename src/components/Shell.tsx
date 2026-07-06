@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useLiveNotifications } from "../lib/useLiveNotifications";
@@ -53,6 +53,25 @@ export function Shell() {
   // pull shared data from the backend when Supabase is configured
   useEffect(() => {
     hydrate();
+  }, [hydrate]);
+
+  // The realtime socket dies while the tab sleeps (overnight laptop, phone in
+  // pocket) and missed events are never replayed. Re-hydrate when the tab
+  // comes back — hydrate is idempotent, reconciles, and catches the bell up.
+  const lastFocusHydrate = useRef(Date.now());
+  useEffect(() => {
+    const maybeRehydrate = () => {
+      if (document.visibilityState !== "visible") return;
+      if (Date.now() - lastFocusHydrate.current < 60_000) return;
+      lastFocusHydrate.current = Date.now();
+      hydrate();
+    };
+    window.addEventListener("focus", maybeRehydrate);
+    document.addEventListener("visibilitychange", maybeRehydrate);
+    return () => {
+      window.removeEventListener("focus", maybeRehydrate);
+      document.removeEventListener("visibilitychange", maybeRehydrate);
+    };
   }, [hydrate]);
 
   // background comes from .app-frame (aurora corner tints over cloud)

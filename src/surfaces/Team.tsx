@@ -9,6 +9,7 @@ import { Icon } from "../lib/Icon";
 import { fmtSize, kindOf } from "../lib/format";
 import { effectiveUser, statusMeta } from "../lib/profile";
 import { whenLabel } from "../lib/time";
+import { downloadStoredFile } from "../lib/download";
 import { convoUnread } from "../lib/unread";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
@@ -594,8 +595,14 @@ function AttachmentView({ att, me, onOpen }: { att: MessageAttachment; me: boole
   }, [att.path]);
 
   const open = () => {
-    if (url) window.open(url, "_blank", "noopener");
-    else onOpen();
+    if (att.image) {
+      // images preview in a tab
+      if (url) window.open(url, "_blank", "noopener");
+      else onOpen();
+    } else {
+      // documents save to disk with their real filename
+      downloadStoredFile(att.path, att.name);
+    }
   };
 
   if (att.image) {

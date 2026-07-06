@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import * as repo from "../data/repo";
 import { Icon } from "../lib/Icon";
 import { COLS } from "../lib/board";
+import { downloadStoredFile } from "../lib/download";
+import { fmtSize, kindOf } from "../lib/format";
 import { SM, priDot, priTint } from "../lib/style";
 import { useDraft } from "../lib/useDraft";
 import { useUser } from "../lib/useUser";
 import { useStore } from "../store/useStore";
-import type { Task } from "../types";
+import type { MessageAttachment, Task } from "../types";
 import { Avatar } from "./Avatar";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { ResponsiveModal } from "./ResponsiveModal";
@@ -26,11 +29,38 @@ function TaskModalInner({ t }: { t: Task }) {
   const cyclePri = useStore((s) => s.cyclePri);
   const cycleAssignTask = useStore((s) => s.cycleAssignTask);
   const deleteTask = useStore((s) => s.deleteTask);
+  const showToast = useStore((s) => s.showToast);
   const assignee = useUser(t.who);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const title = useDraft(t.title, (v) => patchTask(t.id, { title: v }));
   const notes = useDraft(t.notes, (v) => patchTask(t.id, { notes: v }));
+
+  const attachFiles = async (list: FileList | null) => {
+    if (!list || !list.length) return;
+    setUploading(true);
+    try {
+      const added: MessageAttachment[] = [];
+      for (const file of Array.from(list)) {
+        const id = "att" + Date.now() + Math.random().toString(36).slice(2, 6);
+        const path = await repo.uploadFileBlob("tasks/" + t.id, id, file);
+        added.push({ id, name: file.name, kind: kindOf(file), size: file.size, path, image: file.type.startsWith("image/") });
+      }
+      patchTask(t.id, { attachments: [...(t.attachments ?? []), ...added] });
+      showToast("attached ✦");
+    } catch {
+      showToast("attachment failed");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  const removeAttachment = (id: string) => {
+    patchTask(t.id, { attachments: (t.attachments ?? []).filter((a) => a.id !== id) });
+  };
 
   const colDef = COLS.find((c) => c.key === t.col) || COLS[0];
   const accent = SM[colDef.accent];
@@ -113,6 +143,34 @@ function TaskModalInner({ t }: { t: Task }) {
         onChange={(e) => patchTask(t.id, { due: e.target.value ? new Date(e.target.value + "T12:00:00").getTime() : null })}
         style={{ width: "100%", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 12, padding: "10px 12px", fontSize: 16, fontFamily: "inherit", color: "var(--ink)", marginBottom: 18, background: "var(--card)", boxSizing: "border-box" }}
       />
+
+      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600, marginBottom: 8 }}>attachments</div>
+      <div style={{ marginBottom: 18 }}>
+        {(t.attachments ?? []).map((a) => (
+          <div key={a.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", border: "1px solid rgba(var(--ink-rgb),.07)", borderRadius: 11, marginBottom: 6, background: "rgba(var(--ink-rgb),.02)" }}>
+            <Icon name={a.image ? "image" : "note"} size={16} color="rgba(var(--ink-rgb),.55)" />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.name}</div>
+              <div style={{ fontSize: 11.5, color: "rgba(var(--ink-rgb),.5)" }}>{a.kind} · {fmtSize(a.size)}</div>
+            </div>
+            <button className="hov-soft" onClick={() => downloadStoredFile(a.path, a.name)} title="download" style={{ display: "flex", background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 8, padding: 7 }}>
+              <Icon name="download" size={14} color="rgba(var(--ink-rgb),.55)" />
+            </button>
+            <button className="hov-soft" onClick={() => removeAttachment(a.id)} title="remove" style={{ display: "flex", background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 8, padding: 7 }}>
+              <Icon name="trash" size={14} color="#B5462A" />
+            </button>
+          </div>
+        ))}
+        <input ref={fileRef} type="file" multiple hidden onChange={(e) => attachFiles(e.target.files)} />
+        <button
+          className="hov-dashed"
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, width: "100%", border: "1px dashed rgba(var(--ink-rgb),.18)", background: "transparent", borderRadius: 11, padding: "10px 12px", fontSize: 12.5, fontWeight: 600, color: "rgba(var(--ink-rgb),.55)", fontFamily: "inherit", opacity: uploading ? 0.6 : 1 }}
+        >
+          <Icon name="paperclip" size={14} sw={1.8} /> {uploading ? "uploading…" : "attach files"}
+        </button>
+      </div>
 
       <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600, marginBottom: 8 }}>notes</div>
       <textarea

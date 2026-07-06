@@ -37,6 +37,7 @@ export const persistSnapshot = (s: StoreState) => ({
   content: s.content,
   leads: s.leads,
   dashboards: s.dashboards,
+  lastHydrateAt: s.lastHydrateAt,
 });
 
 export type PersistedState = ReturnType<typeof persistSnapshot>;

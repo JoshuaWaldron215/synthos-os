@@ -1,5 +1,6 @@
 import * as repo from "../../data/repo";
 import { AUDIT, KEYS, PROJECTS, WINS } from "../../data/seed";
+import { effectiveUser } from "../../lib/profile";
 import type {
   AuditEntry,
   ContentItem,
@@ -84,6 +85,8 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
   files: [] as ProjectFile[],
   wins: WINS.map((w) => ({ ...w })),
   hydrated: false,
+  /** last successful hydrate (persisted) — gates missed-event notifications */
+  lastHydrateAt: null as number | null,
 
   fStatus: "all",
   fBuilder: "all",
@@ -112,6 +115,49 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
         get().startRealtime();
         // recover any of those local-only records to the server
         reconcileToServer(data, local);
+
+        // The realtime socket can't replay what happened while it was dead
+        // (overnight sleep, backgrounded phone). Catch the bell up by diffing
+        // what the server has that this device hadn't seen. Skipped on a
+        // device's very first hydrate — everything would be "new".
+        if (local.lastHydrateAt != null) {
+          const me = local.currentUserId;
+          const st = get();
+          const localTaskIds = new Set(local.tasks.map((t) => t.id));
+          data.tasks
+            .filter((t) => !localTaskIds.has(t.id) && t.who === me && t.col !== "done")
+            .slice(0, 5)
+            .forEach((t) =>
+              st.notifyCategory("taskAssigned", { dot: "#33ADEE", title: "task for you ✦", body: t.title, tag: "task-" + t.id, url: "/tasks" }),
+            );
+          let convosNotified = 0;
+          for (const [convo, msgs] of Object.entries(data.teamMsgs)) {
+            if (convosNotified >= 5) break;
+            const localIds = new Set((local.teamMsgs[convo] ?? []).map((m) => m.id));
+            const fresh = msgs.filter((m) => m.id && !localIds.has(m.id) && m.who !== me);
+            if (!fresh.length) continue;
+            convosNotified++;
+            const c = st.conversations.find((x) => x.id === convo);
+            const label = !c ? "team chat" : c.type === "dm" ? "dm" : "#" + c.name;
+            const last = fresh[fresh.length - 1];
+            const sender = effectiveUser(last.who, st.profiles).name;
+            st.notifyCategory("mentions", {
+              dot: "#8A84F0",
+              title: label,
+              body: fresh.length === 1 ? sender + ": " + (last.text || "sent an attachment") : fresh.length + " new messages",
+              tag: "catchup-" + convo,
+              url: "/team?c=" + convo,
+            });
+          }
+          const localWinIds = new Set(local.wins.map((w) => w.id));
+          data.wins
+            .filter((w) => !localWinIds.has(w.id) && w.who !== me)
+            .slice(0, 3)
+            .forEach((w) =>
+              st.notifyCategory("shipped", { dot: "#2FC197", title: "win logged 🎉", body: w.title + (w.amount ? " · " + w.amount : ""), tag: "win-" + w.id, url: "/wins" }),
+            );
+        }
+        set({ lastHydrateAt: Date.now() });
       }
     } catch (e) {
       // stay on local cache, but let the user know the shared copy didn't load

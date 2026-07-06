@@ -60,6 +60,8 @@ export interface Task {
   due?: number | null;
   /** when the task landed in "done" — drives the board's auto-archive */
   doneAt?: number | null;
+  /** files attached to the task (blobs live in Storage, like chat attachments) */
+  attachments?: MessageAttachment[];
 }
 
 export interface VaultKey {

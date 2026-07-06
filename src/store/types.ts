@@ -156,6 +156,7 @@ export interface StoreState {
   // data sync + activity
   hydrate: () => Promise<void>;
   startRealtime: () => void;
+  lastHydrateAt: number | null;
   logActivity: (action: string, target: string, proj: string) => void;
 
   // projects

@@ -56,6 +56,7 @@ create table if not exists public.tasks (
   notes text default '',
   due bigint,
   done_at bigint,
+  attachments jsonb,
   updated_at timestamptz not null default now()
 );
 

@@ -97,6 +97,7 @@ interface TaskRow {
   notes: string | null;
   due: number | null;
   done_at: number | null;
+  attachments: MessageAttachment[] | null;
 }
 const toTask = (r: TaskRow): Task => ({
   id: r.id,
@@ -109,6 +110,7 @@ const toTask = (r: TaskRow): Task => ({
   notes: r.notes ?? "",
   due: r.due,
   doneAt: r.done_at,
+  attachments: r.attachments?.length ? r.attachments : undefined,
 });
 const fromTask = (t: Task): TaskRow => ({
   id: t.id,
@@ -122,6 +124,7 @@ const fromTask = (t: Task): TaskRow => ({
   notes: t.notes,
   due: t.due ?? null,
   done_at: t.doneAt ?? null,
+  attachments: t.attachments?.length ? t.attachments : null,
 });
 
 interface FileRow {
