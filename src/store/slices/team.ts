@@ -39,7 +39,7 @@ export const createTeamSlice = (set: StoreSet, get: StoreGet) => ({
     if (repo.usingSupabase && others.length) {
       const sender = effectiveUser(currentUserId, get().profiles).name;
       const label = !convo ? "team chat" : convo.type === "dm" ? "dm" : "#" + convo.name;
-      sendServerPush(sender, label + ": " + (t || "sent an attachment"), "msg-" + activeConvo, others, "/team").catch(() => {
+      sendServerPush(sender, label + ": " + (t || "sent an attachment"), "msg-" + activeConvo, others, "/team?c=" + activeConvo).catch(() => {
         /* push is non-critical; delivery for open tabs comes via realtime */
       });
     }
@@ -156,6 +156,6 @@ export const createTeamSlice = (set: StoreSet, get: StoreGet) => ({
     const label = !convo ? "team chat" : convo.type === "dm" ? "dm" : "#" + convo.name;
     const sender = effectiveUser(msg.who, st.profiles).name;
     const body = label + ": " + (msg.text || "sent an attachment");
-    st.notifyCategory("mentions", { dot: "#8A84F0", title: sender, body, tag: "msg-" + convoId, url: "/team" });
+    st.notifyCategory("mentions", { dot: "#8A84F0", title: sender, body, tag: "msg-" + convoId, url: "/team?c=" + convoId });
   },
 });

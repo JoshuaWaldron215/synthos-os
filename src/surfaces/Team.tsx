@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Eyebrow } from "../components/Eyebrow";
 import { Avatar } from "../components/Avatar";
 import { ConversationModal } from "../components/ConversationModal";
@@ -127,6 +128,15 @@ export function Team() {
   const channel = channels.find((c) => c.id === activeConvo);
   const dm = dms.find((d) => d.id === activeConvo);
   const messages = teamMsgs[activeConvo] || [];
+
+  // deep link from a notification tap: /team?c=<convoId> opens that chat
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    const c = searchParams.get("c");
+    if (!c) return;
+    selectConvo(c);
+    setSearchParams({}, { replace: true });
+  }, [searchParams, selectConvo, setSearchParams]);
 
   useEffect(() => {
     const el = scrollRef.current;
