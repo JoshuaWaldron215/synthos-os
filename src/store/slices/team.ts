@@ -142,14 +142,39 @@ export const createTeamSlice = (set: StoreSet, get: StoreGet) => ({
   // our own sends and reaction updates are applied in place, not duplicated)
   // and raises in-app / OS notifications for genuinely new messages.
   receiveTeamMessage: (convoId: string, msg: TeamMessage) => {
-    const existed = !!msg.id && (get().teamMsgs[convoId] || []).some((m) => m.id === msg.id);
+    const before = msg.id ? (get().teamMsgs[convoId] || []).find((m) => m.id === msg.id) : undefined;
+    const existed = !!before;
     set((s) => {
       const list = s.teamMsgs[convoId] || [];
       const msgs = { ...s.teamMsgs };
       msgs[convoId] = existed ? list.map((m) => (m.id === msg.id ? msg : m)) : list.concat([msg]);
       return { teamMsgs: msgs };
     });
-    if (existed) return; // reaction/edit update — no notification
+    if (existed) {
+      // updates are reactions — tell the author when someone reacts to THEIR message
+      const st0 = get();
+      if (before.who === st0.currentUserId) {
+        const prevR = before.reactions ?? {};
+        const nextR = msg.reactions ?? {};
+        for (const emoji of Object.keys(nextR)) {
+          const added = (nextR[emoji] || []).filter(
+            (u) => u !== st0.currentUserId && !(prevR[emoji] || []).includes(u),
+          );
+          if (added.length) {
+            const reactor = effectiveUser(added[0], st0.profiles).name;
+            st0.notifyCategory("mentions", {
+              dot: "#8A84F0",
+              title: reactor,
+              body: "reacted " + emoji + (msg.text ? " to: " + msg.text.slice(0, 48) : ""),
+              tag: "react-" + msg.id,
+              url: "/team?c=" + convoId,
+            });
+            break; // one notification per update, even if several emojis changed
+          }
+        }
+      }
+      return;
+    }
     const st = get();
     if (msg.who === st.currentUserId) return;
     const convo = st.conversations.find((c) => c.id === convoId);

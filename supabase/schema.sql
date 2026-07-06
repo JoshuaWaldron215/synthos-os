@@ -255,3 +255,33 @@ create policy "project_files_team_rw"
   on storage.objects for all to authenticated
   using (bucket_id = 'project-files')
   with check (bucket_id = 'project-files');
+
+-- ---------------------------------------------------------------------------
+-- Server-triggered chat pushes: every message insert POSTs the row to the
+-- push endpoint, so notifications never depend on the sender's device.
+-- Replace <PUSH_WEBHOOK_SECRET> with the value set in Vercel env.
+-- ---------------------------------------------------------------------------
+create extension if not exists pg_net with schema extensions;
+
+create or replace function public.notify_message_push()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, extensions
+as $$
+begin
+  perform net.http_post(
+    url := 'https://synthos-os.vercel.app/api/notify-message',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'x-webhook-secret', '<PUSH_WEBHOOK_SECRET>'
+    ),
+    body := jsonb_build_object('type', 'INSERT', 'record', to_jsonb(new))
+  );
+  return new;
+end $$;
+
+drop trigger if exists messages_push_webhook on public.messages;
+create trigger messages_push_webhook
+after insert on public.messages
+for each row execute function public.notify_message_push();
