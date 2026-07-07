@@ -34,6 +34,8 @@ export interface Dataset {
   leads: Lead[];
   /** per-builder profile fields that have been saved to the server */
   profiles: Record<number, Partial<Profile>>;
+  /** shared workspace settings (e.g. kanban column labels), keyed by name */
+  settings: Record<string, unknown>;
 }
 
 export const usingSupabase = isSupabaseConfigured;
@@ -337,7 +339,7 @@ const toProfilePatch = (r: ProfileRow): Partial<Profile> => {
 export async function fetchAll(): Promise<Dataset | null> {
   const sb = await getSupabase();
   if (!sb) return null;
-  const [projects, tasks, keys, activity, files, wins, convos, messages, content, profiles, leads] = await Promise.all([
+  const [projects, tasks, keys, activity, files, wins, convos, messages, content, profiles, leads, settings] = await Promise.all([
     sb.from("projects").select("*"),
     sb.from("tasks").select("*"),
     sb.from("vault_keys").select("*"),
@@ -349,6 +351,7 @@ export async function fetchAll(): Promise<Dataset | null> {
     sb.from("content_items").select("*"),
     sb.from("profiles").select("*"),
     sb.from("leads").select("*"),
+    sb.from("workspace_settings").select("*"),
   ]);
   const teamMsgs: Record<string, TeamMessage[]> = {};
   for (const r of (messages.data ?? []) as MessageRow[]) {
@@ -370,6 +373,9 @@ export async function fetchAll(): Promise<Dataset | null> {
     content: ((content.data ?? []) as ContentRow[]).map(toContent),
     leads: ((leads.data ?? []) as LeadRow[]).map(toLead),
     profiles: profilePatches,
+    settings: Object.fromEntries(
+      (((settings.data ?? []) as SettingRow[])).map((r) => [r.key, r.value]),
+    ),
   };
 }
 
@@ -384,6 +390,11 @@ export async function removeProject(id: string): Promise<void> {
   const sb = await getSupabase();
   if (!sb) return;
   await sb.from("projects").delete().eq("id", id);
+}
+export async function saveSetting(key: string, value: unknown): Promise<void> {
+  const sb = await getSupabase();
+  if (!sb) return;
+  await sb.from("workspace_settings").upsert({ key, value });
 }
 export async function saveTask(t: Task): Promise<void> {
   const sb = await getSupabase();
@@ -482,6 +493,11 @@ export async function saveProfile(builderId: number, p: Profile): Promise<void> 
 
 // Callbacks the store wires into its state. "upsert" carries the mapped model;
 // "delete" carries the row id (Postgres delete payloads only include the PK).
+interface SettingRow {
+  key: string;
+  value: unknown;
+}
+
 export interface RealtimeHandlers {
   project: (ev: "upsert" | "delete", data: Project | string) => void;
   task: (ev: "upsert" | "delete", data: Task | string) => void;
@@ -495,6 +511,7 @@ export interface RealtimeHandlers {
   content: (ev: "upsert" | "delete", data: ContentItem | string) => void;
   lead: (ev: "upsert" | "delete", data: Lead | string) => void;
   profile: (builderId: number, patch: Partial<Profile>) => void;
+  setting: (key: string, value: unknown) => void;
 }
 
 interface ChangePayload<Row> {
@@ -548,6 +565,9 @@ export async function subscribeRealtime(h: RealtimeHandlers): Promise<void> {
   on<LeadRow>("leads", crud(toLead, h.lead));
   on<ProfileRow>("profiles", (e) => {
     if (e.eventType !== "DELETE" && e.new.builder_id !== null) h.profile(e.new.builder_id, toProfilePatch(e.new));
+  });
+  on<SettingRow>("workspace_settings", (e) => {
+    if (e.eventType !== "DELETE") h.setting(e.new.key, e.new.value);
   });
   ch.subscribe();
   liveChannel = ch;

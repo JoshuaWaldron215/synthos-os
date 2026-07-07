@@ -99,7 +99,7 @@ export function Shell() {
         position: "relative",
       };
 
-  const screenPad = isMobile ? "16px 14px 28px" : "34px 44px 60px";
+  const screenPad = isMobile ? "12px 12px 26px" : "34px 44px 60px";
 
   return (
     <div className="app-frame" style={frameStyle}>

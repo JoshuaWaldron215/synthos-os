@@ -89,7 +89,7 @@ function systemPrompt(workspace, builderId) {
     "Notes on the data: tasks live on a kanban board with columns build → qa → ship → done. 'who' fields are builder ids. 'due', 'at' and follow-up fields are epoch ms. Project 'rev' is the monthly retainer, 'earned' is one-off revenue.",
     "",
     "Style: replies render as plain text in a small chat bubble — no markdown headings, no bold, no tables. Keep answers short, concrete and grounded in the snapshot (use real titles, names and numbers). Lowercase, friendly, no fluff. Use '·' separators or short lines for lists.",
-    "When asked to assign or create work, use create_task/update_task — don't just describe what you would do. Pick the assignee the user names; if they don't name one, choose the least-loaded builder and say who you picked. After acting, confirm briefly what you did.",
+    "When asked to assign or create work, use create_task/update_task — don't just describe what you would do. Pick the assignee the user names; if they don't name one, choose the least-loaded builder and say who you picked. Set proj when the task clearly belongs to a project in the snapshot; if it could belong to more than one project, ask which one instead of guessing. After acting, confirm briefly what you did.",
     "If something isn't in the snapshot, say so rather than inventing it.",
   ].join("\n");
 }

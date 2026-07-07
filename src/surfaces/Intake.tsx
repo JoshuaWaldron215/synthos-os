@@ -20,6 +20,10 @@ export function Intake() {
   const clearDraft = useStore((s) => s.clearDraft);
   const addDrafts = useStore((s) => s.addDrafts);
   const profiles = useStore((s) => s.profiles);
+  const projects = useStore((s) => s.projects);
+  const intakeProj = useStore((s) => s.intakeProj);
+  const setIntakeProj = useStore((s) => s.setIntakeProj);
+  const assignAllDrafts = useStore((s) => s.assignAllDrafts);
 
   const count = USERS.map(() => 0);
   (draftTasks || []).forEach((t) => count[t.who]++);
@@ -54,9 +58,9 @@ export function Intake() {
 
       {draftTasks && (
         <div style={{ marginTop: 22 }} className="anim-sc">
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 12 }}>
             <div style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600 }}>
-              drafted · {draftTasks.length} tasks · balanced
+              drafted · {draftTasks.length} tasks
             </div>
             <div style={{ display: "flex", gap: 10 }}>
               {USERS.map((seed) => {
@@ -69,6 +73,30 @@ export function Intake() {
                 );
               })}
             </div>
+          </div>
+
+          {/* where the batch lands + bulk assignment */}
+          <div style={{ display: "flex", gap: 9, flexWrap: "wrap", marginBottom: 14 }}>
+            <select
+              value={intakeProj}
+              onChange={(e) => setIntakeProj(e.target.value)}
+              style={{ flex: isMobile ? "1 1 100%" : "0 1 auto", background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 11, padding: "9px 12px", fontSize: 13.5, fontFamily: "inherit", color: "var(--ink)" }}
+            >
+              <option value="">no project</option>
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>{p.client}</option>
+              ))}
+            </select>
+            <select
+              value=""
+              onChange={(e) => { if (e.target.value !== "") assignAllDrafts(Number(e.target.value)); }}
+              style={{ flex: isMobile ? "1 1 100%" : "0 1 auto", background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 11, padding: "9px 12px", fontSize: 13.5, fontFamily: "inherit", color: "var(--ink)" }}
+            >
+              <option value="">assign all to…</option>
+              {USERS.map((seed) => (
+                <option key={seed.id} value={seed.id}>{effectiveUser(seed.id, profiles).first}</option>
+              ))}
+            </select>
           </div>
 
           <div style={{ background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.06)", borderRadius: 18, overflow: "hidden", boxShadow: "var(--shadow-card)" }}>

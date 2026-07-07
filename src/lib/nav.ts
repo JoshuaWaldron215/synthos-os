@@ -17,7 +17,7 @@ export const NAV_ITEMS: NavDef[] = [
   { key: "intake", label: "intake", path: "/intake", icon: "intake", group: "sell" },
   { key: "projects", label: "projects", path: "/projects", icon: "projects", group: "build" },
   { key: "tasks", label: "tasks", path: "/tasks", icon: "tasks", group: "build" },
-  { key: "team", label: "team", path: "/team", icon: "team", group: "build" },
+  { key: "team", label: "chat", path: "/team", icon: "team", group: "build" },
   { key: "content", label: "content", path: "/content", icon: "content", group: "grow" },
   { key: "wins", label: "wins", path: "/wins", icon: "wins", group: "grow" },
   { key: "vault", label: "vault", path: "/vault", icon: "vault", group: "ops" },
@@ -31,7 +31,7 @@ export const BOTTOM_TABS: NavDef[] = [
   { key: "home", label: "home", path: "/home", icon: "spark", group: "home" },
   { key: "tasks", label: "tasks", path: "/tasks", icon: "tasks", group: "build" },
   { key: "leads", label: "leads", path: "/leads", icon: "bolt", group: "sell" },
-  { key: "team", label: "team", path: "/team", icon: "team", group: "build" },
+  { key: "team", label: "chat", path: "/team", icon: "team", group: "build" },
   { key: "ask", label: "ask", path: "/ask", icon: "ask", group: "ops" },
 ];
 

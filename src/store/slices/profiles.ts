@@ -37,7 +37,7 @@ export const createProfilesSlice = (set: StoreSet, get: StoreGet) => ({
   updatePrefs: (id: number, patch: Partial<Prefs>) =>
     set((s) => ({ prefs: { ...s.prefs, [id]: { ...s.prefs[id], ...patch } } })),
   setNotifPermission: (p: NotificationPermission) => set({ notifPermission: p }),
-  pushNotification: (n: Omit<NotifItem, "id" | "read" | "time" | "at">) => {
+  pushNotification: (n: Omit<NotifItem, "id" | "read" | "time" | "at">, opts?: { silent?: boolean }) => {
     set((s) => ({
       notifications: [
         { ...n, id: "n" + Date.now() + Math.random().toString(36).slice(2, 6), read: false, at: Date.now() },
@@ -45,23 +45,27 @@ export const createProfilesSlice = (set: StoreSet, get: StoreGet) => ({
       ].slice(0, MAX_NOTIFS),
     }));
     const st = get();
-    if (st.prefs[st.currentUserId]?.sound) playNotifySound();
+    if (!opts?.silent && st.prefs[st.currentUserId]?.sound) playNotifySound();
   },
 
   // Single gate for category-based notifications: the Settings toggle for the
   // category controls the whole thing (feed entry, sound, OS popup). This is
   // what makes the toggles real — an event whose toggle is off never surfaces.
+  // `quiet` adds the bell entry only (no sound, no OS popup) — used by the
+  // hydrate catch-up so reopening the app doesn't fire a burst of stale
+  // notifications. Returns whether the notification surfaced.
   notifyCategory: (
     category: NotifCategory,
-    n: { dot: string; title: string; body: string; tag?: string; url?: string },
-  ) => {
+    n: { dot: string; title: string; body: string; tag?: string; url?: string; quiet?: boolean },
+  ): boolean => {
     const st = get();
     const prefs = st.prefs[st.currentUserId];
-    if (!prefs?.[category]) return;
-    st.pushNotification({ dot: n.dot, title: n.title, body: n.body, category, url: n.url });
-    if (prefs.pushEnabled && st.notifPermission === "granted") {
+    if (!prefs?.[category]) return false;
+    st.pushNotification({ dot: n.dot, title: n.title, body: n.body, category, url: n.url }, { silent: n.quiet });
+    if (!n.quiet && prefs.pushEnabled && st.notifPermission === "granted") {
       showOSNotification(n.title, n.body, n.tag, n.url);
     }
+    return true;
   },
   markAllNotifsRead: () =>
     set((s) => ({ notifications: s.notifications.map((n) => ({ ...n, read: true })) })),

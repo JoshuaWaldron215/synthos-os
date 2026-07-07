@@ -11,8 +11,13 @@ export const createIntakeSlice = (set: StoreSet, get: StoreGet) => ({
   intakeText: "",
   draftTasks: null as DraftTask[] | null,
   intakeBusy: false,
+  /** project the drafted tasks land under ("" = no project) */
+  intakeProj: "",
 
   setIntakeText: (v: string) => set({ intakeText: v }),
+  setIntakeProj: (v: string) => set({ intakeProj: v }),
+  assignAllDrafts: (who: number) =>
+    set((s) => (s.draftTasks ? { draftTasks: s.draftTasks.map((t) => ({ ...t, who })) } : {})),
   fillSample: () => set({ intakeText: SAMPLE_SCOPE, draftTasks: null }),
   analyzeIntake: () => {
     const txt = (get().intakeText || "").trim();
@@ -37,7 +42,7 @@ export const createIntakeSlice = (set: StoreSet, get: StoreGet) => ({
   addDrafts: () => {
     const d = get().draftTasks || [];
     if (!d.length) return;
-    // drafts land without a project; assign from the task modal afterwards
+    const proj = get().intakeProj;
     const nw: Task[] = d.map((t) => ({
       id: t.id,
       title: t.title,
@@ -45,11 +50,14 @@ export const createIntakeSlice = (set: StoreSet, get: StoreGet) => ({
       who: t.who,
       pri: t.pri,
       blocked: false,
-      proj: "",
+      proj,
       notes: "",
     }));
-    set((s) => ({ tasks: s.tasks.concat(nw), draftTasks: null, intakeText: "" }));
-    nw.forEach((t) => repo.saveTask(t).catch(get().syncCatch("task write")));
-    get().showToast("added " + d.length + " tasks · assigned evenly");
+    set((s) => ({ tasks: s.tasks.concat(nw), draftTasks: null, intakeText: "", intakeProj: "" }));
+    nw.forEach((t) => {
+      repo.saveTask(t).catch(get().syncCatch("task write"));
+      get().notifyAssigned(t.id);
+    });
+    get().showToast("added " + d.length + " tasks" + (proj ? " · filed under project" : ""));
   },
 });

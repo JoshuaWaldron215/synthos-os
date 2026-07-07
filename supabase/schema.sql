@@ -175,6 +175,15 @@ create table if not exists public.leads (
 );
 
 -- ---------------------------------------------------------------------------
+-- workspace_settings (shared key/value prefs, e.g. kanban column labels)
+-- ---------------------------------------------------------------------------
+create table if not exists public.workspace_settings (
+  key text primary key,
+  value jsonb not null,
+  updated_at timestamptz not null default now()
+);
+
+-- ---------------------------------------------------------------------------
 -- push_subscriptions (Web Push; one row per browser endpoint, owned by a builder)
 -- ---------------------------------------------------------------------------
 create table if not exists public.push_subscriptions (
@@ -215,11 +224,12 @@ alter table public.messages      enable row level security;
 alter table public.content_items enable row level security;
 alter table public.push_subscriptions enable row level security;
 alter table public.leads         enable row level security;
+alter table public.workspace_settings enable row level security;
 
 do $$
 declare t text;
 begin
-  foreach t in array array['profiles','projects','tasks','vault_keys','activity','wins','project_files','conversations','messages','content_items','push_subscriptions','leads']
+  foreach t in array array['profiles','projects','tasks','vault_keys','activity','wins','project_files','conversations','messages','content_items','push_subscriptions','leads','workspace_settings']
   loop
     execute format('drop policy if exists %I on public.%I;', t || '_team_rw', t);
     execute format(
@@ -235,7 +245,7 @@ end $$;
 do $$
 declare t text;
 begin
-  foreach t in array array['projects','tasks','vault_keys','activity','wins','project_files','profiles','conversations','messages','content_items','leads']
+  foreach t in array array['projects','tasks','vault_keys','activity','wins','project_files','profiles','conversations','messages','content_items','leads','workspace_settings']
   loop
     if not exists (
       select 1 from pg_publication_tables

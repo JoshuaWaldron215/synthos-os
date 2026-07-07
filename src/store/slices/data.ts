@@ -1,5 +1,6 @@
 import * as repo from "../../data/repo";
 import { AUDIT, KEYS, PROJECTS, WINS } from "../../data/seed";
+import { showOSNotification } from "../../lib/notifications";
 import { effectiveUser } from "../../lib/profile";
 import type {
   AuditEntry,
@@ -112,6 +113,14 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
           leads: unionById(data.leads, local.leads),
           profiles: mergeProfiles(local.profiles, data.profiles),
         });
+        // shared kanban column labels: server copy wins; a device holding a
+        // rename the server never saw (pre-sync edits) pushes it up once
+        const serverLabels = data.settings.colLabels as StoreState["colLabels"] | undefined;
+        if (serverLabels && typeof serverLabels === "object") {
+          set({ colLabels: { ...local.colLabels, ...serverLabels } });
+        } else if (Object.values(local.colLabels).join() !== "build,qa,ship,done") {
+          repo.saveSetting("colLabels", local.colLabels).catch(() => {});
+        }
         get().startRealtime();
         // recover any of those local-only records to the server
         reconcileToServer(data, local);
@@ -120,16 +129,23 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
         // (overnight sleep, backgrounded phone). Catch the bell up by diffing
         // what the server has that this device hadn't seen. Skipped on a
         // device's very first hydrate — everything would be "new".
+        // Catch-up entries are quiet (bell only) — reopening the app used to
+        // fire a burst of OS notifications for stale events. At most one
+        // summary popup surfaces instead.
         if (local.lastHydrateAt != null) {
           const me = local.currentUserId;
           const st = get();
+          let tasksCaught = 0;
+          let msgsCaught = 0;
+          let winsCaught = 0;
           const localTaskIds = new Set(local.tasks.map((t) => t.id));
           data.tasks
             .filter((t) => !localTaskIds.has(t.id) && t.who === me && t.col !== "done")
             .slice(0, 5)
-            .forEach((t) =>
-              st.notifyCategory("taskAssigned", { dot: "#33ADEE", title: "task for you ✦", body: t.title, tag: "task-" + t.id, url: "/tasks" }),
-            );
+            .forEach((t) => {
+              if (st.notifyCategory("taskAssigned", { dot: "#33ADEE", title: "task for you ✦", body: t.title, tag: "task-" + t.id, url: "/tasks", quiet: true }))
+                tasksCaught++;
+            });
           let convosNotified = 0;
           for (const [convo, msgs] of Object.entries(data.teamMsgs)) {
             if (convosNotified >= 5) break;
@@ -138,24 +154,39 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
             if (!fresh.length) continue;
             convosNotified++;
             const c = st.conversations.find((x) => x.id === convo);
-            const label = !c ? "team chat" : c.type === "dm" ? "dm" : "#" + c.name;
+            const label = !c ? "chat" : c.type === "dm" ? "dm" : "#" + c.name;
             const last = fresh[fresh.length - 1];
             const sender = effectiveUser(last.who, st.profiles).name;
-            st.notifyCategory("mentions", {
+            const surfaced = st.notifyCategory("mentions", {
               dot: "#8A84F0",
               title: label,
               body: fresh.length === 1 ? sender + ": " + (last.text || "sent an attachment") : fresh.length + " new messages",
               tag: "catchup-" + convo,
               url: "/team?c=" + convo,
+              quiet: true,
             });
+            if (surfaced) msgsCaught += fresh.length;
           }
           const localWinIds = new Set(local.wins.map((w) => w.id));
           data.wins
             .filter((w) => !localWinIds.has(w.id) && w.who !== me)
             .slice(0, 3)
-            .forEach((w) =>
-              st.notifyCategory("shipped", { dot: "#2FC197", title: "win logged 🎉", body: w.title + (w.amount ? " · " + w.amount : ""), tag: "win-" + w.id, url: "/wins" }),
-            );
+            .forEach((w) => {
+              if (st.notifyCategory("shipped", { dot: "#2FC197", title: "win logged 🎉", body: w.title + (w.amount ? " · " + w.amount : ""), tag: "win-" + w.id, url: "/wins", quiet: true }))
+                winsCaught++;
+            });
+
+          // one summary popup for everything missed, instead of a burst
+          const parts: string[] = [];
+          if (tasksCaught) parts.push(tasksCaught + " task" + (tasksCaught === 1 ? "" : "s"));
+          if (msgsCaught) parts.push(msgsCaught + " message" + (msgsCaught === 1 ? "" : "s"));
+          if (winsCaught) parts.push(winsCaught + " win" + (winsCaught === 1 ? "" : "s"));
+          if (parts.length) {
+            const prefs = st.prefs[me];
+            if (prefs?.pushEnabled && st.notifPermission === "granted") {
+              showOSNotification("while you were away ✦", parts.join(" · "), "catchup-summary", "/home");
+            }
+          }
         }
         set({ lastHydrateAt: Date.now() });
       }
@@ -288,6 +319,11 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
               ? { ...s.profiles, [builderId]: { ...s.profiles[builderId], ...patch } }
               : s.profiles,
           })),
+        setting: (key, value) => {
+          if (key === "colLabels" && value && typeof value === "object") {
+            set((s) => ({ colLabels: { ...s.colLabels, ...(value as Partial<StoreState["colLabels"]>) } }));
+          }
+        },
       })
       .catch(() => {
         /* local mode or subscribe failure — polling-free local UX still works */

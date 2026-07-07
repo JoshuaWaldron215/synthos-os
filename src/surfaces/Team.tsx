@@ -262,7 +262,7 @@ export function Team() {
 
   return (
     <div style={rootStyle} className="anim-sc">
-      <Eyebrow index="05" label="team" />
+      <Eyebrow index="05" label="chat" />
       <h1 style={{ margin: isMobile ? "0 0 10px" : "0 0 4px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
         team <i style={{ fontWeight: 600 }}>chat</i>
       </h1>

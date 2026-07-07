@@ -106,6 +106,7 @@ export interface StoreState {
   intakeText: string;
   draftTasks: DraftTask[] | null;
   intakeBusy: boolean;
+  intakeProj: string;
 
   // home dashboard (layout per builder id)
   dashboards: Record<number, DashboardItem[]>;
@@ -145,11 +146,11 @@ export interface StoreState {
   syncProfile: (id: number) => void;
   updatePrefs: (id: number, patch: Partial<Prefs>) => void;
   setNotifPermission: (p: NotificationPermission) => void;
-  pushNotification: (n: Omit<NotifItem, "id" | "read" | "time" | "at">) => void;
+  pushNotification: (n: Omit<NotifItem, "id" | "read" | "time" | "at">, opts?: { silent?: boolean }) => void;
   notifyCategory: (
     category: NotifCategory,
-    n: { dot: string; title: string; body: string; tag?: string; url?: string },
-  ) => void;
+    n: { dot: string; title: string; body: string; tag?: string; url?: string; quiet?: boolean },
+  ) => boolean;
   markAllNotifsRead: () => void;
   markNotifRead: (id: string) => void;
   clearNotifs: () => void;
@@ -271,6 +272,8 @@ export interface StoreState {
 
   // intake actions
   setIntakeText: (v: string) => void;
+  setIntakeProj: (v: string) => void;
+  assignAllDrafts: (who: number) => void;
   fillSample: () => void;
   analyzeIntake: () => void;
   cycleAssignee: (i: number) => void;

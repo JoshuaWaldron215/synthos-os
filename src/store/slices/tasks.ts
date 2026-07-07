@@ -145,6 +145,8 @@ export const createTasksSlice = (set: StoreSet, get: StoreGet) => ({
     const v = (editColText || "").trim();
     if (editingCol && v) {
       set((s) => ({ colLabels: { ...s.colLabels, [editingCol]: v }, editingCol: null, editColText: "" }));
+      // column names are a workspace-wide setting — share the rename
+      repo.saveSetting("colLabels", get().colLabels).catch(get().syncCatch("board settings"));
     } else {
       set({ editingCol: null, editColText: "" });
     }

@@ -25,7 +25,7 @@ const WIDGET_TITLES: Record<WidgetKey, string> = {
   tasks: "my tasks",
   pipeline: "pipeline",
   projects: "projects",
-  team: "team chat",
+  team: "chat",
   wins: "momentum",
 };
 
@@ -64,6 +64,7 @@ function WidgetCard({
   const editing = useStore((s) => s.dashEditing);
   const moveWidget = useStore((s) => s.moveWidget);
   const toggleWidget = useStore((s) => s.toggleWidget);
+  const pad = isMobile ? "12px 13px 9px" : "16px 16px 12px";
 
   // edit controls need real thumb room on touch screens
   const ctlSize = isMobile ? 34 : 26;
@@ -87,13 +88,14 @@ function WidgetCard({
       style={{
         background: "var(--card)",
         border: editing ? "1px dashed rgba(96,200,255,.5)" : "1px solid rgba(var(--ink-rgb),.06)",
-        borderRadius: 18,
-        padding: "16px 16px 12px",
+        borderRadius: isMobile ? 15 : 18,
+        padding: pad,
         boxShadow: "var(--shadow-card)",
         breakInside: "avoid",
+        minWidth: 0,
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: isMobile ? 5 : 8 }}>
         <span style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600, flex: 1 }}>
           {WIDGET_TITLES[widget]}
         </span>
@@ -332,23 +334,25 @@ function TeamWidget() {
 }
 
 function WinsWidget() {
+  const isMobile = useIsMobile();
   const navigate = useNavigate();
   const projects = useStore((s) => s.projects);
   const wins = useStore((s) => s.wins);
   const showRevenue = useStore((s) => s.showRevenue);
   const mrr = sumMoney(projects.map((p) => p.rev));
   const latest = wins[0];
+  const statSize = isMobile ? 17 : 19;
 
   return (
     <div>
-      <div style={{ display: "flex", gap: 16, padding: "2px 6px 10px" }}>
+      <div style={{ display: "flex", gap: 16, padding: isMobile ? "0 6px 7px" : "2px 6px 10px" }}>
         <div>
           <div style={{ fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.5)", fontWeight: 600 }}>retainers</div>
-          <div style={{ fontSize: 19, fontWeight: 700, letterSpacing: "-.02em" }}>{showRevenue ? perMonth(mrr) : "•••"}</div>
+          <div style={{ fontSize: statSize, fontWeight: 700, letterSpacing: "-.02em" }}>{showRevenue ? perMonth(mrr) : "•••"}</div>
         </div>
         <div>
           <div style={{ fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.5)", fontWeight: 600 }}>wins logged</div>
-          <div style={{ fontSize: 19, fontWeight: 700, letterSpacing: "-.02em" }}>{wins.length}</div>
+          <div style={{ fontSize: statSize, fontWeight: 700, letterSpacing: "-.02em" }}>{wins.length}</div>
         </div>
       </div>
       {latest ? (
@@ -393,17 +397,18 @@ export function Home() {
 
   return (
     <div style={{ maxWidth: 1120, margin: "0 auto" }} className="anim-sc">
-      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 14, flexWrap: "wrap", marginBottom: 22 }}>
+      <div style={{ display: "flex", alignItems: isMobile ? "center" : "flex-end", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: isMobile ? 13 : 22 }}>
         <div>
           <Eyebrow index="00" label="today" color="#8A84F0" />
-          <h1 style={{ margin: 0, fontSize: isMobile ? 23 : 32, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.08 }}>
+          <h1 style={{ margin: 0, fontSize: isMobile ? 19.5 : 32, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.08 }}>
             {greeting}, <i style={{ fontWeight: 600 }}>{user.first.toLowerCase()}</i>
           </h1>
-          <p style={{ margin: "8px 0 0", fontSize: 14, color: "rgba(var(--ink-rgb),.5)" }}>{dateLabel.toLowerCase()}</p>
+          <p style={{ margin: isMobile ? "3px 0 0" : "8px 0 0", fontSize: isMobile ? 12.5 : 14, color: "rgba(var(--ink-rgb),.5)" }}>{dateLabel.toLowerCase()}</p>
         </div>
         <button
           onClick={() => setDashEditing(!editing)}
           className="hov-soft"
+          title={editing ? "done" : "customize"}
           style={{
             display: "flex",
             alignItems: "center",
@@ -412,18 +417,19 @@ export function Home() {
             color: editing ? "#fff" : "rgba(var(--ink-rgb),.65)",
             border: editing ? "none" : "1px solid rgba(var(--ink-rgb),.1)",
             borderRadius: 11,
-            padding: "9px 14px",
+            padding: isMobile ? "9px 11px" : "9px 14px",
             fontSize: 13,
             fontWeight: 600,
             fontFamily: "inherit",
           }}
         >
           <Icon name="settings" size={15} sw={1.8} color={editing ? "#fff" : "rgba(var(--ink-rgb),.55)"} />
-          {editing ? "done" : "customize"}
+          {(!isMobile || editing) && (editing ? "done" : "customize")}
         </button>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(330px, 1fr))", gap: 14 }}>
+      {/* minmax(0,…) so a long nowrap row can't blow the track past the viewport */}
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "minmax(0, 1fr)" : "repeat(auto-fill, minmax(min(330px, 100%), 1fr))", gap: isMobile ? 10 : 14 }}>
         {visible.map((w, i) => {
           const W = WIDGETS[w.key];
           return (
