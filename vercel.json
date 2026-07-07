@@ -9,9 +9,6 @@
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
-  "crons": [
-    { "path": "/api/remind", "schedule": "0 12,13 * * *" }
-  ],
   "headers": [
     {
       "source": "/(.*)",

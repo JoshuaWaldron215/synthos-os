@@ -297,3 +297,36 @@ drop trigger if exists messages_push_webhook on public.messages;
 create trigger messages_push_webhook
 after insert on public.messages
 for each row execute function public.notify_message_push();
+
+-- ---------------------------------------------------------------------------
+-- 8am morning briefing: pg_cron fires /api/remind at 12:00 AND 13:00 UTC; the
+-- endpoint's America/New_York hour guard keeps whichever lands on 8am Eastern
+-- (DST-proof). The webhook secret lives encrypted in Supabase Vault — store it
+-- once with: select vault.create_secret('<PUSH_WEBHOOK_SECRET>', 'push_webhook_secret');
+-- (Scheduled in Vercel crons before, but Hobby crons are once-a-day and only
+-- hour-precise.)
+-- ---------------------------------------------------------------------------
+create extension if not exists pg_cron;
+
+select cron.schedule(
+  'remind-briefing-utc12',
+  '0 12 * * *',
+  $$ select net.http_post(
+       url := 'https://synthos-os.vercel.app/api/remind',
+       headers := jsonb_build_object(
+         'x-webhook-secret',
+         (select decrypted_secret from vault.decrypted_secrets where name = 'push_webhook_secret')
+       )
+     ) $$
+);
+select cron.schedule(
+  'remind-briefing-utc13',
+  '0 13 * * *',
+  $$ select net.http_post(
+       url := 'https://synthos-os.vercel.app/api/remind',
+       headers := jsonb_build_object(
+         'x-webhook-secret',
+         (select decrypted_secret from vault.decrypted_secrets where name = 'push_webhook_secret')
+       )
+     ) $$
+);
