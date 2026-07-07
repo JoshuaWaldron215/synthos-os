@@ -18,6 +18,8 @@ import type {
 } from "../../types";
 import type { StoreGet, StoreSet, StoreState } from "../types";
 
+let keysRefetchTimer: ReturnType<typeof setTimeout> | undefined;
+
 // replace-or-append by id — realtime events and hydrate merges are idempotent
 const upsertBy = <T extends { id: string }>(list: T[], item: T): T[] =>
   list.some((x) => x.id === item.id) ? list.map((x) => (x.id === item.id ? item : x)) : list.concat(item);
@@ -237,10 +239,19 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
             });
           }
         },
-        key: (ev, data) =>
-          set((s) => ({
-            keys: ev === "delete" ? s.keys.filter((k) => k.id !== data) : upsertBy(s.keys, data as VaultKey),
-          })),
+        key: (_ev, id) => set((s) => ({ keys: s.keys.filter((k) => k.id !== id) })),
+        // realtime carries ciphertext only — debounce a decrypted refetch
+        keysChanged: () => {
+          clearTimeout(keysRefetchTimer);
+          keysRefetchTimer = setTimeout(() => {
+            repo
+              .fetchVaultKeys()
+              .then((server) => {
+                if (server) set((s) => ({ keys: unionById(server, s.keys) }));
+              })
+              .catch(() => {});
+          }, 300);
+        },
         win: (ev, data) => {
           if (ev === "delete") {
             set((s) => ({ wins: s.wins.filter((w) => w.id !== data) }));

@@ -61,15 +61,73 @@ create table if not exists public.tasks (
 );
 
 -- ---------------------------------------------------------------------------
--- vault_keys
+-- vault_keys — secrets are ENCRYPTED AT REST (pgcrypto). The symmetric key
+-- lives only in Supabase Vault ('vault_keys_key'); the app never touches the
+-- table's val_enc directly — reads/writes go through the security-definer
+-- RPCs below, executable by authenticated teammates only.
 -- ---------------------------------------------------------------------------
 create table if not exists public.vault_keys (
   id text primary key,
   label text not null,
-  val text not null,
+  val_enc bytea,
   proj text not null default 'shared',
   updated_at timestamptz not null default now()
 );
+
+do $$
+begin
+  if not exists (select 1 from vault.secrets where name = 'vault_keys_key') then
+    perform vault.create_secret(
+      encode(extensions.gen_random_bytes(32), 'hex'),
+      'vault_keys_key',
+      'symmetric key encrypting vault_keys.val_enc'
+    );
+  end if;
+end $$;
+
+create or replace function public.vault_keys_list()
+returns table (id text, label text, val text, proj text)
+language sql
+security definer
+set search_path = public, extensions, vault
+as $$
+  select k.id,
+         k.label,
+         extensions.pgp_sym_decrypt(
+           k.val_enc,
+           (select decrypted_secret from vault.decrypted_secrets where name = 'vault_keys_key')
+         ) as val,
+         k.proj
+  from public.vault_keys k;
+$$;
+
+create or replace function public.vault_key_save(p_id text, p_label text, p_val text, p_proj text)
+returns void
+language sql
+security definer
+set search_path = public, extensions, vault
+as $$
+  insert into public.vault_keys (id, label, proj, val_enc)
+  values (
+    p_id,
+    p_label,
+    p_proj,
+    extensions.pgp_sym_encrypt(
+      p_val,
+      (select decrypted_secret from vault.decrypted_secrets where name = 'vault_keys_key')
+    )
+  )
+  on conflict (id) do update
+    set label = excluded.label,
+        proj = excluded.proj,
+        val_enc = excluded.val_enc,
+        updated_at = now();
+$$;
+
+revoke all on function public.vault_keys_list() from public, anon;
+revoke all on function public.vault_key_save(text, text, text, text) from public, anon;
+grant execute on function public.vault_keys_list() to authenticated;
+grant execute on function public.vault_key_save(text, text, text, text) to authenticated;
 
 -- ---------------------------------------------------------------------------
 -- activity (audit log)

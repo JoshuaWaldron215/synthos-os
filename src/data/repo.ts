@@ -342,7 +342,7 @@ export async function fetchAll(): Promise<Dataset | null> {
   const [projects, tasks, keys, activity, files, wins, convos, messages, content, profiles, leads, settings] = await Promise.all([
     sb.from("projects").select("*"),
     sb.from("tasks").select("*"),
-    sb.from("vault_keys").select("*"),
+    sb.rpc("vault_keys_list"),
     sb.from("activity").select("*"),
     sb.from("project_files").select("*"),
     sb.from("wins").select("*"),
@@ -406,10 +406,21 @@ export async function removeTask(id: string): Promise<void> {
   if (!sb) return;
   await sb.from("tasks").delete().eq("id", id);
 }
+// Vault secrets are encrypted at rest: reads/writes go through security-
+// definer RPCs (pgcrypto; the symmetric key lives in Supabase Vault). Never
+// select or upsert vault_keys directly — the table only holds ciphertext.
 export async function saveKey(k: VaultKey): Promise<void> {
   const sb = await getSupabase();
   if (!sb) return;
-  await sb.from("vault_keys").upsert(k);
+  const { error } = await sb.rpc("vault_key_save", { p_id: k.id, p_label: k.label, p_val: k.val, p_proj: k.proj });
+  if (error) throw error;
+}
+export async function fetchVaultKeys(): Promise<VaultKey[] | null> {
+  const sb = await getSupabase();
+  if (!sb) return null;
+  const { data, error } = await sb.rpc("vault_keys_list");
+  if (error) throw error;
+  return (data ?? []) as VaultKey[];
 }
 export async function removeKey(id: string): Promise<void> {
   const sb = await getSupabase();
@@ -501,7 +512,9 @@ interface SettingRow {
 export interface RealtimeHandlers {
   project: (ev: "upsert" | "delete", data: Project | string) => void;
   task: (ev: "upsert" | "delete", data: Task | string) => void;
-  key: (ev: "upsert" | "delete", data: VaultKey | string) => void;
+  key: (ev: "delete", data: string) => void;
+  /** a vault key was added/edited somewhere — refetch the decrypted list */
+  keysChanged: () => void;
   win: (ev: "upsert" | "delete", data: Win | string) => void;
   file: (ev: "upsert" | "delete", data: ProjectFile | string) => void;
   activity: (entry: AuditEntry) => void;
@@ -547,7 +560,15 @@ export async function subscribeRealtime(h: RealtimeHandlers): Promise<void> {
     };
   on<ProjectRow>("projects", crud(toProject, h.project));
   on<TaskRow>("tasks", crud(toTask, h.task));
-  on<VaultKey>("vault_keys", crud((r) => ({ id: r.id, label: r.label, val: r.val, proj: r.proj }), h.key));
+  // vault_keys rows on the wire are ciphertext — deletes apply directly,
+  // inserts/updates trigger a decrypted refetch through the RPC
+  on<{ id: string }>("vault_keys", (e) => {
+    if (e.eventType === "DELETE") {
+      if (e.old.id) h.key("delete", e.old.id);
+    } else {
+      h.keysChanged();
+    }
+  });
   on<WinRow>("wins", crud(toWin, h.win));
   on<FileRow>("project_files", crud(toFile, h.file));
   on<AuditEntry>("activity", (e) => {

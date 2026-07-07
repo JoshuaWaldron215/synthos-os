@@ -134,7 +134,7 @@ Read `docs/HANDOFF.md` for the full audit. Top blockers:
 3. **Sync chat + content + profiles** — add tables, extend repo, add Realtime subscriptions
 4. **ErrorBoundary + CI** — no error containment; no GitHub Actions workflow
 5. **Push via Vercel serverless** — local Express push server doesn't run in production
-6. **Vault encryption** — secrets are plaintext in Postgres (acceptable for trusted 3-person team short-term)
+6. ~~**Vault encryption**~~ — done 2026-07: `vault_keys.val_enc` is pgcrypto-encrypted at rest; the key lives in Supabase Vault; reads/writes go through `vault_keys_list()` / `vault_key_save()` RPCs (authenticated-only, never select the table directly)
 
 ---
 
