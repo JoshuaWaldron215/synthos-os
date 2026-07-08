@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Eyebrow } from "../components/Eyebrow";
 import { Icon } from "../lib/Icon";
 import {
@@ -31,6 +31,7 @@ export function Prayers() {
 
   const [now, setNow] = useState(() => Date.now());
   const [editingPlace, setEditingPlace] = useState(false);
+  const [celebrate, setCelebrate] = useState(false);
 
   // tick every 30s so the countdown, "now" highlight and day rollover stay live
   useEffect(() => {
@@ -56,6 +57,34 @@ export function Prayers() {
   });
 
   const doneCount = rows.filter((r) => r.state === "done").length;
+
+  // fire a little celebration the moment the fifth prayer is logged (only on
+  // the 4→5 transition, not on every page load that's already complete)
+  const prevDone = useRef(doneCount);
+  useEffect(() => {
+    if (doneCount === 5 && prevDone.current < 5) {
+      setCelebrate(true);
+      navigator.vibrate?.([15, 40, 15, 40, 70]);
+      const t = setTimeout(() => setCelebrate(false), 2400);
+      prevDone.current = doneCount;
+      return () => clearTimeout(t);
+    }
+    prevDone.current = doneCount;
+  }, [doneCount]);
+
+  // consecutive full days (all five) — today counts once complete but an
+  // unfinished today doesn't break yesterday's streak
+  const dayStreak = useMemo(() => {
+    let n = 0;
+    for (let d = 0; d < 400; d++) {
+      const l = prayerLog[uid]?.[dateKey(new Date(now - d * 86_400_000))] ?? {};
+      const full = PRAYER_ORDER.every((p) => l[p]);
+      if (full) n++;
+      else if (d === 0) continue;
+      else break;
+    }
+    return n;
+  }, [prayerLog, uid, now]);
 
   // countdown to the next prayer (rolls to tomorrow's Fajr after Isha)
   const upcoming = rows.find((r) => now < r.at.getTime());
@@ -92,7 +121,19 @@ export function Prayers() {
   };
 
   return (
-    <div style={{ maxWidth: 720, margin: "0 auto" }} className="anim-sc">
+    <div style={{ maxWidth: 720, margin: "0 auto", position: "relative" }} className="anim-sc">
+      {celebrate && (
+        <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden", zIndex: 5 }}>
+          {CELEBRATION.map((c, i) => (
+            <span
+              key={i}
+              style={{ position: "absolute", top: "26%", left: c.left, fontSize: c.size, animation: `prayer-float 2.2s ${c.delay}s ease-out forwards` }}
+            >
+              {c.emoji}
+            </span>
+          ))}
+        </div>
+      )}
       <Eyebrow index="10" label="salah" color="#8A84F0" />
       <h1 style={{ margin: isMobile ? "0 0 3px" : "0 0 4px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
         today's <i style={{ fontWeight: 600 }}>prayers</i>
@@ -112,8 +153,8 @@ export function Prayers() {
             {doneCount === 5 ? (
               <>
                 <div style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.5)", fontWeight: 700 }}>all five today</div>
-                <div style={{ fontSize: isMobile ? 22 : 27, fontWeight: 700, letterSpacing: "-.02em", marginTop: 3 }}>
-                  ma sha Allah <span style={{ fontStyle: "italic", fontWeight: 600, color: "#2FC197" }}>✦</span>
+                <div style={{ fontSize: isMobile ? 21 : 26, fontWeight: 700, letterSpacing: "-.02em", marginTop: 3 }}>
+                  mashallah <i style={{ fontWeight: 600 }}>habibi</i> <span style={{ color: "#2FC197" }}>✦</span>
                 </div>
                 <div style={{ fontSize: 13, color: "rgba(var(--ink-rgb),.55)", marginTop: 2 }}>every prayer logged. see you at Fajr.</div>
               </>
@@ -188,7 +229,11 @@ export function Prayers() {
         {rows.map((r) => (
           <button
             key={r.key}
-            onClick={() => togglePrayer(r.key)}
+            onClick={() => {
+              const wasDone = !!log[r.key];
+              togglePrayer(r.key);
+              if (!wasDone) navigator.vibrate?.(12); // a little tactile "logged" tick
+            }}
             className="hov-task"
             style={{
               ...card,
@@ -217,6 +262,7 @@ export function Prayers() {
                 alignItems: "center",
                 justifyContent: "center",
                 transition: "background .15s",
+                animation: r.state === "done" ? "prayer-pop .4s ease" : undefined,
               }}
             >
               {r.state === "done" && <Icon name="check" size={17} sw={2.6} color="#fff" />}
@@ -241,7 +287,14 @@ export function Prayers() {
 
       {/* 7-day streak */}
       <div style={{ ...card, padding: isMobile ? "14px 16px" : "16px 20px" }}>
-        <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 700, marginBottom: 12 }}>this week</div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 700 }}>this week</div>
+          {dayStreak > 0 && (
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#C6663F", background: "rgba(240,120,90,.14)", padding: "3px 9px", borderRadius: 999 }}>
+              🔥 {dayStreak}-day streak
+            </div>
+          )}
+        </div>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 6 }}>
           {week.map((d, i) => (
             <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flex: 1 }}>
@@ -266,6 +319,20 @@ export function Prayers() {
     </div>
   );
 }
+
+// a fixed little burst that floats up when the fifth prayer is logged
+const CELEBRATION = [
+  { emoji: "🌙", left: "12%", size: 26, delay: 0 },
+  { emoji: "✦", left: "24%", size: 20, delay: 0.15 },
+  { emoji: "⭐", left: "38%", size: 22, delay: 0.05 },
+  { emoji: "🤲", left: "50%", size: 28, delay: 0.22 },
+  { emoji: "💫", left: "62%", size: 22, delay: 0.1 },
+  { emoji: "✦", left: "76%", size: 18, delay: 0.28 },
+  { emoji: "🌙", left: "88%", size: 24, delay: 0.18 },
+  { emoji: "⭐", left: "6%", size: 18, delay: 0.32 },
+  { emoji: "💫", left: "44%", size: 20, delay: 0.4 },
+  { emoji: "✦", left: "70%", size: 24, delay: 0.36 },
+];
 
 const selectStyle: CSSProperties = {
   background: "var(--card)",

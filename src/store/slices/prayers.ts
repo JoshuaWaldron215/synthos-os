@@ -93,7 +93,7 @@ export const createPrayersSlice = (set: StoreSet, get: StoreGet) => ({
 
       const skipKey = name + ":skip";
       if (now >= next && now - next < SKIP_WINDOW_MS && !fired.includes(skipKey)) {
-        if (st.notifyCategory("prayers", { dot: PRAYERS[i].color, title: label(name) + " missed", body: "you haven't logged " + label(name) + " yet", tag: "prayer-" + name, url: "/prayers" }))
+        if (st.notifyCategory("prayers", { dot: PRAYERS[i].color, title: "Allah is watching 👀", body: "you haven't prayed " + label(name) + " yet", tag: "prayer-" + name, url: "/prayers" }))
           toFire.push(skipKey);
       }
     });

@@ -53,6 +53,7 @@ export interface PrayerPlace {
 // A short list of presets so there's a no-permission path; "use my location"
 // refines to exact coordinates via the browser geolocation API.
 export const PRESET_PLACES: { label: string; lat: number; lng: number }[] = [
+  { label: "Scranton", lat: 41.409, lng: -75.6624 },
   { label: "New York", lat: 40.7128, lng: -74.006 },
   { label: "Philadelphia", lat: 39.9526, lng: -75.1652 },
   { label: "Chicago", lat: 41.8781, lng: -87.6298 },
@@ -67,9 +68,9 @@ export const PRESET_PLACES: { label: string; lat: number; lng: number }[] = [
 // Team runs on Eastern time (see the 8am briefing), so default there; each
 // device can change it and the choice persists locally.
 export const DEFAULT_PLACE: PrayerPlace = {
-  lat: 40.7128,
-  lng: -74.006,
-  label: "New York",
+  lat: 41.409,
+  lng: -75.6624,
+  label: "Scranton",
   method: "NorthAmerica",
   madhab: "shafi",
 };
