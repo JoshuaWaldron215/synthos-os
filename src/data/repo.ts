@@ -36,6 +36,8 @@ export interface Dataset {
   profiles: Record<number, Partial<Profile>>;
   /** shared workspace settings (e.g. kanban column labels), keyed by name */
   settings: Record<string, unknown>;
+  /** deleted-record markers, "tbl:id" — stale local copies must not resurrect */
+  tombstones: Set<string>;
 }
 
 export const usingSupabase = isSupabaseConfigured;
@@ -339,7 +341,7 @@ const toProfilePatch = (r: ProfileRow): Partial<Profile> => {
 export async function fetchAll(): Promise<Dataset | null> {
   const sb = await getSupabase();
   if (!sb) return null;
-  const [projects, tasks, keys, activity, files, wins, convos, messages, content, profiles, leads, settings] = await Promise.all([
+  const [projects, tasks, keys, activity, files, wins, convos, messages, content, profiles, leads, settings, tombstones] = await Promise.all([
     sb.from("projects").select("*"),
     sb.from("tasks").select("*"),
     sb.rpc("vault_keys_list"),
@@ -352,6 +354,7 @@ export async function fetchAll(): Promise<Dataset | null> {
     sb.from("profiles").select("*"),
     sb.from("leads").select("*"),
     sb.from("workspace_settings").select("*"),
+    sb.from("tombstones").select("tbl,id"),
   ]);
   const teamMsgs: Record<string, TeamMessage[]> = {};
   for (const r of (messages.data ?? []) as MessageRow[]) {
@@ -375,6 +378,9 @@ export async function fetchAll(): Promise<Dataset | null> {
     profiles: profilePatches,
     settings: Object.fromEntries(
       (((settings.data ?? []) as SettingRow[])).map((r) => [r.key, r.value]),
+    ),
+    tombstones: new Set(
+      (((tombstones.data ?? []) as Array<{ tbl: string; id: string }>)).map((r) => r.tbl + ":" + r.id),
     ),
   };
 }

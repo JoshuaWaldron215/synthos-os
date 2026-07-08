@@ -99,7 +99,28 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
     try {
       const data = await repo.fetchAll();
       if (data) {
-        const local = get();
+        const raw = get();
+        // Scrub tombstoned records from the local snapshot FIRST: a record the
+        // server deleted must neither survive locally nor be "recovered" by
+        // the reconcile below — that's how deleted tasks kept coming back.
+        const dead = (tbl: string) => (x: { id: string }) => !data.tombstones.has(tbl + ":" + x.id);
+        const localMsgs: typeof raw.teamMsgs = {};
+        for (const [convo, msgs] of Object.entries(raw.teamMsgs)) {
+          if (!data.tombstones.has("conversations:" + convo)) {
+            localMsgs[convo] = msgs.filter((m) => !m.id || !data.tombstones.has("messages:" + m.id));
+          }
+        }
+        const local = {
+          ...raw,
+          projects: raw.projects.filter(dead("projects")),
+          keys: raw.keys.filter(dead("vault_keys")),
+          wins: raw.wins.filter(dead("wins")),
+          tasks: raw.tasks.filter(dead("tasks")),
+          conversations: raw.conversations.filter(dead("conversations")),
+          teamMsgs: localMsgs,
+          content: raw.content.filter(dead("content_items")),
+          leads: raw.leads.filter(dead("leads")),
+        };
         // union everything id-keyed so a locally-stranded record (failed or
         // offline write) is never dropped; server copy wins on conflict
         set({
@@ -397,10 +418,12 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
     get().updateProject(id, { imageUrl: url });
   },
   deleteProject: (id: string) => {
+    // mirror the server's FK semantics: tasks survive with no project, vault
+    // keys survive as-is, files cascade away — anything else diverges and
+    // "comes back" on the next hydrate
     set((s) => ({
       projects: s.projects.filter((p) => p.id !== id),
-      tasks: s.tasks.filter((t) => t.proj !== id),
-      keys: s.keys.filter((k) => k.proj !== id),
+      tasks: s.tasks.map((t) => (t.proj === id ? { ...t, proj: "" } : t)),
       files: s.files.filter((f) => f.proj !== id),
     }));
     repo.removeProject(id).catch(get().syncCatch("data write"));

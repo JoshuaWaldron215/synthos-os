@@ -357,6 +357,52 @@ after insert on public.messages
 for each row execute function public.notify_message_push();
 
 -- ---------------------------------------------------------------------------
+-- Tombstones: deletes leave a marker so the hydrate self-heal can tell "this
+-- record was deleted" from "this write never reached the server" — without
+-- this, any device holding a stale copy resurrects deleted rows on wake-up.
+-- ---------------------------------------------------------------------------
+create table if not exists public.tombstones (
+  tbl text not null,
+  id text not null,
+  deleted_at timestamptz not null default now(),
+  primary key (tbl, id)
+);
+
+alter table public.tombstones enable row level security;
+drop policy if exists tombstones_team_rw on public.tombstones;
+create policy tombstones_team_rw on public.tombstones
+  for all to authenticated using (true) with check (true);
+
+create or replace function public.record_tombstone()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.tombstones (tbl, id)
+  values (TG_TABLE_NAME, old.id)
+  on conflict (tbl, id) do update set deleted_at = now();
+  return old;
+end $$;
+
+do $$
+declare t text;
+begin
+  foreach t in array array['tasks','projects','wins','content_items','leads','vault_keys','project_files','messages','conversations'] loop
+    execute format('drop trigger if exists %I on public.%I', t || '_tombstone', t);
+    execute format('create trigger %I after delete on public.%I for each row execute function public.record_tombstone()', t || '_tombstone', t);
+  end loop;
+end $$;
+
+-- devices offline longer than this window could still resurrect, so keep 90d
+select cron.schedule(
+  'prune-tombstones',
+  '0 3 * * 0',
+  $$ delete from public.tombstones where deleted_at < now() - interval '90 days' $$
+);
+
+-- ---------------------------------------------------------------------------
 -- 8am morning briefing: pg_cron fires /api/remind at 12:00 AND 13:00 UTC; the
 -- endpoint's America/New_York hour guard keeps whichever lands on 8am Eastern
 -- (DST-proof). The webhook secret lives encrypted in Supabase Vault — store it
