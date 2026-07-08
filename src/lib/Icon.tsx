@@ -39,7 +39,8 @@ export type IconName =
   | "mail"
   | "paperclip"
   | "image"
-  | "trash";
+  | "trash"
+  | "prayers";
 
 interface IconProps {
   name: IconName;
@@ -128,6 +129,9 @@ export function Icon({ name, size = 20, sw = 1.7, color = "currentColor", style 
       return svg(p("M4 7h16"), p("M4 12h16"), p("M4 17h16"));
     case "bolt":
       return svg(p("M12.5 3l-7 9.5h5l-1 8.5 7-10h-5z", { fill: color, stroke: "none" }));
+    case "prayers":
+      // crescent moon + a small star
+      return svg(p("M16.6 4.4A8.2 8.2 0 1 0 20 16.4 6.4 6.4 0 0 1 16.6 4.4z"), p("M18.8 3l.5 1.5 1.5.5-1.5.5-.5 1.5-.5-1.5-1.5-.5 1.5-.5z", { fill: color, stroke: "none" }));
     case "settings":
       return svg(
         ci(12, 12, 3.2),

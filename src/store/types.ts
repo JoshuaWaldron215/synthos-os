@@ -26,6 +26,7 @@ import type {
   Win,
 } from "../types";
 import type { ThemePref } from "../lib/theme";
+import type { PrayerName, PrayerPlace } from "../lib/prayers";
 import type { DashboardItem, WidgetKey } from "./slices/dashboard";
 
 // Full store contract. State and actions are implemented in domain slices
@@ -120,6 +121,11 @@ export interface StoreState {
   fLeadStatus: string;
   fLeadQuality: string;
   fLeadDate: string;
+
+  // prayers (per-user salah tracker)
+  prayerLog: Record<number, Record<string, Partial<Record<PrayerName, boolean>>>>;
+  prayerPlace: PrayerPlace;
+  prayerNotified: Record<string, string[]>;
 
   // ui / shell actions
   setCurrentUser: (id: number) => void;
@@ -274,6 +280,12 @@ export interface StoreState {
   setIntakeText: (v: string) => void;
   setIntakeProj: (v: string) => void;
   assignAllDrafts: (who: number) => void;
+
+  // prayer actions
+  togglePrayer: (name: PrayerName) => void;
+  setPrayerPlace: (patch: Partial<PrayerPlace>) => void;
+  detectLocation: () => Promise<void>;
+  runPrayerReminders: () => void;
   fillSample: () => void;
   analyzeIntake: () => void;
   cycleAssignee: (i: number) => void;

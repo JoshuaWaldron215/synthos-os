@@ -61,6 +61,7 @@ export function defaultPrefs(): Record<number, Prefs> {
       taskAssigned: true,
       shipped: true,
       content: false,
+      prayers: true,
       sound: false,
     };
   });

@@ -185,10 +185,11 @@ export interface Prefs {
   taskAssigned: boolean;
   shipped: boolean;
   content: boolean;
+  prayers: boolean;
   sound: boolean;
 }
 
-export type NotifCategory = "mentions" | "taskAssigned" | "shipped" | "content";
+export type NotifCategory = "mentions" | "taskAssigned" | "shipped" | "content" | "prayers";
 
 export interface NotifItem {
   id: string;

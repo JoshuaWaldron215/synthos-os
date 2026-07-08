@@ -15,6 +15,7 @@ const Wins = lazy(() => import("./surfaces/Wins").then((m) => ({ default: m.Wins
 const Team = lazy(() => import("./surfaces/Team").then((m) => ({ default: m.Team })));
 const Leads = lazy(() => import("./surfaces/Leads").then((m) => ({ default: m.Leads })));
 const Ask = lazy(() => import("./surfaces/Ask").then((m) => ({ default: m.Ask })));
+const Prayers = lazy(() => import("./surfaces/Prayers").then((m) => ({ default: m.Prayers })));
 const Settings = lazy(() => import("./surfaces/Settings").then((m) => ({ default: m.Settings })));
 
 export default function App() {
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/wins" element={<Wins />} />
           <Route path="/team" element={<Team />} />
           <Route path="/ask" element={<Ask />} />
+          <Route path="/prayers" element={<Prayers />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/projects" replace />} />
         </Route>

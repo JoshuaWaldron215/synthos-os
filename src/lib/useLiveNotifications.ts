@@ -11,7 +11,18 @@
  * repo and routes inbound rows through `receiveTeamMessage` and the other
  * store actions — so the rest of the app lights up automatically.
  */
+import { useEffect } from "react";
+import { useStore } from "../store/useStore";
+
 export function useLiveNotifications() {
-  // No-op today: live events flow through store actions triggered by real
-  // activity (see startRealtime in the data slice).
+  // Live team events flow through store actions triggered by real activity
+  // (see startRealtime in the data slice). The one thing that needs a clock is
+  // the salah tracker: check every minute whether a prayer just arrived or a
+  // window closed unchecked, and nudge accordingly.
+  const runPrayerReminders = useStore((s) => s.runPrayerReminders);
+  useEffect(() => {
+    runPrayerReminders();
+    const id = setInterval(runPrayerReminders, 60_000);
+    return () => clearInterval(id);
+  }, [runPrayerReminders]);
 }
