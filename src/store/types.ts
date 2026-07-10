@@ -26,6 +26,7 @@ import type {
   Win,
 } from "../types";
 import type { ThemePref } from "../lib/theme";
+import type { HealthDay } from "../lib/health";
 import type { PrayerName, PrayerPlace } from "../lib/prayers";
 import type { DashboardItem, WidgetKey } from "./slices/dashboard";
 
@@ -126,6 +127,10 @@ export interface StoreState {
   prayerLog: Record<number, Record<string, Partial<Record<PrayerName, boolean>>>>;
   prayerPlace: PrayerPlace;
   prayerNotified: Record<string, string[]>;
+
+  // fitness (Apple Health team board)
+  health: HealthDay[];
+  healthToken: string | null;
 
   // ui / shell actions
   setCurrentUser: (id: number) => void;
@@ -286,6 +291,11 @@ export interface StoreState {
   setPrayerPlace: (patch: Partial<PrayerPlace>) => void;
   detectLocation: () => Promise<void>;
   runPrayerReminders: () => void;
+
+  // fitness actions
+  receiveHealth: (d: HealthDay) => void;
+  toggleHype: (who: number, day: string, workoutIdx: number, emoji: string) => void;
+  fetchHealthToken: () => Promise<void>;
   fillSample: () => void;
   analyzeIntake: () => void;
   cycleAssignee: (i: number) => void;

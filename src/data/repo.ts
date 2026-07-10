@@ -1,5 +1,6 @@
 import { FILES_BUCKET, getSupabase, isSupabaseConfigured } from "../lib/supabase";
 import { deleteBlob, getBlob, putBlob } from "../lib/fileStore";
+import { healthDateKey, type HealthDay, type HealthWorkout, type HypeMap } from "../lib/health";
 import type {
   AuditEntry,
   ContentItem,
@@ -38,6 +39,8 @@ export interface Dataset {
   settings: Record<string, unknown>;
   /** deleted-record markers, "tbl:id" — stale local copies must not resurrect */
   tombstones: Set<string>;
+  /** Apple Health team board rows (last ~14 days) */
+  health: HealthDay[];
 }
 
 export const usingSupabase = isSupabaseConfigured;
@@ -341,7 +344,9 @@ const toProfilePatch = (r: ProfileRow): Partial<Profile> => {
 export async function fetchAll(): Promise<Dataset | null> {
   const sb = await getSupabase();
   if (!sb) return null;
-  const [projects, tasks, keys, activity, files, wins, convos, messages, content, profiles, leads, settings, tombstones] = await Promise.all([
+  // health board only needs a rolling window (page shows today + this week)
+  const healthCutoffKey = healthDateKey(new Date(Date.now() - 14 * 86_400_000));
+  const [projects, tasks, keys, activity, files, wins, convos, messages, content, profiles, leads, settings, tombstones, health] = await Promise.all([
     sb.from("projects").select("*"),
     sb.from("tasks").select("*"),
     sb.rpc("vault_keys_list"),
@@ -355,6 +360,7 @@ export async function fetchAll(): Promise<Dataset | null> {
     sb.from("leads").select("*"),
     sb.from("workspace_settings").select("*"),
     sb.from("tombstones").select("tbl,id"),
+    sb.from("health_days").select("*").gte("day", healthCutoffKey),
   ]);
   const teamMsgs: Record<string, TeamMessage[]> = {};
   for (const r of (messages.data ?? []) as MessageRow[]) {
@@ -382,6 +388,7 @@ export async function fetchAll(): Promise<Dataset | null> {
     tombstones: new Set(
       (((tombstones.data ?? []) as Array<{ tbl: string; id: string }>)).map((r) => r.tbl + ":" + r.id),
     ),
+    health: ((health.data ?? []) as HealthRow[]).map(toHealth),
   };
 }
 
@@ -401,6 +408,12 @@ export async function saveSetting(key: string, value: unknown): Promise<void> {
   const sb = await getSupabase();
   if (!sb) return;
   await sb.from("workspace_settings").upsert({ key, value });
+}
+/** update only the hype (reactions) column — never touches synced health data */
+export async function saveHealthHype(who: number, day: string, hype: HypeMap): Promise<void> {
+  const sb = await getSupabase();
+  if (!sb) return;
+  await sb.from("health_days").update({ hype }).eq("who", who).eq("day", day);
 }
 export async function saveTask(t: Task): Promise<void> {
   const sb = await getSupabase();
@@ -515,6 +528,32 @@ interface SettingRow {
   value: unknown;
 }
 
+interface HealthRow {
+  who: number;
+  day: string;
+  steps: number;
+  sleep_min: number;
+  move_kcal: number;
+  exercise_min: number;
+  stand_hours: number;
+  workouts: HealthWorkout[];
+  hype: HypeMap;
+  synced_at: string;
+}
+
+const toHealth = (r: HealthRow): HealthDay => ({
+  who: r.who,
+  day: r.day,
+  steps: r.steps ?? 0,
+  sleepMin: r.sleep_min ?? 0,
+  moveKcal: r.move_kcal ?? 0,
+  exerciseMin: r.exercise_min ?? 0,
+  standHours: r.stand_hours ?? 0,
+  workouts: Array.isArray(r.workouts) ? r.workouts : [],
+  hype: r.hype && typeof r.hype === "object" ? r.hype : {},
+  syncedAt: r.synced_at ? new Date(r.synced_at).getTime() : 0,
+});
+
 export interface RealtimeHandlers {
   project: (ev: "upsert" | "delete", data: Project | string) => void;
   task: (ev: "upsert" | "delete", data: Task | string) => void;
@@ -531,6 +570,7 @@ export interface RealtimeHandlers {
   lead: (ev: "upsert" | "delete", data: Lead | string) => void;
   profile: (builderId: number, patch: Partial<Profile>) => void;
   setting: (key: string, value: unknown) => void;
+  health: (day: HealthDay) => void;
 }
 
 interface ChangePayload<Row> {
@@ -595,6 +635,9 @@ export async function subscribeRealtime(h: RealtimeHandlers): Promise<void> {
   });
   on<SettingRow>("workspace_settings", (e) => {
     if (e.eventType !== "DELETE") h.setting(e.new.key, e.new.value);
+  });
+  on<HealthRow>("health_days", (e) => {
+    if (e.eventType !== "DELETE") h.health(toHealth(e.new));
   });
   ch.subscribe();
   liveChannel = ch;

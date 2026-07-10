@@ -1,10 +1,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { defaultPrefs } from "../lib/profile";
 import type { StoreState } from "./types";
 import { createChatSlice } from "./slices/chat";
 import { createDashboardSlice } from "./slices/dashboard";
 import { createContentSlice } from "./slices/content";
 import { createDataSlice } from "./slices/data";
+import { createHealthSlice } from "./slices/health";
 import { createIntakeSlice } from "./slices/intake";
 import { createLeadsSlice } from "./slices/leads";
 import { createPrayersSlice } from "./slices/prayers";
@@ -41,6 +43,7 @@ export const persistSnapshot = (s: StoreState) => ({
   prayerLog: s.prayerLog,
   prayerPlace: s.prayerPlace,
   prayerNotified: s.prayerNotified,
+  health: s.health,
   lastHydrateAt: s.lastHydrateAt,
 });
 
@@ -61,6 +64,7 @@ export const useStore = create<StoreState>()(
       ...createLeadsSlice(set, get),
       ...createDashboardSlice(set, get),
       ...createPrayersSlice(set, get),
+      ...createHealthSlice(set, get),
     }),
     {
       name: "synthos-os-v2",
@@ -69,12 +73,21 @@ export const useStore = create<StoreState>()(
       // the user's local workspace is wiped. Version history:
       //   1: baseline (Phase C) — same shape as the unversioned v0 store
       //   2: convoReads added — existing chats start as read (no badge storm)
-      version: 2,
+      //   3: prefs gained prayers/fitness — backfill from defaults, else the
+      //      persisted prefs (restored wholesale) leave new toggles undefined
+      //      and those notification categories silently never fire
+      version: 3,
       migrate: (persisted, version) => {
         const p = persisted as Partial<StoreState>;
         if (version < 2 && p.teamMsgs && !p.convoReads) {
           const now = Date.now();
           p.convoReads = Object.fromEntries(Object.keys(p.teamMsgs).map((id) => [id, now]));
+        }
+        if (version < 3 && p.prefs) {
+          const defaults = defaultPrefs();
+          for (const id of Object.keys(p.prefs).map(Number)) {
+            p.prefs[id] = { ...(defaults[id] ?? defaults[0]), ...p.prefs[id] };
+          }
         }
         return p as PersistedState;
       },

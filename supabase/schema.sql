@@ -233,6 +233,34 @@ create table if not exists public.leads (
 );
 
 -- ---------------------------------------------------------------------------
+-- health_days (Apple Health team board — one row per builder per local day,
+-- synced from each phone by an iOS Shortcut hitting /api/health-sync)
+-- ---------------------------------------------------------------------------
+create table if not exists public.health_days (
+  who int not null,
+  day text not null,                -- YYYY-MM-DD in the builder's local time
+  steps int not null default 0,
+  sleep_min int not null default 0,
+  move_kcal int not null default 0,
+  exercise_min int not null default 0,
+  stand_hours int not null default 0,
+  workouts jsonb not null default '[]',
+  hype jsonb not null default '{}', -- workout reactions: {"0": {"💪": [1,2]}}
+  pushed jsonb not null default '{}', -- push dedupe: which transitions fired
+  synced_at timestamptz not null default now(),
+  primary key (who, day)
+);
+
+-- Per-builder sync tokens for the Shortcut (bearer-style). RLS with no
+-- policies: only the service role (API endpoints) can read or write them.
+create table if not exists public.health_tokens (
+  who int primary key,
+  token text not null unique,
+  created_at timestamptz not null default now()
+);
+alter table public.health_tokens enable row level security;
+
+-- ---------------------------------------------------------------------------
 -- workspace_settings (shared key/value prefs, e.g. kanban column labels)
 -- ---------------------------------------------------------------------------
 create table if not exists public.workspace_settings (
@@ -283,11 +311,12 @@ alter table public.content_items enable row level security;
 alter table public.push_subscriptions enable row level security;
 alter table public.leads         enable row level security;
 alter table public.workspace_settings enable row level security;
+alter table public.health_days   enable row level security;
 
 do $$
 declare t text;
 begin
-  foreach t in array array['profiles','projects','tasks','vault_keys','activity','wins','project_files','conversations','messages','content_items','push_subscriptions','leads','workspace_settings']
+  foreach t in array array['profiles','projects','tasks','vault_keys','activity','wins','project_files','conversations','messages','content_items','push_subscriptions','leads','workspace_settings','health_days']
   loop
     execute format('drop policy if exists %I on public.%I;', t || '_team_rw', t);
     execute format(
@@ -303,7 +332,7 @@ end $$;
 do $$
 declare t text;
 begin
-  foreach t in array array['projects','tasks','vault_keys','activity','wins','project_files','profiles','conversations','messages','content_items','leads','workspace_settings']
+  foreach t in array array['projects','tasks','vault_keys','activity','wins','project_files','profiles','conversations','messages','content_items','leads','workspace_settings','health_days']
   loop
     if not exists (
       select 1 from pg_publication_tables

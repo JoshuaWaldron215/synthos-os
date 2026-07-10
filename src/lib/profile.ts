@@ -62,6 +62,7 @@ export function defaultPrefs(): Record<number, Prefs> {
       shipped: true,
       content: false,
       prayers: true,
+      fitness: true,
       sound: false,
     };
   });

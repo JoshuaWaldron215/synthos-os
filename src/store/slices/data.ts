@@ -135,6 +135,9 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
           content: unionById(data.content, local.content),
           leads: unionById(data.leads, local.leads),
           profiles: mergeProfiles(local.profiles, data.profiles),
+          // phones write health rows through the API, never this device —
+          // the server copy is simply the truth
+          health: data.health,
         });
         // shared kanban column labels: server copy wins; a device holding a
         // rename the server never saw (pre-sync edits) pushes it up once
@@ -356,6 +359,7 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
             set((s) => ({ colLabels: { ...s.colLabels, ...(value as Partial<StoreState["colLabels"]>) } }));
           }
         },
+        health: (d) => get().receiveHealth(d),
       })
       .catch(() => {
         /* local mode or subscribe failure — polling-free local UX still works */

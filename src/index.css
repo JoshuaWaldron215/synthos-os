@@ -250,6 +250,39 @@ a {
   }
 }
 
+/* fitness: ticker line swap + race-bar shine */
+@keyframes fit-ticker {
+  0% {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  8%,
+  88% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes fit-shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(260%);
+  }
+}
+
+/* without motion the shine would park as a static streak — hide it instead */
+@media (prefers-reduced-motion: reduce) {
+  .fit-shine {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
