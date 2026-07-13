@@ -57,6 +57,7 @@ create table if not exists public.tasks (
   due bigint,
   done_at bigint,
   attachments jsonb,
+  client_visible boolean not null default false,
   updated_at timestamptz not null default now()
 );
 
@@ -171,6 +172,7 @@ create table if not exists public.project_files (
   size bigint not null default 0,
   path text not null,
   who int not null default 0,
+  client_visible boolean not null default false,
   created_at bigint not null
 );
 
@@ -199,6 +201,7 @@ create table if not exists public.messages (
   at bigint,
   attachments jsonb,
   reactions jsonb,
+  guest text, -- client-portal visitor name (who is -1 for guest messages)
   created_at timestamptz not null default now()
 );
 create index if not exists messages_convo_at_idx on public.messages (convo, at);
@@ -230,6 +233,25 @@ create table if not exists public.leads (
   next_follow_up bigint,
   who int not null default 0,
   created_at bigint not null
+);
+
+-- ---------------------------------------------------------------------------
+-- client portal (one revocable public status link per project; the token is
+-- the visitor's only credential — public reads go through /api/portal)
+-- ---------------------------------------------------------------------------
+create table if not exists public.portal_links (
+  proj text primary key references public.projects (id) on delete cascade,
+  token text not null unique,
+  progress int not null default 0,   -- team-controlled % shown on the portal
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.portal_updates (
+  id text primary key,
+  proj text not null references public.projects (id) on delete cascade,
+  who int not null default 0,
+  body text not null,
+  at bigint not null
 );
 
 -- ---------------------------------------------------------------------------
@@ -312,11 +334,13 @@ alter table public.push_subscriptions enable row level security;
 alter table public.leads         enable row level security;
 alter table public.workspace_settings enable row level security;
 alter table public.health_days   enable row level security;
+alter table public.portal_links  enable row level security;
+alter table public.portal_updates enable row level security;
 
 do $$
 declare t text;
 begin
-  foreach t in array array['profiles','projects','tasks','vault_keys','activity','wins','project_files','conversations','messages','content_items','push_subscriptions','leads','workspace_settings','health_days']
+  foreach t in array array['profiles','projects','tasks','vault_keys','activity','wins','project_files','conversations','messages','content_items','push_subscriptions','leads','workspace_settings','health_days','portal_links','portal_updates']
   loop
     execute format('drop policy if exists %I on public.%I;', t || '_team_rw', t);
     execute format(
@@ -332,7 +356,7 @@ end $$;
 do $$
 declare t text;
 begin
-  foreach t in array array['projects','tasks','vault_keys','activity','wins','project_files','profiles','conversations','messages','content_items','leads','workspace_settings','health_days']
+  foreach t in array array['projects','tasks','vault_keys','activity','wins','project_files','profiles','conversations','messages','content_items','leads','workspace_settings','health_days','portal_updates']
   loop
     if not exists (
       select 1 from pg_publication_tables

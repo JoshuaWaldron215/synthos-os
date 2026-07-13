@@ -14,6 +14,7 @@ import type {
   MessageAttachment,
   NotifCategory,
   NotifItem,
+  PortalUpdate,
   Prefs,
   Priority,
   Profile,
@@ -29,6 +30,7 @@ import type { ThemePref } from "../lib/theme";
 import type { HealthDay } from "../lib/health";
 import type { PrayerName, PrayerPlace } from "../lib/prayers";
 import type { DashboardItem, WidgetKey } from "./slices/dashboard";
+import type { PortalState as PortalSliceState } from "./slices/portal";
 
 // Full store contract. State and actions are implemented in domain slices
 // (src/store/slices/*) and combined in useStore.ts.
@@ -132,6 +134,9 @@ export interface StoreState {
   health: HealthDay[];
   healthToken: string | null;
 
+  // client portal (per-project public status link, team controls)
+  portals: Record<string, PortalSliceState>;
+
   // ui / shell actions
   setCurrentUser: (id: number) => void;
   toggleSidebar: () => void;
@@ -185,6 +190,7 @@ export interface StoreState {
 
   // project files
   addFile: (f: ProjectFile) => void;
+  patchFile: (id: string, patch: Partial<ProjectFile>) => void;
   deleteFile: (f: ProjectFile) => void;
 
   // wins
@@ -296,6 +302,16 @@ export interface StoreState {
   receiveHealth: (d: HealthDay) => void;
   toggleHype: (who: number, day: string, workoutIdx: number, emoji: string) => void;
   fetchHealthToken: () => Promise<void>;
+
+  // portal actions
+  loadPortal: (proj: string) => Promise<void>;
+  enablePortal: (proj: string) => void;
+  rotatePortal: (proj: string) => void;
+  disablePortal: (proj: string) => void;
+  setPortalPct: (proj: string, pct: number) => void;
+  postPortalUpdate: (proj: string, body: string) => void;
+  deletePortalUpdate: (proj: string, id: string) => void;
+  receivePortalUpdate: (u: PortalUpdate) => void;
   fillSample: () => void;
   analyzeIntake: () => void;
   cycleAssignee: (i: number) => void;

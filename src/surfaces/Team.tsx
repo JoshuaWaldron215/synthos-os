@@ -218,12 +218,15 @@ export function Team() {
   let headerSub = "";
   let headerDot = "#2FC197";
   if (channel) {
-    headerName = "# " + channel.name;
+    headerName = (channel.type === "client" ? "" : "# ") + channel.name;
     const memberCount = channel.members.length;
     const guestCount = channel.guests.length;
     headerSub = `${memberCount} member${memberCount === 1 ? "" : "s"}`;
-    if (guestCount) headerSub += ` · ${guestCount} guest${guestCount === 1 ? "" : "s"}`;
-    if (channel.proj) headerSub += ` · ${projectName(channel.proj) ?? "project"}`;
+    if (channel.type === "client") headerSub = "client thread — replies show on the portal";
+    else {
+      if (guestCount) headerSub += ` · ${guestCount} guest${guestCount === 1 ? "" : "s"}`;
+      if (channel.proj) headerSub += ` · ${projectName(channel.proj) ?? "project"}`;
+    }
   } else if (dm) {
     const s = statusMeta(effectiveUser(dm.user, profiles).status);
     headerName = dm.name;
@@ -283,7 +286,7 @@ export function Team() {
               const unread = activeConvo === c.id ? 0 : convoUnread(teamMsgs[c.id], convoReads[c.id] ?? 0, currentUserId);
               return (
                 <button key={c.id} onClick={() => selectConvo(c.id)} style={convoItemStyle(activeConvo === c.id)}>
-                  <span style={{ fontSize: 15, color: "rgba(var(--ink-rgb),.55)", fontWeight: 700 }}>#</span>
+                  <span style={{ fontSize: c.type === "client" ? 13 : 15, color: "rgba(var(--ink-rgb),.55)", fontWeight: 700 }}>{c.type === "client" ? "💬" : "#"}</span>
                   <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: unread ? 700 : undefined }}>{c.name}</span>
                   {unread > 0 && <UnreadPill n={unread} />}
                   {c.proj && <span title={projectName(c.proj)} style={{ width: 7, height: 7, borderRadius: "50%", background: "#60C8FF", flex: "0 0 auto" }} />}
@@ -400,15 +403,29 @@ export function Team() {
                   style={{ display: "flex", justifyContent: me ? "flex-end" : "flex-start", gap: 8, alignItems: "flex-start" }}
                 >
                   {!me && (
-                    <button onClick={() => openProfile(m.who)} title="view profile" style={{ display: "flex", border: "none", background: "transparent", padding: 0, cursor: "pointer" }}>
-                      <Avatar id={m.who} size={26} presence />
-                    </button>
+                    m.guest ? (
+                      <span style={{ width: 26, height: 26, borderRadius: "50%", background: "linear-gradient(135deg, var(--lav-dot), var(--sky-dot))", color: "#0B0F19", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, flex: "0 0 auto" }}>
+                        {m.guest.slice(0, 1).toUpperCase()}
+                      </span>
+                    ) : (
+                      <button onClick={() => openProfile(m.who)} title="view profile" style={{ display: "flex", border: "none", background: "transparent", padding: 0, cursor: "pointer" }}>
+                        <Avatar id={m.who} size={26} presence />
+                      </button>
+                    )
                   )}
                   <div style={{ display: "flex", flexDirection: "column", alignItems: me ? "flex-end" : "flex-start", maxWidth: "80%" }}>
                     {!me && (
-                      <button onClick={() => openProfile(m.who)} title="view profile" style={{ border: "none", background: "transparent", padding: 0, cursor: "pointer", fontFamily: "inherit", fontSize: 11.5, fontWeight: 600, color: "rgba(var(--ink-rgb),.5)", margin: "0 0 3px 2px" }}>
-                        {u.name} · {whenLabel(m.at, m.time)}
-                      </button>
+                      m.guest ? (
+                        <span style={{ fontSize: 11.5, fontWeight: 600, color: "rgba(var(--ink-rgb),.5)", margin: "0 0 3px 2px", display: "flex", alignItems: "center", gap: 5 }}>
+                          {m.guest}
+                          <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: "#1F8F6E", background: "rgba(126,230,193,.22)", padding: "1px 6px", borderRadius: 5 }}>client</span>
+                          · {whenLabel(m.at, m.time)}
+                        </span>
+                      ) : (
+                        <button onClick={() => openProfile(m.who)} title="view profile" style={{ border: "none", background: "transparent", padding: 0, cursor: "pointer", fontFamily: "inherit", fontSize: 11.5, fontWeight: 600, color: "rgba(var(--ink-rgb),.5)", margin: "0 0 3px 2px" }}>
+                          {u.name} · {whenLabel(m.at, m.time)}
+                        </button>
+                      )
                     )}
                     <div style={{ display: "flex", flexDirection: me ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
                       <div style={{ display: "flex", flexDirection: "column", alignItems: me ? "flex-end" : "flex-start", gap: 6, minWidth: 0 }}>

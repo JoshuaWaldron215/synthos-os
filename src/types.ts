@@ -45,6 +45,8 @@ export interface ProjectFile {
   path: string;
   who: number;
   createdAt: number;
+  /** shared on the project's client portal */
+  clientVisible?: boolean;
 }
 
 export interface Task {
@@ -62,6 +64,8 @@ export interface Task {
   doneAt?: number | null;
   /** files attached to the task (blobs live in Storage, like chat attachments) */
   attachments?: MessageAttachment[];
+  /** shown (title + done state only) on the project's client portal */
+  clientVisible?: boolean;
 }
 
 export interface VaultKey {
@@ -153,17 +157,29 @@ export interface TeamMessage {
   at?: number;
   attachments?: MessageAttachment[];
   reactions?: Record<string, number[]>;
+  /** portal visitor's display name — set on client-authored messages (who -1) */
+  guest?: string;
 }
 
 export interface Conversation {
   id: string;
-  /** dm rows exist server-side with canonical pair ids (dm-<lo>-<hi>) */
-  type: "channel" | "dm";
+  /** dm rows exist server-side with canonical pair ids (dm-<lo>-<hi>);
+   *  client rows (portal-<proj>) carry the project's portal thread */
+  type: "channel" | "dm" | "client";
   name: string;
   proj?: string;
   members: number[];
   guests: string[];
   system?: boolean;
+}
+
+/** curated client-facing update shown on a project's portal */
+export interface PortalUpdate {
+  id: string;
+  proj: string;
+  who: number;
+  body: string;
+  at: number;
 }
 
 export type ColLabels = Record<ColKey, string>;

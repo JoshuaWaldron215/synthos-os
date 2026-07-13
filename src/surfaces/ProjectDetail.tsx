@@ -1,4 +1,4 @@
-import { useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Avatar } from "../components/Avatar";
 import { ConfirmDialog } from "../components/ConfirmDialog";
@@ -15,8 +15,8 @@ import { useStore } from "../store/useStore";
 import { useUser } from "../lib/useUser";
 import type { ProjectStatus, VaultKey } from "../types";
 
-type Tab = "overview" | "tasks" | "vault" | "activity" | "files";
-const TABS: Tab[] = ["overview", "tasks", "vault", "activity", "files"];
+type Tab = "overview" | "tasks" | "vault" | "activity" | "files" | "portal";
+const TABS: Tab[] = ["overview", "tasks", "vault", "activity", "files", "portal"];
 const STATUS: ProjectStatus[] = ["in progress", "in qa", "blocked", "shipped"];
 
 function InlineText({
@@ -351,6 +351,7 @@ export function ProjectDetail() {
       {tab === "vault" && <ProjectVault projId={pid} />}
       {tab === "activity" && <ProjectActivity projId={pid} />}
       {tab === "files" && <ProjectFiles projId={pid} />}
+      {tab === "portal" && <ProjectPortal projId={pid} />}
     </div>
   );
 }
@@ -617,6 +618,184 @@ function ProjectActivity({ projId }: { projId: string }) {
       ) : (
         activity.map((a) => <ActivityRow key={a.id} who={a.who} action={a.action} target={a.target} when={whenLabel(a.at, a.time)} />)
       )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// client portal controls: the public status link, its progress bar, and the
+// curated updates feed. Milestones come from tasks flagged "show to client";
+// shared files from the toggle in the files tab.
+// ---------------------------------------------------------------------------
+function ProjectPortal({ projId }: { projId: string }) {
+  const portal = useStore((s) => s.portals[projId]);
+  const loadPortal = useStore((s) => s.loadPortal);
+  const enablePortal = useStore((s) => s.enablePortal);
+  const rotatePortal = useStore((s) => s.rotatePortal);
+  const disablePortal = useStore((s) => s.disablePortal);
+  const setPortalPct = useStore((s) => s.setPortalPct);
+  const postPortalUpdate = useStore((s) => s.postPortalUpdate);
+  const deletePortalUpdate = useStore((s) => s.deletePortalUpdate);
+  const copy = useStore((s) => s.copy);
+  // select stable references; derive in render (a filter() inside the
+  // selector returns a fresh array every snapshot → infinite re-render)
+  const allTasks = useStore((s) => s.tasks);
+  const flaggedTasks = allTasks.filter((t) => t.proj === projId && t.clientVisible);
+  const sharedFiles = useStore((s) => s.files.reduce((n, f) => n + (f.proj === projId && f.clientVisible ? 1 : 0), 0));
+
+  const [draft, setDraft] = useState("");
+  const [confirmOff, setConfirmOff] = useState(false);
+  useEffect(() => {
+    void loadPortal(projId);
+  }, [projId, loadPortal]);
+
+  const url = portal?.token ? window.location.origin + "/c/" + portal.token : null;
+  const doneFlagged = flaggedTasks.filter((t) => t.col === "done").length;
+
+  if (!portal?.loaded) {
+    return <div style={{ ...cardStyle, textAlign: "center", color: "rgba(var(--ink-rgb),.5)", fontSize: 13.5 }}>loading portal…</div>;
+  }
+
+  if (!portal.token) {
+    return (
+      <div style={{ ...cardStyle, textAlign: "center", padding: "36px 24px" }}>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}>
+          <Icon name="link" size={26} color="rgba(var(--ink-rgb),.4)" />
+        </div>
+        <div style={{ fontSize: 15.5, fontWeight: 700, marginBottom: 5 }}>no client portal yet</div>
+        <p style={{ margin: "0 auto 18px", fontSize: 13.5, color: "rgba(var(--ink-rgb),.55)", maxWidth: 420, lineHeight: 1.55 }}>
+          a private branded page for this client — live status, progress, curated updates, shared files and a message
+          thread that lands right in your team chat.
+        </p>
+        <button onClick={() => enablePortal(projId)} style={{ background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 12, padding: "11px 18px", fontSize: 13.5, fontWeight: 700, fontFamily: "inherit" }}>
+          create portal link ✦
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16, maxWidth: 720 }}>
+      {/* the link */}
+      <div style={cardStyle}>
+        <div style={sectionLabel}>the link</div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 12 }}>
+          <code style={{ flex: "1 1 260px", minWidth: 0, fontSize: 12.5, background: "rgba(var(--ink-rgb),.045)", border: "1px solid rgba(var(--ink-rgb),.09)", borderRadius: 10, padding: "9px 12px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {url}
+          </code>
+          <button className="hov-soft" onClick={() => copy(url!, "portal link")} title="copy link" style={{ display: "flex", background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 10, padding: 9 }}>
+            <Icon name="copy" size={15} color="rgba(var(--ink-rgb),.55)" />
+          </button>
+          <a href={url!} target="_blank" rel="noreferrer" className="hov-soft" title="open the portal ↗" style={{ display: "flex", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 10, padding: 9 }}>
+            <Icon name="arrowr" size={15} color="rgba(var(--ink-rgb),.55)" />
+          </a>
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <button className="hov-soft" onClick={() => rotatePortal(projId)} style={{ background: "transparent", border: "1px solid rgba(var(--ink-rgb),.12)", borderRadius: 10, padding: "8px 13px", fontSize: 12.5, fontWeight: 600, color: "var(--ink)", fontFamily: "inherit" }}>
+            regenerate link
+          </button>
+          <button className="hov-soft" onClick={() => setConfirmOff(true)} style={{ background: "transparent", border: "1px solid rgba(240,120,90,.4)", borderRadius: 10, padding: "8px 13px", fontSize: 12.5, fontWeight: 600, color: "#C6663F", fontFamily: "inherit" }}>
+            turn off portal
+          </button>
+        </div>
+        <ConfirmDialog
+          open={confirmOff}
+          title="turn off the portal"
+          body="the client's link goes dead immediately. your updates and their messages stay saved — you can mint a fresh link any time."
+          onConfirm={() => disablePortal(projId)}
+          onClose={() => setConfirmOff(false)}
+        />
+      </div>
+
+      {/* progress */}
+      <div style={cardStyle}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+          <div style={sectionLabel}>progress shown to the client</div>
+          <span style={{ fontSize: 20, fontWeight: 800, fontVariantNumeric: "tabular-nums" }}>{portal.progress}%</span>
+        </div>
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={portal.progress}
+          onChange={(e) => setPortalPct(projId, Number(e.target.value))}
+          style={{ width: "100%", accentColor: "#33ADEE", margin: "10px 0 12px" }}
+        />
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <button
+            className="hov-soft"
+            onClick={() => flaggedTasks.length && setPortalPct(projId, Math.round((doneFlagged / flaggedTasks.length) * 100))}
+            disabled={!flaggedTasks.length}
+            style={{ background: "transparent", border: "1px solid rgba(var(--ink-rgb),.12)", borderRadius: 10, padding: "7px 12px", fontSize: 12.5, fontWeight: 600, color: flaggedTasks.length ? "var(--ink)" : "rgba(var(--ink-rgb),.35)", fontFamily: "inherit" }}
+          >
+            suggest from milestones ({doneFlagged}/{flaggedTasks.length})
+          </button>
+          <span style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.45)" }}>
+            {flaggedTasks.length} milestone{flaggedTasks.length === 1 ? "" : "s"} · {sharedFiles} shared file{sharedFiles === 1 ? "" : "s"}
+          </span>
+        </div>
+        <p style={{ margin: "12px 0 0", fontSize: 12, color: "rgba(var(--ink-rgb),.42)", lineHeight: 1.5 }}>
+          milestones = tasks with "show on the client portal" · shared files = the link toggle in the files tab · marking
+          the project <b>shipped</b> locks the bar at 100% with a celebration.
+        </p>
+      </div>
+
+      {/* updates */}
+      <div style={cardStyle}>
+        <div style={sectionLabel}>updates the client sees</div>
+        <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+          <textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                postPortalUpdate(projId, draft);
+                setDraft("");
+              }
+            }}
+            placeholder="✦ this week: shipped the auth flow, payments up next…"
+            rows={2}
+            style={{ flex: 1, border: "1px solid rgba(var(--ink-rgb),.12)", borderRadius: 12, padding: "10px 13px", fontSize: 14, fontFamily: "inherit", background: "var(--card)", color: "var(--ink)", resize: "none" }}
+          />
+          <button
+            onClick={() => {
+              postPortalUpdate(projId, draft);
+              setDraft("");
+            }}
+            disabled={!draft.trim()}
+            style={{ alignSelf: "flex-end", background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 11, padding: "10px 15px", fontSize: 13, fontWeight: 700, fontFamily: "inherit", opacity: draft.trim() ? 1 : 0.45 }}
+          >
+            post
+          </button>
+        </div>
+        {portal.updates.length === 0 ? (
+          <div style={{ fontSize: 13, color: "rgba(var(--ink-rgb),.45)" }}>nothing posted yet — the client sees "first update coming soon ✦"</div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {portal.updates.map((u) => (
+              <PortalUpdateRow key={u.id} body={u.body} at={u.at} who={u.who} onDelete={() => deletePortalUpdate(projId, u.id)} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PortalUpdateRow({ body, at, who, onDelete }: { body: string; at: number; who: number; onDelete: () => void }) {
+  const [confirm, setConfirm] = useState(false);
+  return (
+    <div style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "10px 12px", border: "1px solid rgba(var(--ink-rgb),.07)", borderRadius: 12 }}>
+      <Avatar id={who} size={24} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 13.5, lineHeight: 1.5, whiteSpace: "pre-wrap" }}>{body}</div>
+        <div style={{ fontSize: 11, color: "rgba(var(--ink-rgb),.42)", marginTop: 2 }}>{whenLabel(at)}</div>
+      </div>
+      <button className="hov-soft" onClick={() => setConfirm(true)} title="remove from the portal" style={{ display: "flex", background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 8, padding: 6 }}>
+        <Icon name="trash" size={13} color="rgba(var(--ink-rgb),.5)" />
+      </button>
+      <ConfirmDialog open={confirm} title="remove update" body="the client will no longer see this update." onConfirm={onDelete} onClose={() => setConfirm(false)} />
     </div>
   );
 }

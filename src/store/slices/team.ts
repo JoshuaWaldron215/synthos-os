@@ -184,8 +184,8 @@ export const createTeamSlice = (set: StoreSet, get: StoreGet) => ({
     const st = get();
     if (msg.who === st.currentUserId) return;
     const convo = st.conversations.find((c) => c.id === convoId);
-    const label = !convo ? "team chat" : convo.type === "dm" ? "dm" : "#" + convo.name;
-    const sender = effectiveUser(msg.who, st.profiles).name;
+    const label = !convo ? "team chat" : convo.type === "dm" ? "dm" : convo.type === "client" ? convo.name : "#" + convo.name;
+    const sender = msg.guest ? "💬 " + msg.guest + " (client)" : effectiveUser(msg.who, st.profiles).name;
     const body = label + ": " + (msg.text || "sent an attachment");
     st.notifyCategory("mentions", { dot: "#8A84F0", title: sender, body, tag: "msg-" + convoId, url: "/team?c=" + convoId });
   },

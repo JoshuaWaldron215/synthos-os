@@ -19,7 +19,9 @@ export function ProjectFiles({ projId }: { projId: string }) {
   const allFiles = useStore((s) => s.files);
   const files = allFiles.filter((f) => f.proj === projId);
   const addFile = useStore((s) => s.addFile);
+  const patchFile = useStore((s) => s.patchFile);
   const deleteFile = useStore((s) => s.deleteFile);
+  const showToastMsg = useStore((s) => s.showToast);
   const currentUserId = useStore((s) => s.currentUserId);
   const showToast = useStore((s) => s.showToast);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -118,6 +120,17 @@ export function ProjectFiles({ projId }: { projId: string }) {
                 </div>
               </div>
               <Avatar id={f.who} size={24} />
+              <button
+                className="hov-soft"
+                onClick={() => {
+                  patchFile(f.id, { clientVisible: !f.clientVisible });
+                  showToastMsg(f.clientVisible ? "hidden from the client portal" : "shared on the client portal ✦");
+                }}
+                title={f.clientVisible ? "shared on the client portal — click to hide" : "share on the client portal"}
+                style={{ display: "flex", background: f.clientVisible ? "rgba(96,200,255,.14)" : "transparent", border: f.clientVisible ? "1px solid rgba(96,200,255,.55)" : "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 9, padding: 8 }}
+              >
+                <Icon name="link" size={16} color={f.clientVisible ? "#33ADEE" : "rgba(var(--ink-rgb),.55)"} />
+              </button>
               <button className="hov-soft" onClick={() => open(f)} title="preview in a new tab" style={{ display: "flex", background: "transparent", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 9, padding: 8 }}>
                 <Icon name="eye" size={16} color="rgba(var(--ink-rgb),.55)" />
               </button>

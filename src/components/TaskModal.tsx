@@ -144,6 +144,23 @@ function TaskModalInner({ t }: { t: Task }) {
         style={{ width: "100%", border: "1px solid rgba(var(--ink-rgb),.1)", borderRadius: 12, padding: "10px 12px", fontSize: 16, fontFamily: "inherit", color: "var(--ink)", marginBottom: 18, background: "var(--card)", boxSizing: "border-box" }}
       />
 
+      {/* milestone on the project's client portal (title + done state only) */}
+      {t.proj && (
+        <button
+          onClick={() => patchTask(t.id, { clientVisible: !t.clientVisible })}
+          className="hov-soft"
+          style={{ display: "flex", alignItems: "center", gap: 9, width: "100%", background: t.clientVisible ? "rgba(96,200,255,.09)" : "transparent", border: t.clientVisible ? "1px solid rgba(96,200,255,.5)" : "1px dashed rgba(var(--ink-rgb),.16)", borderRadius: 12, padding: "11px 13px", fontFamily: "inherit", marginBottom: 18, cursor: "pointer", textAlign: "left" }}
+        >
+          <Icon name="link" size={15} color={t.clientVisible ? "#33ADEE" : "rgba(var(--ink-rgb),.45)"} />
+          <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: t.clientVisible ? "var(--ink)" : "rgba(var(--ink-rgb),.55)" }}>
+            {t.clientVisible ? "shown on the client portal as a milestone" : "show on the client portal"}
+          </span>
+          <span style={{ width: 32, height: 18, borderRadius: 999, background: t.clientVisible ? "#33ADEE" : "rgba(var(--ink-rgb),.15)", position: "relative", flex: "0 0 auto", transition: "background .15s" }}>
+            <span style={{ position: "absolute", top: 2, left: t.clientVisible ? 16 : 2, width: 14, height: 14, borderRadius: "50%", background: "#fff", transition: "left .15s" }} />
+          </span>
+        </button>
+      )}
+
       <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600, marginBottom: 8 }}>attachments</div>
       <div style={{ marginBottom: 18 }}>
         {(t.attachments ?? []).map((a) => (

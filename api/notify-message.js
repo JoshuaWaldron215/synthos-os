@@ -31,9 +31,15 @@ export default async function handler(req, res) {
   const members = (convo?.members ?? [0, 1, 2]).filter((m) => m !== record.who);
   if (!members.length) return res.json({ ok: true, sent: 0, total: 0 });
 
-  const { data: profile } = await sb.from("profiles").select("name").eq("builder_id", record.who).single();
-  const sender = profile?.name || "teammate";
-  const label = !convo ? "team chat" : convo.type === "dm" ? "dm" : "#" + convo.name;
+  // guest rows come from a client portal (who is -1, guest carries the name)
+  let sender;
+  if (record.guest) {
+    sender = "💬 " + record.guest + " (client)";
+  } else {
+    const { data: profile } = await sb.from("profiles").select("name").eq("builder_id", record.who).single();
+    sender = profile?.name || "teammate";
+  }
+  const label = !convo ? "team chat" : convo.type === "dm" ? "dm" : convo.type === "client" ? convo.name : "#" + convo.name;
 
   const { data: subs } = await sb.from("push_subscriptions").select("endpoint, sub").in("who", members);
   const webpush = setupWebPush();

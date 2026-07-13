@@ -7,6 +7,7 @@ import type {
   Conversation,
   Lead,
   MessageAttachment,
+  PortalUpdate,
   Profile,
   Project,
   ProjectFile,
@@ -105,6 +106,7 @@ interface TaskRow {
   due: number | null;
   done_at: number | null;
   attachments: MessageAttachment[] | null;
+  client_visible: boolean | null;
 }
 const toTask = (r: TaskRow): Task => ({
   id: r.id,
@@ -118,6 +120,7 @@ const toTask = (r: TaskRow): Task => ({
   due: r.due,
   doneAt: r.done_at,
   attachments: r.attachments?.length ? r.attachments : undefined,
+  clientVisible: r.client_visible || undefined,
 });
 const fromTask = (t: Task): TaskRow => ({
   id: t.id,
@@ -132,6 +135,7 @@ const fromTask = (t: Task): TaskRow => ({
   due: t.due ?? null,
   done_at: t.doneAt ?? null,
   attachments: t.attachments?.length ? t.attachments : null,
+  client_visible: t.clientVisible ?? false,
 });
 
 interface FileRow {
@@ -143,6 +147,7 @@ interface FileRow {
   path: string;
   who: number;
   created_at: number;
+  client_visible: boolean | null;
 }
 const toFile = (r: FileRow): ProjectFile => ({
   id: r.id,
@@ -153,6 +158,7 @@ const toFile = (r: FileRow): ProjectFile => ({
   path: r.path,
   who: r.who,
   createdAt: r.created_at,
+  clientVisible: r.client_visible || undefined,
 });
 const fromFile = (f: ProjectFile): FileRow => ({
   id: f.id,
@@ -163,6 +169,7 @@ const fromFile = (f: ProjectFile): FileRow => ({
   path: f.path,
   who: f.who,
   created_at: f.createdAt,
+  client_visible: f.clientVisible ?? false,
 });
 
 interface WinRow {
@@ -209,7 +216,7 @@ interface ConvoRow {
 }
 const toConvo = (r: ConvoRow): Conversation => ({
   id: r.id,
-  type: r.type === "dm" ? "dm" : "channel",
+  type: r.type === "dm" ? "dm" : r.type === "client" ? "client" : "channel",
   name: r.name,
   proj: r.proj ?? undefined,
   members: r.members ?? [],
@@ -234,11 +241,13 @@ interface MessageRow {
   at: number | null;
   attachments: MessageAttachment[] | null;
   reactions: Record<string, number[]> | null;
+  guest: string | null;
 }
 const toMessage = (r: MessageRow): TeamMessage => {
   const m: TeamMessage = { id: r.id, who: r.who, text: r.text, at: r.at ?? undefined };
   if (r.attachments?.length) m.attachments = r.attachments;
   if (r.reactions && Object.keys(r.reactions).length) m.reactions = r.reactions;
+  if (r.guest) m.guest = r.guest;
   return m;
 };
 const fromMessage = (convo: string, m: TeamMessage, id: string): MessageRow => ({
@@ -249,6 +258,7 @@ const fromMessage = (convo: string, m: TeamMessage, id: string): MessageRow => (
   at: m.at ?? null,
   attachments: m.attachments ?? null,
   reactions: m.reactions ?? null,
+  guest: m.guest ?? null,
 });
 
 interface ContentRow {
@@ -415,6 +425,58 @@ export async function saveHealthHype(who: number, day: string, hype: HypeMap): P
   if (!sb) return;
   await sb.from("health_days").update({ hype }).eq("who", who).eq("day", day);
 }
+
+// ---- client portal (team side; visitors go through /api/portal) ------------
+
+export interface PortalLink {
+  proj: string;
+  token: string;
+  progress: number;
+}
+
+export async function fetchPortal(proj: string): Promise<{ link: PortalLink | null; updates: PortalUpdate[] } | null> {
+  const sb = await getSupabase();
+  if (!sb) return null;
+  const [{ data: link }, { data: updates }] = await Promise.all([
+    sb.from("portal_links").select("proj, token, progress").eq("proj", proj).maybeSingle(),
+    sb.from("portal_updates").select("*").eq("proj", proj).order("at", { ascending: false }),
+  ]);
+  return {
+    link: (link as PortalLink | null) ?? null,
+    updates: (updates ?? []) as PortalUpdate[],
+  };
+}
+
+/** create (or rotate) the portal link; a fresh token invalidates the old URL */
+export async function savePortalLink(proj: string, token: string, progress: number): Promise<void> {
+  const sb = await getSupabase();
+  if (!sb) return;
+  await sb.from("portal_links").upsert({ proj, token, progress });
+}
+
+export async function setPortalProgress(proj: string, progress: number): Promise<void> {
+  const sb = await getSupabase();
+  if (!sb) return;
+  await sb.from("portal_links").update({ progress }).eq("proj", proj);
+}
+
+export async function removePortalLink(proj: string): Promise<void> {
+  const sb = await getSupabase();
+  if (!sb) return;
+  await sb.from("portal_links").delete().eq("proj", proj);
+}
+
+export async function savePortalUpdate(u: PortalUpdate): Promise<void> {
+  const sb = await getSupabase();
+  if (!sb) return;
+  await sb.from("portal_updates").upsert(u);
+}
+
+export async function removePortalUpdate(id: string): Promise<void> {
+  const sb = await getSupabase();
+  if (!sb) return;
+  await sb.from("portal_updates").delete().eq("id", id);
+}
 export async function saveTask(t: Task): Promise<void> {
   const sb = await getSupabase();
   if (!sb) return;
@@ -571,6 +633,7 @@ export interface RealtimeHandlers {
   profile: (builderId: number, patch: Partial<Profile>) => void;
   setting: (key: string, value: unknown) => void;
   health: (day: HealthDay) => void;
+  portalUpdate: (u: PortalUpdate) => void;
 }
 
 interface ChangePayload<Row> {
@@ -638,6 +701,9 @@ export async function subscribeRealtime(h: RealtimeHandlers): Promise<void> {
   });
   on<HealthRow>("health_days", (e) => {
     if (e.eventType !== "DELETE") h.health(toHealth(e.new));
+  });
+  on<PortalUpdate>("portal_updates", (e) => {
+    if (e.eventType !== "DELETE") h.portalUpdate(e.new);
   });
   ch.subscribe();
   liveChannel = ch;

@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { registerSW } from "virtual:pwa-register";
 // Self-hosted Plus Jakarta Sans (same weights the Google CDN served) — no
 // third-party font requests, works offline, and lets the CSP stay same-origin.
@@ -14,6 +14,7 @@ import "@fontsource/plus-jakarta-sans/600-italic.css";
 import "@fontsource/plus-jakarta-sans/700-italic.css";
 import "./index.css";
 import App from "./App.tsx";
+import { PortalRoute } from "./PortalRoute.tsx";
 import { AuthProvider } from "./components/AuthProvider";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
@@ -23,9 +24,18 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary scope="app">
       <BrowserRouter>
-        <AuthProvider>
-          <App />
-        </AuthProvider>
+        <Routes>
+          {/* the client portal is public — everything else stays behind auth */}
+          <Route path="/c/:token" element={<PortalRoute />} />
+          <Route
+            path="*"
+            element={
+              <AuthProvider>
+                <App />
+              </AuthProvider>
+            }
+          />
+        </Routes>
       </BrowserRouter>
     </ErrorBoundary>
   </StrictMode>

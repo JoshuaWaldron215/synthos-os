@@ -9,6 +9,7 @@ import { createDataSlice } from "./slices/data";
 import { createHealthSlice } from "./slices/health";
 import { createIntakeSlice } from "./slices/intake";
 import { createLeadsSlice } from "./slices/leads";
+import { createPortalSlice } from "./slices/portal";
 import { createPrayersSlice } from "./slices/prayers";
 import { createProfilesSlice } from "./slices/profiles";
 import { createTasksSlice } from "./slices/tasks";
@@ -65,6 +66,7 @@ export const useStore = create<StoreState>()(
       ...createDashboardSlice(set, get),
       ...createPrayersSlice(set, get),
       ...createHealthSlice(set, get),
+      ...createPortalSlice(set, get),
     }),
     {
       name: "synthos-os-v2",

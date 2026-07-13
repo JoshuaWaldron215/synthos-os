@@ -360,6 +360,7 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
           }
         },
         health: (d) => get().receiveHealth(d),
+        portalUpdate: (u) => get().receivePortalUpdate(u),
       })
       .catch(() => {
         /* local mode or subscribe failure — polling-free local UX still works */
@@ -461,6 +462,11 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
     set((s) => ({ files: s.files.concat(f) }));
     repo.saveFileMeta(f).catch(get().syncCatch("data write"));
     get().logActivity("uploaded", f.name, f.proj);
+  },
+  patchFile: (id: string, patch: Partial<ProjectFile>) => {
+    set((s) => ({ files: s.files.map((f) => (f.id === id ? { ...f, ...patch } : f)) }));
+    const updated = get().files.find((f) => f.id === id);
+    if (updated) repo.saveFileMeta(updated).catch(get().syncCatch("data write"));
   },
   deleteFile: (f: ProjectFile) => {
     set((s) => ({ files: s.files.filter((x) => x.id !== f.id) }));
