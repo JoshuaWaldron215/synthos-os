@@ -67,8 +67,7 @@ export function Portal() {
   const [name, setName] = useState(() => localStorage.getItem("synthos-portal-name") ?? "");
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
-  const threadEnd = useRef<HTMLDivElement>(null);
-  const firstLoad = useRef(true);
+  const threadBox = useRef<HTMLDivElement>(null);
 
   // public page, no store: follow the visitor's OS theme
   useEffect(() => {
@@ -96,11 +95,11 @@ export function Portal() {
     return () => clearInterval(id);
   }, [load]);
 
-  // keep the thread pinned to the newest message
+  // keep the thread box pinned to the newest message — scroll the BOX, never
+  // the page (scrollIntoView on load would yank visitors past the header)
   useEffect(() => {
-    if (!data?.messages.length) return;
-    threadEnd.current?.scrollIntoView({ behavior: firstLoad.current ? "auto" : "smooth", block: "nearest" });
-    firstLoad.current = false;
+    const box = threadBox.current;
+    if (box) box.scrollTop = box.scrollHeight;
   }, [data?.messages.length]);
 
   const send = async () => {
@@ -288,7 +287,7 @@ export function Portal() {
         <div style={{ ...card, ...stagger(6) }}>
           <div style={label}>message the team</div>
           {data.messages.length > 0 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: 360, overflowY: "auto", marginBottom: 14, paddingRight: 4 }}>
+            <div ref={threadBox} style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: 360, overflowY: "auto", marginBottom: 14, paddingRight: 4 }}>
               {data.messages.map((m, i) => (
                 <div key={i} style={{ display: "flex", justifyContent: m.client ? "flex-end" : "flex-start" }}>
                   <div style={{ maxWidth: "82%", padding: "10px 13px", fontSize: 13.5, lineHeight: 1.5, whiteSpace: "pre-wrap", borderRadius: m.client ? "14px 14px 4px 14px" : "14px 14px 14px 4px", background: m.client ? "var(--btn-ink)" : "rgba(var(--ink-rgb),.055)", color: m.client ? "#fff" : "var(--ink)" }}>
@@ -299,7 +298,6 @@ export function Portal() {
                   </div>
                 </div>
               ))}
-              <div ref={threadEnd} />
             </div>
           )}
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
