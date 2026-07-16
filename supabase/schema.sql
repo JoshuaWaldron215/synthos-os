@@ -131,6 +131,71 @@ grant execute on function public.vault_keys_list() to authenticated;
 grant execute on function public.vault_key_save(text, text, text, text) to authenticated;
 
 -- ---------------------------------------------------------------------------
+-- vault_logins — shared tool logins (IG, gmail, skool, …). Passwords are
+-- encrypted at rest exactly like vault_keys (same Supabase Vault key);
+-- reads/writes go through the security-definer RPCs below.
+-- ---------------------------------------------------------------------------
+create table if not exists public.vault_logins (
+  id text primary key,
+  tool text not null,
+  username text not null default '',
+  pass_enc bytea,
+  url text not null default '',
+  proj text not null default 'shared',
+  updated_at timestamptz not null default now()
+);
+
+create or replace function public.vault_logins_list()
+returns table (id text, tool text, username text, password text, url text, proj text)
+language sql
+security definer
+set search_path = public, extensions, vault
+as $$
+  select l.id,
+         l.tool,
+         l.username,
+         extensions.pgp_sym_decrypt(
+           l.pass_enc,
+           (select decrypted_secret from vault.decrypted_secrets where name = 'vault_keys_key')
+         ) as password,
+         l.url,
+         l.proj
+  from public.vault_logins l;
+$$;
+
+create or replace function public.vault_login_save(p_id text, p_tool text, p_username text, p_password text, p_url text, p_proj text)
+returns void
+language sql
+security definer
+set search_path = public, extensions, vault
+as $$
+  insert into public.vault_logins (id, tool, username, url, proj, pass_enc)
+  values (
+    p_id,
+    p_tool,
+    p_username,
+    p_url,
+    p_proj,
+    extensions.pgp_sym_encrypt(
+      p_password,
+      (select decrypted_secret from vault.decrypted_secrets where name = 'vault_keys_key')
+    )
+  )
+  on conflict (id) do update
+    set tool = excluded.tool,
+        username = excluded.username,
+        url = excluded.url,
+        proj = excluded.proj,
+        pass_enc = excluded.pass_enc,
+        updated_at = now();
+$$;
+
+revoke all on function public.vault_logins_list() from public, anon;
+revoke all on function public.vault_login_save(text, text, text, text, text, text) from public, anon;
+grant execute on function public.vault_logins_list() to authenticated;
+grant execute on function public.vault_login_save(text, text, text, text, text, text) to authenticated;
+
+-- ---------------------------------------------------------------------------
 -- activity (audit log)
 -- `at` is epoch ms, written by the app (src/store/slices/data.ts). The legacy
 -- `"time" text` column was dropped — it caused inserts to fail silently after
@@ -335,12 +400,13 @@ alter table public.leads         enable row level security;
 alter table public.workspace_settings enable row level security;
 alter table public.health_days   enable row level security;
 alter table public.portal_links  enable row level security;
+alter table public.vault_logins  enable row level security;
 alter table public.portal_updates enable row level security;
 
 do $$
 declare t text;
 begin
-  foreach t in array array['profiles','projects','tasks','vault_keys','activity','wins','project_files','conversations','messages','content_items','push_subscriptions','leads','workspace_settings','health_days','portal_links','portal_updates']
+  foreach t in array array['profiles','projects','tasks','vault_keys','activity','wins','project_files','conversations','messages','content_items','push_subscriptions','leads','workspace_settings','health_days','portal_links','portal_updates','vault_logins']
   loop
     execute format('drop policy if exists %I on public.%I;', t || '_team_rw', t);
     execute format(

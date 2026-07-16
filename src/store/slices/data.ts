@@ -14,6 +14,7 @@ import type {
   Task,
   TeamMessage,
   VaultKey,
+  VaultLogin,
   Win,
 } from "../../types";
 import type { StoreGet, StoreSet, StoreState } from "../types";
@@ -35,8 +36,8 @@ const unionById = <T extends { id: string }>(server: T[], local: T[]): T[] => {
 // failed (FK reject, offline, transient) eventually reaches the team instead
 // of being stranded on one device. Push-only — never deletes.
 function reconcileToServer(
-  server: { projects: Project[]; tasks: Task[]; keys: VaultKey[]; wins: Win[]; content: ContentItem[]; leads: Lead[] },
-  local: { projects: Project[]; tasks: Task[]; keys: VaultKey[]; wins: Win[]; content: ContentItem[]; leads: Lead[] },
+  server: { projects: Project[]; tasks: Task[]; keys: VaultKey[]; wins: Win[]; content: ContentItem[]; leads: Lead[]; logins: VaultLogin[] },
+  local: { projects: Project[]; tasks: Task[]; keys: VaultKey[]; wins: Win[]; content: ContentItem[]; leads: Lead[]; logins: VaultLogin[] },
 ): void {
   const missing = <T extends { id: string }>(srv: T[], loc: T[]): T[] => {
     const ids = new Set(srv.map((x) => x.id));
@@ -49,6 +50,7 @@ function reconcileToServer(
   missing(server.wins, local.wins).forEach((w) => repo.saveWin(w).catch(swallow));
   missing(server.content, local.content).forEach((c) => repo.saveContent(c).catch(swallow));
   missing(server.leads, local.leads).forEach((l) => repo.saveLead(l).catch(swallow));
+  missing(server.logins, local.logins).forEach((l) => repo.saveLogin(l).catch(swallow));
 }
 
 // Server messages win per id; locally-persisted messages the server has never
@@ -138,6 +140,7 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
           // phones write health rows through the API, never this device —
           // the server copy is simply the truth
           health: data.health,
+          logins: unionById(data.logins, local.logins),
         });
         // shared kanban column labels: server copy wins; a device holding a
         // rename the server never saw (pre-sync edits) pushes it up once

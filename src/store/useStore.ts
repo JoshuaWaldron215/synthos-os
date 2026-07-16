@@ -30,6 +30,7 @@ export const persistSnapshot = (s: StoreState) => ({
   notifications: s.notifications,
   projects: s.projects,
   keys: s.keys,
+  logins: s.logins,
   activity: s.activity,
   files: s.files,
   wins: s.wins,

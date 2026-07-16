@@ -14,6 +14,7 @@ import type {
   Task,
   TeamMessage,
   VaultKey,
+  VaultLogin,
   Win,
 } from "../types";
 
@@ -42,6 +43,8 @@ export interface Dataset {
   tombstones: Set<string>;
   /** Apple Health team board rows (last ~14 days) */
   health: HealthDay[];
+  /** shared tool logins (passwords decrypted via RPC) */
+  logins: VaultLogin[];
 }
 
 export const usingSupabase = isSupabaseConfigured;
@@ -356,7 +359,7 @@ export async function fetchAll(): Promise<Dataset | null> {
   if (!sb) return null;
   // health board only needs a rolling window (page shows today + this week)
   const healthCutoffKey = healthDateKey(new Date(Date.now() - 14 * 86_400_000));
-  const [projects, tasks, keys, activity, files, wins, convos, messages, content, profiles, leads, settings, tombstones, health] = await Promise.all([
+  const [projects, tasks, keys, activity, files, wins, convos, messages, content, profiles, leads, settings, tombstones, health, logins] = await Promise.all([
     sb.from("projects").select("*"),
     sb.from("tasks").select("*"),
     sb.rpc("vault_keys_list"),
@@ -371,6 +374,7 @@ export async function fetchAll(): Promise<Dataset | null> {
     sb.from("workspace_settings").select("*"),
     sb.from("tombstones").select("tbl,id"),
     sb.from("health_days").select("*").gte("day", healthCutoffKey),
+    sb.rpc("vault_logins_list"),
   ]);
   const teamMsgs: Record<string, TeamMessage[]> = {};
   for (const r of (messages.data ?? []) as MessageRow[]) {
@@ -399,6 +403,7 @@ export async function fetchAll(): Promise<Dataset | null> {
       (((tombstones.data ?? []) as Array<{ tbl: string; id: string }>)).map((r) => r.tbl + ":" + r.id),
     ),
     health: ((health.data ?? []) as HealthRow[]).map(toHealth),
+    logins: (logins.data ?? []) as VaultLogin[],
   };
 }
 
@@ -507,6 +512,25 @@ export async function removeKey(id: string): Promise<void> {
   const sb = await getSupabase();
   if (!sb) return;
   await sb.from("vault_keys").delete().eq("id", id);
+}
+/** password is encrypted server-side by the RPC — never lands in a column readable without the vault key */
+export async function saveLogin(l: VaultLogin): Promise<void> {
+  const sb = await getSupabase();
+  if (!sb) return;
+  const { error } = await sb.rpc("vault_login_save", {
+    p_id: l.id,
+    p_tool: l.tool,
+    p_username: l.username,
+    p_password: l.password,
+    p_url: l.url,
+    p_proj: l.proj,
+  });
+  if (error) throw error;
+}
+export async function removeLogin(id: string): Promise<void> {
+  const sb = await getSupabase();
+  if (!sb) return;
+  await sb.from("vault_logins").delete().eq("id", id);
 }
 export async function addActivity(a: AuditEntry): Promise<void> {
   const sb = await getSupabase();

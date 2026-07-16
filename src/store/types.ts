@@ -24,6 +24,7 @@ import type {
   Task,
   TeamMessage,
   VaultKey,
+  VaultLogin,
   Win,
 } from "../types";
 import type { ThemePref } from "../lib/theme";
@@ -85,6 +86,7 @@ export interface StoreState {
   // vault
   revealed: Record<string, boolean>;
   auditOpen: boolean;
+  logins: VaultLogin[];
 
   // chat (ask ai)
   chat: ChatMessage[];
@@ -228,6 +230,8 @@ export interface StoreState {
   cancelEditCol: () => void;
 
   // vault actions
+  addLogin: (input: { tool: string; username: string; password: string; url: string; proj: string }) => void;
+  deleteLogin: (id: string) => void;
   reveal: (id: string) => void;
   hide: (id: string) => void;
   copyEnv: () => void;

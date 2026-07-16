@@ -173,6 +173,16 @@ export interface Conversation {
   system?: boolean;
 }
 
+/** shared tool login (IG, gmail, skool…) — password encrypted at rest */
+export interface VaultLogin {
+  id: string;
+  tool: string;
+  username: string;
+  password: string;
+  url: string;
+  proj: string;
+}
+
 /** curated client-facing update shown on a project's portal */
 export interface PortalUpdate {
   id: string;
