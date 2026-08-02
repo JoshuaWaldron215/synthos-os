@@ -188,6 +188,7 @@ export function Settings() {
           <Toggle on={myPrefs.content} onClick={() => setPref("content", !myPrefs.content)} label="content pipeline" />
           <Toggle on={myPrefs.prayers} onClick={() => setPref("prayers", !myPrefs.prayers)} label="prayer reminders" sub="a nudge at each salah time and if one is missed" />
           <Toggle on={myPrefs.fitness} onClick={() => setPref("fitness", !myPrefs.fitness)} label="fitness & step race" sub="workouts, overtakes and the 10k club" />
+          <Toggle on={myPrefs.bookings} onClick={() => setPref("bookings", !myPrefs.bookings)} label="new bookings" sub="when someone books a call on the website" />
           <Toggle on={myPrefs.sound} onClick={() => setPref("sound", !myPrefs.sound)} label="play a sound" />
           <div style={{ marginTop: 14, display: "flex", gap: 8, flexWrap: "wrap" }}>
             <button

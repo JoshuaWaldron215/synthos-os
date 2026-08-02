@@ -9,6 +9,7 @@ import { createDataSlice } from "./slices/data";
 import { createHealthSlice } from "./slices/health";
 import { createIntakeSlice } from "./slices/intake";
 import { createLeadsSlice } from "./slices/leads";
+import { createBookingsSlice } from "./slices/bookings";
 import { createPortalSlice } from "./slices/portal";
 import { createPrayersSlice } from "./slices/prayers";
 import { createProfilesSlice } from "./slices/profiles";
@@ -68,6 +69,7 @@ export const useStore = create<StoreState>()(
       ...createPrayersSlice(set, get),
       ...createHealthSlice(set, get),
       ...createPortalSlice(set, get),
+      ...createBookingsSlice(set, get),
     }),
     {
       name: "synthos-os-v2",
@@ -79,14 +81,17 @@ export const useStore = create<StoreState>()(
       //   3: prefs gained prayers/fitness — backfill from defaults, else the
       //      persisted prefs (restored wholesale) leave new toggles undefined
       //      and those notification categories silently never fire
-      version: 3,
+      //   4: prefs gained bookings — same backfill
+      version: 4,
       migrate: (persisted, version) => {
         const p = persisted as Partial<StoreState>;
         if (version < 2 && p.teamMsgs && !p.convoReads) {
           const now = Date.now();
           p.convoReads = Object.fromEntries(Object.keys(p.teamMsgs).map((id) => [id, now]));
         }
-        if (version < 3 && p.prefs) {
+        // any pref-shape bump: merge in new toggle defaults without clobbering
+        // the user's existing choices
+        if (version < 4 && p.prefs) {
           const defaults = defaultPrefs();
           for (const id of Object.keys(p.prefs).map(Number)) {
             p.prefs[id] = { ...(defaults[id] ?? defaults[0]), ...p.prefs[id] };

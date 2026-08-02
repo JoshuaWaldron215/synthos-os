@@ -63,6 +63,7 @@ export function defaultPrefs(): Record<number, Prefs> {
       content: false,
       prayers: true,
       fitness: true,
+      bookings: true,
       sound: false,
     };
   });

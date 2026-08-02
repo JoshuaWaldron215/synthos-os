@@ -11,6 +11,7 @@ import type {
   Profile,
   Project,
   ProjectFile,
+  Booking,
   Task,
   TeamMessage,
   VaultKey,
@@ -45,7 +46,19 @@ export interface Dataset {
   health: HealthDay[];
   /** shared tool logins (passwords decrypted via RPC) */
   logins: VaultLogin[];
+  /** website bookings (recent + upcoming) */
+  bookings: Booking[];
+  /** event type id -> title/duration/location, for resolving bookings live */
+  eventTypes: Record<string, EventTypeInfo>;
 }
+
+export interface EventTypeInfo {
+  title: string;
+  duration: number;
+  location: string;
+}
+export type { BookingRow };
+export { toBooking };
 
 export const usingSupabase = isSupabaseConfigured;
 
@@ -359,7 +372,9 @@ export async function fetchAll(): Promise<Dataset | null> {
   if (!sb) return null;
   // health board only needs a rolling window (page shows today + this week)
   const healthCutoffKey = healthDateKey(new Date(Date.now() - 14 * 86_400_000));
-  const [projects, tasks, keys, activity, files, wins, convos, messages, content, profiles, leads, settings, tombstones, health, logins] = await Promise.all([
+  // bookings: recent past + everything upcoming (a browsable window, not all history)
+  const bookingCutoff = new Date(Date.now() - 60 * 86_400_000).toISOString();
+  const [projects, tasks, keys, activity, files, wins, convos, messages, content, profiles, leads, settings, tombstones, health, logins, eventTypeRows, bookingRows] = await Promise.all([
     sb.from("projects").select("*"),
     sb.from("tasks").select("*"),
     sb.rpc("vault_keys_list"),
@@ -375,7 +390,13 @@ export async function fetchAll(): Promise<Dataset | null> {
     sb.from("tombstones").select("tbl,id"),
     sb.from("health_days").select("*").gte("day", healthCutoffKey),
     sb.rpc("vault_logins_list"),
+    sb.from("event_types").select("id, title, duration_min, location_type"),
+    sb.from("bookings").select("*").gte("start_at", bookingCutoff).order("start_at", { ascending: true }),
   ]);
+  const eventTypes: Record<string, EventTypeInfo> = {};
+  for (const t of (eventTypeRows.data ?? []) as EventTypeRow[]) {
+    eventTypes[t.id] = { title: t.title, duration: t.duration_min ?? 30, location: t.location_type ?? "" };
+  }
   const teamMsgs: Record<string, TeamMessage[]> = {};
   for (const r of (messages.data ?? []) as MessageRow[]) {
     (teamMsgs[r.convo] ??= []).push(toMessage(r));
@@ -404,6 +425,8 @@ export async function fetchAll(): Promise<Dataset | null> {
     ),
     health: ((health.data ?? []) as HealthRow[]).map(toHealth),
     logins: (logins.data ?? []) as VaultLogin[],
+    eventTypes,
+    bookings: ((bookingRows.data ?? []) as BookingRow[]).map((r) => toBooking(r, eventTypes)),
   };
 }
 
@@ -627,6 +650,47 @@ interface HealthRow {
   synced_at: string;
 }
 
+interface EventTypeRow {
+  id: string;
+  title: string;
+  duration_min: number | null;
+  location_type: string | null;
+}
+interface BookingRow {
+  id: string;
+  event_type_id: string;
+  host_email: string;
+  start_at: string;
+  end_at: string;
+  invitee_name: string;
+  invitee_email: string;
+  invitee_answers: Record<string, unknown> | null;
+  status: Booking["status"];
+  meet_url: string | null;
+  source: string | null;
+  created_at: string;
+}
+const toBooking = (r: BookingRow, types: Record<string, EventTypeInfo>): Booking => {
+  const t = types[r.event_type_id];
+  return {
+    id: r.id,
+    eventTypeId: r.event_type_id,
+    eventType: t?.title ?? "meeting",
+    duration: t?.duration ?? Math.round((new Date(r.end_at).getTime() - new Date(r.start_at).getTime()) / 60000),
+    location: t?.location ?? "",
+    hostEmail: r.host_email,
+    startAt: new Date(r.start_at).getTime(),
+    endAt: new Date(r.end_at).getTime(),
+    inviteeName: r.invitee_name,
+    inviteeEmail: r.invitee_email,
+    answers: r.invitee_answers && typeof r.invitee_answers === "object" ? r.invitee_answers : {},
+    status: r.status,
+    meetUrl: r.meet_url,
+    source: r.source,
+    createdAt: new Date(r.created_at).getTime(),
+  };
+};
+
 const toHealth = (r: HealthRow): HealthDay => ({
   who: r.who,
   day: r.day,
@@ -658,6 +722,7 @@ export interface RealtimeHandlers {
   setting: (key: string, value: unknown) => void;
   health: (day: HealthDay) => void;
   portalUpdate: (u: PortalUpdate) => void;
+  booking: (ev: "upsert" | "delete", data: BookingRow | string) => void;
 }
 
 interface ChangePayload<Row> {
@@ -728,6 +793,13 @@ export async function subscribeRealtime(h: RealtimeHandlers): Promise<void> {
   });
   on<PortalUpdate>("portal_updates", (e) => {
     if (e.eventType !== "DELETE") h.portalUpdate(e.new);
+  });
+  on<BookingRow>("bookings", (e) => {
+    if (e.eventType === "DELETE") {
+      if (e.old.id) h.booking("delete", e.old.id);
+    } else {
+      h.booking("upsert", e.new);
+    }
   });
   ch.subscribe();
   liveChannel = ch;

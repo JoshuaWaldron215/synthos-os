@@ -173,6 +173,28 @@ export interface Conversation {
   system?: boolean;
 }
 
+/** a booking made on the website (bookings table, same DB) */
+export type BookingStatus = "pending" | "confirmed" | "cancelled" | "rescheduled";
+export interface Booking {
+  id: string;
+  eventTypeId: string;
+  /** resolved event-type title (e.g. "Discovery call") */
+  eventType: string;
+  /** minutes, from the event type */
+  duration: number;
+  location: string;
+  hostEmail: string;
+  startAt: number; // epoch ms
+  endAt: number;
+  inviteeName: string;
+  inviteeEmail: string;
+  answers: Record<string, unknown>;
+  status: BookingStatus;
+  meetUrl: string | null;
+  source: string | null;
+  createdAt: number;
+}
+
 /** shared tool login (IG, gmail, skool…) — password encrypted at rest */
 export interface VaultLogin {
   id: string;
@@ -213,10 +235,11 @@ export interface Prefs {
   content: boolean;
   prayers: boolean;
   fitness: boolean;
+  bookings: boolean;
   sound: boolean;
 }
 
-export type NotifCategory = "mentions" | "taskAssigned" | "shipped" | "content" | "prayers" | "fitness";
+export type NotifCategory = "mentions" | "taskAssigned" | "shipped" | "content" | "prayers" | "fitness" | "bookings";
 
 export interface NotifItem {
   id: string;

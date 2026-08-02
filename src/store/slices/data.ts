@@ -141,6 +141,9 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
           // the server copy is simply the truth
           health: data.health,
           logins: unionById(data.logins, local.logins),
+          // website-owned bookings + event types are server truth
+          bookings: data.bookings,
+          eventTypes: data.eventTypes,
         });
         // shared kanban column labels: server copy wins; a device holding a
         // rename the server never saw (pre-sync edits) pushes it up once
@@ -364,6 +367,7 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
         },
         health: (d) => get().receiveHealth(d),
         portalUpdate: (u) => get().receivePortalUpdate(u),
+        booking: (ev, d) => get().receiveBooking(ev, d),
       })
       .catch(() => {
         /* local mode or subscribe failure — polling-free local UX still works */

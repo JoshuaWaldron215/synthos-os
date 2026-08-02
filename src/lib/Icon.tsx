@@ -41,7 +41,8 @@ export type IconName =
   | "image"
   | "trash"
   | "prayers"
-  | "fitness";
+  | "fitness"
+  | "calendar";
 
 interface IconProps {
   name: IconName;
@@ -136,6 +137,8 @@ export function Icon({ name, size = 20, sw = 1.7, color = "currentColor", style 
     case "fitness":
       // heartbeat pulse
       return svg(p("M2.8 12h3.6l2.3-5.8 3.8 11.6 2.4-5.8h6.3"));
+    case "calendar":
+      return svg(r(3.5, 5, 17, 16, 3), p("M3.5 9.5h17"), p("M8 3.5v3"), p("M16 3.5v3"));
     case "settings":
       return svg(
         ci(12, 12, 3.2),

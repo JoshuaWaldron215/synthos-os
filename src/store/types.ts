@@ -21,6 +21,7 @@ import type {
   Project,
   ProjectFile,
   ProjectStatus,
+  Booking,
   Task,
   TeamMessage,
   VaultKey,
@@ -32,6 +33,7 @@ import type { HealthDay } from "../lib/health";
 import type { PrayerName, PrayerPlace } from "../lib/prayers";
 import type { DashboardItem, WidgetKey } from "./slices/dashboard";
 import type { PortalState as PortalSliceState } from "./slices/portal";
+import type { BookingRow, EventTypeInfo } from "../data/repo";
 
 // Full store contract. State and actions are implemented in domain slices
 // (src/store/slices/*) and combined in useStore.ts.
@@ -138,6 +140,10 @@ export interface StoreState {
 
   // client portal (per-project public status link, team controls)
   portals: Record<string, PortalSliceState>;
+
+  // calendar (website bookings — read-only mirror, live)
+  bookings: Booking[];
+  eventTypes: Record<string, EventTypeInfo>;
 
   // ui / shell actions
   setCurrentUser: (id: number) => void;
@@ -306,6 +312,9 @@ export interface StoreState {
   receiveHealth: (d: HealthDay) => void;
   toggleHype: (who: number, day: string, workoutIdx: number, emoji: string) => void;
   fetchHealthToken: () => Promise<void>;
+
+  // booking actions
+  receiveBooking: (ev: "upsert" | "delete", data: BookingRow | string) => void;
 
   // portal actions
   loadPortal: (proj: string) => Promise<void>;

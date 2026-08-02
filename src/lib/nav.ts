@@ -24,6 +24,7 @@ export const NAV_ITEMS: NavDef[] = [
   { key: "ask", label: "ask ai", path: "/ask", icon: "ask", group: "ops" },
   { key: "prayers", label: "prayers", path: "/prayers", icon: "prayers", group: "ops" },
   { key: "fitness", label: "fitness", path: "/fitness", icon: "fitness", group: "ops" },
+  { key: "calendar", label: "calendar", path: "/calendar", icon: "calendar", group: "ops" },
 ];
 
 export const NAV_GROUPS: Array<NavDef["group"]> = ["home", "sell", "build", "grow", "ops"];
