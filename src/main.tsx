@@ -14,7 +14,7 @@ import "@fontsource/plus-jakarta-sans/600-italic.css";
 import "@fontsource/plus-jakarta-sans/700-italic.css";
 import "./index.css";
 import App from "./App.tsx";
-import { PortalRoute } from "./PortalRoute.tsx";
+import { OutreachRoute, PortalRoute } from "./PortalRoute.tsx";
 import { AuthProvider } from "./components/AuthProvider";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
@@ -25,8 +25,10 @@ createRoot(document.getElementById("root")!).render(
     <ErrorBoundary scope="app">
       <BrowserRouter>
         <Routes>
-          {/* the client portal is public — everything else stays behind auth */}
+          {/* public surfaces with their own access model — everything else
+              stays behind the team login */}
           <Route path="/c/:token" element={<PortalRoute />} />
+          <Route path="/outreach" element={<OutreachRoute />} />
           <Route
             path="*"
             element={

@@ -16,6 +16,10 @@ export const createLeadsSlice = (set: StoreSet, get: StoreGet) => ({
   addLead: (input: {
     name: string;
     contact?: string;
+    company?: string;
+    website?: string;
+    social?: string;
+    email?: string;
     from?: LeadSource;
     quality?: LeadQuality;
     status?: LeadStatus;
@@ -28,6 +32,10 @@ export const createLeadsSlice = (set: StoreSet, get: StoreGet) => ({
       id: "ld" + Date.now() + Math.random().toString(36).slice(2, 5),
       name: input.name.trim(),
       contact: input.contact?.trim() ?? "",
+      company: input.company?.trim() ?? "",
+      website: input.website?.trim() ?? "",
+      social: input.social?.trim() ?? "",
+      email: input.email?.trim() ?? "",
       from: input.from ?? "outbound",
       quality: input.quality ?? "warm",
       status: input.status ?? "new",

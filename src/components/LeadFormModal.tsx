@@ -52,6 +52,10 @@ export function LeadFormModal({ open, onClose, lead }: { open: boolean; onClose:
 
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
+  const [company, setCompany] = useState("");
+  const [website, setWebsite] = useState("");
+  const [social, setSocial] = useState("");
+  const [email, setEmail] = useState("");
   const [from, setFrom] = useState<LeadSource>("outbound");
   const [quality, setQuality] = useState<LeadQuality>("warm");
   const [status, setStatus] = useState<LeadStatus>("new");
@@ -65,6 +69,10 @@ export function LeadFormModal({ open, onClose, lead }: { open: boolean; onClose:
     if (!open) return;
     setName(lead?.name ?? "");
     setContact(lead?.contact ?? "");
+    setCompany(lead?.company ?? "");
+    setWebsite(lead?.website ?? "");
+    setSocial(lead?.social ?? "");
+    setEmail(lead?.email ?? "");
     setFrom(lead?.from ?? "outbound");
     setQuality(lead?.quality ?? "warm");
     setStatus(lead?.status ?? "new");
@@ -80,6 +88,10 @@ export function LeadFormModal({ open, onClose, lead }: { open: boolean; onClose:
     const data = {
       name: name.trim(),
       contact: contact.trim(),
+      company: company.trim(),
+      website: website.trim(),
+      social: social.trim(),
+      email: email.trim(),
       from,
       quality,
       status,
@@ -101,8 +113,29 @@ export function LeadFormModal({ open, onClose, lead }: { open: boolean; onClose:
       </div>
 
       <div style={{ marginBottom: 14 }}>
+        <label style={labelStyle}>business name</label>
+        <input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Acme Dental" style={field} />
+      </div>
+
+      <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <label style={labelStyle}>website</label>
+          <input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="acmedental.com" autoCapitalize="none" style={field} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <label style={labelStyle}>social</label>
+          <input value={social} onChange={(e) => setSocial(e.target.value)} placeholder="@acmedental" autoCapitalize="none" style={field} />
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 14 }}>
+        <label style={labelStyle}>email</label>
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="maya@acmedental.com" autoCapitalize="none" style={field} />
+      </div>
+
+      <div style={{ marginBottom: 14 }}>
         <label style={labelStyle}>contact</label>
-        <input value={contact} onChange={(e) => setContact(e.target.value)} placeholder="email · phone · @handle" style={field} />
+        <input value={contact} onChange={(e) => setContact(e.target.value)} placeholder="phone · @handle · wherever the convo lives" style={field} />
       </div>
 
       <div style={{ marginBottom: 14 }}>

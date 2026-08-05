@@ -309,6 +309,11 @@ interface LeadRow {
   notes: string | null;
   last_follow_up: number | null;
   next_follow_up: number | null;
+  company: string | null;
+  website: string | null;
+  social: string | null;
+  email: string | null;
+  via: string | null;
   who: number;
   created_at: number;
 }
@@ -324,6 +329,11 @@ const toLead = (r: LeadRow): Lead => ({
   nextFollowUp: r.next_follow_up,
   who: r.who,
   createdAt: r.created_at,
+  company: r.company ?? "",
+  website: r.website ?? "",
+  social: r.social ?? "",
+  email: r.email ?? "",
+  via: r.via ?? undefined,
 });
 const fromLead = (l: Lead): LeadRow => ({
   id: l.id,
@@ -337,6 +347,11 @@ const fromLead = (l: Lead): LeadRow => ({
   next_follow_up: l.nextFollowUp,
   who: l.who,
   created_at: l.createdAt,
+  company: l.company ?? "",
+  website: l.website ?? "",
+  social: l.social ?? "",
+  email: l.email ?? "",
+  via: l.via ?? null,
 });
 
 interface ProfileRow {

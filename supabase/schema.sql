@@ -297,8 +297,57 @@ create table if not exists public.leads (
   last_follow_up bigint,
   next_follow_up bigint,
   who int not null default 0,
+  company text not null default '',
+  website text not null default '',
+  social text not null default '',
+  email text not null default '',
+  via text,  -- outreach console login that submitted it (e.g. 'jalen')
   created_at bigint not null
 );
+
+-- ---------------------------------------------------------------------------
+-- outreach logins — contractors who input leads and nothing else. They get NO
+-- Supabase session; /api/outreach is the only thing that touches the DB on
+-- their behalf, so RLS with no policies keeps both tables service-role-only.
+-- Passwords are bcrypt (pgcrypto crypt/gen_salt('bf')), never plaintext.
+-- ---------------------------------------------------------------------------
+create table if not exists public.outreach_users (
+  id text primary key,
+  username text not null unique,
+  pass_hash text not null,
+  display_name text not null default '',
+  owner_builder_id int not null default 0,
+  active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.outreach_sessions (
+  token text primary key,
+  user_id text not null references public.outreach_users (id) on delete cascade,
+  expires_at timestamptz not null,
+  created_at timestamptz not null default now()
+);
+create index if not exists outreach_sessions_user_idx on public.outreach_sessions (user_id);
+
+-- bcrypt verification stays inside Postgres — the hash is never read out.
+create or replace function public.outreach_check_login(p_username text, p_password text)
+returns boolean
+language sql
+security definer
+set search_path = public, extensions
+as $$
+  select exists (
+    select 1 from public.outreach_users u
+    where u.username = lower(p_username)
+      and u.active
+      and u.pass_hash = extensions.crypt(p_password, u.pass_hash)
+  );
+$$;
+revoke all on function public.outreach_check_login(text, text) from public, anon, authenticated;
+
+-- add an outreach login (run once per contractor, then hand them the password):
+--   insert into public.outreach_users (id, username, pass_hash, display_name)
+--   values ('ou-name', 'name', extensions.crypt('<password>', extensions.gen_salt('bf')), 'Name');
 
 -- ---------------------------------------------------------------------------
 -- client portal (one revocable public status link per project; the token is
@@ -401,6 +450,8 @@ alter table public.workspace_settings enable row level security;
 alter table public.health_days   enable row level security;
 alter table public.portal_links  enable row level security;
 alter table public.vault_logins  enable row level security;
+alter table public.outreach_users enable row level security;
+alter table public.outreach_sessions enable row level security;
 alter table public.portal_updates enable row level security;
 
 do $$

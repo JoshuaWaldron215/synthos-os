@@ -41,6 +41,18 @@ const filterPill = (on: boolean): CSSProperties => ({
   transition: "background .15s, color .15s",
 });
 
+/** who submitted it, when it came in through an outreach console login */
+function ViaBadge({ via }: { via: string }) {
+  return (
+    <span
+      title={"submitted by " + via + " (outreach)"}
+      style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: ".07em", textTransform: "uppercase", color: "#1F8F6E", background: "rgba(126,230,193,.2)", padding: "2px 7px", borderRadius: 5, flex: "0 0 auto" }}
+    >
+      via {via}
+    </span>
+  );
+}
+
 export function Leads() {
   const isMobile = useIsMobile();
   const leads = useStore((s) => s.leads);
@@ -207,9 +219,12 @@ export function Leads() {
                 <button key={l.id} onClick={() => openEdit(l)} style={{ ...cardStyle, display: "flex", flexDirection: "column", alignItems: "stretch", gap: 8, padding: "13px 14px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 15, fontWeight: 600, color: "var(--ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.name}</div>
-                      {l.contact && (
-                        <div style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.5)", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.contact}</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <div style={{ fontSize: 15, fontWeight: 600, color: "var(--ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.company || l.name}</div>
+                        {l.via && <ViaBadge via={l.via} />}
+                      </div>
+                      {(l.website || l.email || l.contact) && (
+                        <div style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.5)", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{[l.website, l.email, l.contact].filter(Boolean).join(" · ")}</div>
                       )}
                     </div>
                     <Avatar id={l.who} size={30} />
@@ -234,9 +249,10 @@ export function Leads() {
               <button key={l.id} className="hov-lift" onClick={() => openEdit(l)} style={{ ...cardStyle, display: "flex", alignItems: "center", gap: 12, padding: "12px 18px" }}>
                 <div style={{ flex: 2, minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-                    <span style={{ fontSize: 14.5, fontWeight: 600, color: "var(--ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.name}</span>
-                    {l.contact && (
-                      <span style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.5)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.contact}</span>
+                    <span style={{ fontSize: 14.5, fontWeight: 600, color: "var(--ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.company || l.name}</span>
+                    {l.via && <ViaBadge via={l.via} />}
+                    {(l.website || l.email || l.contact) && (
+                      <span style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.5)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{[l.website, l.email, l.contact].filter(Boolean).join(" · ")}</span>
                     )}
                   </div>
                   {l.notes && (

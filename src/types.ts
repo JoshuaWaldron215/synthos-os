@@ -115,6 +115,13 @@ export interface Lead {
   name: string;
   /** email / phone / handle — wherever the conversation lives */
   contact: string;
+  /** outbound detail: the business itself */
+  company?: string;
+  website?: string;
+  social?: string;
+  email?: string;
+  /** outreach-console login that submitted it (e.g. "jalen") */
+  via?: string;
   from: LeadSource;
   quality: LeadQuality;
   status: LeadStatus;

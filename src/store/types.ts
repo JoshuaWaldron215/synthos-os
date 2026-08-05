@@ -286,6 +286,10 @@ export interface StoreState {
   addLead: (input: {
     name: string;
     contact?: string;
+    company?: string;
+    website?: string;
+    social?: string;
+    email?: string;
     from?: LeadSource;
     quality?: LeadQuality;
     status?: LeadStatus;
