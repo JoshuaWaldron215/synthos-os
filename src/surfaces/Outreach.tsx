@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import platesImg from "../assets/plates.png";
+import { webHref, webLabel } from "../lib/leads";
 import { applyTheme, watchSystemTheme } from "../lib/theme";
 import { timeAgo } from "../lib/time";
 
@@ -448,8 +449,8 @@ export function Outreach() {
                 </div>
                 <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 5, fontSize: 12.5, color: "rgba(var(--ink-rgb),.6)" }}>
                   {l.website && (
-                    <a href={l.website.startsWith("http") ? l.website : "https://" + l.website} target="_blank" rel="noreferrer" style={{ color: "#33ADEE", textDecoration: "none", fontWeight: 600 }}>
-                      {l.website.replace(/^https?:\/\//, "")} ↗
+                    <a href={webHref(l.website)} target="_blank" rel="noreferrer" style={{ color: "#33ADEE", textDecoration: "none", fontWeight: 600 }}>
+                      {webLabel(l.website)} ↗
                     </a>
                   )}
                   {l.email && <span>{l.email}</span>}

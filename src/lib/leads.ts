@@ -48,3 +48,10 @@ export const startOfToday = (): number => {
 
 export const fmtDay = (ms: number): string =>
   new Date(ms).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+
+/** leads are typed by hand, so a website may arrive bare ("acme.com") */
+export const webHref = (raw: string): string => (/^https?:\/\//i.test(raw) ? raw : "https://" + raw);
+
+/** what to show for a website — no protocol, no www., no trailing slash */
+export const webLabel = (raw: string): string =>
+  raw.replace(/^https?:\/\//i, "").replace(/^www\./i, "").replace(/\/+$/, "");

@@ -128,6 +128,8 @@ export interface StoreState {
   fLeadStatus: string;
   fLeadQuality: string;
   fLeadDate: string;
+  /** credited submitter: "all", a builder id, or an outreach username */
+  fLeadWho: string;
 
   // prayers (per-user salah tracker)
   prayerLog: Record<number, Record<string, Partial<Record<PrayerName, boolean>>>>;
@@ -282,7 +284,7 @@ export interface StoreState {
   deleteContent: (id: string) => void;
 
   // lead actions
-  setLeadFilter: (group: "status" | "quality" | "date", val: string) => void;
+  setLeadFilter: (group: "status" | "quality" | "date" | "who", val: string) => void;
   addLead: (input: {
     name: string;
     contact?: string;

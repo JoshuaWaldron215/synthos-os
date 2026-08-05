@@ -1,9 +1,10 @@
-import { useMemo, useState, type CSSProperties } from "react";
+import { Fragment, useMemo, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
 import { Avatar } from "../components/Avatar";
 import { Eyebrow } from "../components/Eyebrow";
 import { LeadFormModal } from "../components/LeadFormModal";
+import { USERS } from "../data/seed";
 import { Icon } from "../lib/Icon";
-import { LEAD_QUALITIES, LEAD_STATUSES, fmtDay, leadPill, nextOf, startOfToday } from "../lib/leads";
+import { LEAD_QUALITIES, LEAD_STATUSES, fmtDay, leadPill, nextOf, startOfToday, webHref, webLabel } from "../lib/leads";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
 import type { Lead } from "../types";
@@ -41,6 +42,42 @@ const filterPill = (on: boolean): CSSProperties => ({
   transition: "background .15s, color .15s",
 });
 
+/** who a lead is credited to — an outreach login wins over the builder slot,
+ *  since outreach leads land on a builder as owner but weren't added by them */
+const creditOf = (l: Lead): string => l.via || String(l.who);
+
+const linkStyle: CSSProperties = { color: "#33ADEE", fontWeight: 600, textDecoration: "none" };
+
+/** website + email are real links; the card's click-through is suppressed on them */
+function ContactLine({ lead, style }: { lead: Lead; style: CSSProperties }) {
+  const stop = (e: MouseEvent) => e.stopPropagation();
+  const bits: ReactNode[] = [];
+  if (lead.website)
+    bits.push(
+      <a key="w" href={webHref(lead.website)} target="_blank" rel="noreferrer" onClick={stop} title={lead.website} style={linkStyle}>
+        {webLabel(lead.website)} ↗
+      </a>,
+    );
+  if (lead.email)
+    bits.push(
+      <a key="e" href={"mailto:" + lead.email} onClick={stop} title={"email " + lead.email} style={linkStyle}>
+        {lead.email}
+      </a>,
+    );
+  if (lead.contact) bits.push(<span key="c">{lead.contact}</span>);
+  if (bits.length === 0) return null;
+  return (
+    <span style={{ display: "block", minWidth: 0, ...style }}>
+      {bits.map((bit, i) => (
+        <Fragment key={i}>
+          {i > 0 && <span style={{ opacity: 0.45 }}> · </span>}
+          {bit}
+        </Fragment>
+      ))}
+    </span>
+  );
+}
+
 /** who submitted it, when it came in through an outreach console login */
 function ViaBadge({ via }: { via: string }) {
   return (
@@ -59,6 +96,7 @@ export function Leads() {
   const fStatus = useStore((s) => s.fLeadStatus);
   const fQuality = useStore((s) => s.fLeadQuality);
   const fDate = useStore((s) => s.fLeadDate);
+  const fWho = useStore((s) => s.fLeadWho);
   const setLeadFilter = useStore((s) => s.setLeadFilter);
   const updateLead = useStore((s) => s.updateLead);
 
@@ -87,10 +125,26 @@ export function Leads() {
 
   const filtered = useMemo(() => {
     return leads
-      .filter((l) => (fStatus === "all" || l.status === fStatus) && (fQuality === "all" || l.quality === fQuality) && matchesDate(l))
+      .filter(
+        (l) =>
+          (fStatus === "all" || l.status === fStatus) &&
+          (fQuality === "all" || l.quality === fQuality) &&
+          (fWho === "all" || creditOf(l) === fWho) &&
+          matchesDate(l),
+      )
       .sort((a, b) => (a.nextFollowUp ?? Infinity) - (b.nextFollowUp ?? Infinity) || b.createdAt - a.createdAt);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leads, fStatus, fQuality, fDate]);
+  }, [leads, fStatus, fQuality, fDate, fWho]);
+
+  // builders always show; outreach logins appear once they've submitted something
+  const whoOptions = useMemo(() => {
+    const vias = [...new Set(leads.map((l) => l.via).filter((v): v is string => !!v))].sort();
+    return [
+      { value: "all", label: "all" },
+      ...USERS.map((u) => ({ value: String(u.id), label: u.first.toLowerCase() })),
+      ...vias.map((v) => ({ value: v, label: v })),
+    ];
+  }, [leads]);
 
   const openNew = () => {
     setEditing(null);
@@ -100,6 +154,20 @@ export function Leads() {
     setEditing(lead);
     setModalOpen(true);
   };
+
+  // the card holds real links now, so it can't be a <button> (no interactive
+  // descendants) — role + key handling keep it operable from the keyboard
+  const cardProps = (l: Lead) => ({
+    role: "button",
+    tabIndex: 0,
+    onClick: () => openEdit(l),
+    onKeyDown: (e: KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openEdit(l);
+      }
+    },
+  });
 
   const followUpBadge = (l: Lead) => {
     if (l.nextFollowUp === null) return <span style={{ fontSize: 12.5, color: "rgba(var(--ink-rgb),.35)" }}>—</span>;
@@ -140,20 +208,21 @@ export function Leads() {
       <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "stretch" : "center", gap: isMobile ? 8 : 14, marginBottom: 16, flexWrap: isMobile ? "nowrap" : "wrap" }}>
         {(
           [
-            { label: "status", options: ["all", ...LEAD_STATUSES], active: fStatus, group: "status" as const },
-            { label: "quality", options: ["all", ...LEAD_QUALITIES], active: fQuality, group: "quality" as const },
-            { label: "due", options: ["all", "overdue", "today", "this week", "no date"], active: fDate, group: "date" as const },
+            { label: "status", options: ["all", ...LEAD_STATUSES].map((o) => ({ value: o, label: o })), active: fStatus, group: "status" as const },
+            { label: "quality", options: ["all", ...LEAD_QUALITIES].map((o) => ({ value: o, label: o })), active: fQuality, group: "quality" as const },
+            { label: "due", options: ["all", "overdue", "today", "this week", "no date"].map((o) => ({ value: o, label: o })), active: fDate, group: "date" as const },
+            { label: "added by", options: whoOptions, active: fWho, group: "who" as const },
           ]
         ).map((g) => (
           <div key={g.group} style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-            <span style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600, flex: "0 0 auto", width: isMobile ? 68 : undefined }}>
+            <span style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 600, flex: "0 0 auto", width: isMobile ? 76 : undefined }}>
               {g.label}
             </span>
             {/* one rail per group — scrolls sideways on mobile instead of wrapping */}
             <div style={{ display: "flex", gap: 4, background: "rgba(var(--ink-rgb),.04)", borderRadius: 10, padding: 3, overflowX: isMobile ? "auto" : undefined, flexWrap: isMobile ? "nowrap" : "wrap", maxWidth: "100%", WebkitOverflowScrolling: "touch" }}>
               {g.options.map((opt) => (
-                <button key={opt} onClick={() => setLeadFilter(g.group, opt)} style={filterPill(g.active === opt)}>
-                  {opt}
+                <button key={opt.value} onClick={() => setLeadFilter(g.group, opt.value)} style={filterPill(g.active === opt.value)}>
+                  {opt.label}
                 </button>
               ))}
             </div>
@@ -216,16 +285,14 @@ export function Leads() {
             if (isMobile) {
               // stacked card: identity row → notes → pills + follow-up
               return (
-                <button key={l.id} onClick={() => openEdit(l)} style={{ ...cardStyle, display: "flex", flexDirection: "column", alignItems: "stretch", gap: 8, padding: "13px 14px" }}>
+                <div key={l.id} {...cardProps(l)} style={{ ...cardStyle, display: "flex", flexDirection: "column", alignItems: "stretch", gap: 8, padding: "13px 14px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         <div style={{ fontSize: 15, fontWeight: 600, color: "var(--ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.company || l.name}</div>
                         {l.via && <ViaBadge via={l.via} />}
                       </div>
-                      {(l.website || l.email || l.contact) && (
-                        <div style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.5)", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{[l.website, l.email, l.contact].filter(Boolean).join(" · ")}</div>
-                      )}
+                      <ContactLine lead={l} style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.5)", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} />
                     </div>
                     <Avatar id={l.who} size={30} />
                   </div>
@@ -240,20 +307,18 @@ export function Leads() {
                     {statusPill}
                     <span style={{ marginLeft: "auto" }}>{followUpBadge(l)}</span>
                   </div>
-                </button>
+                </div>
               );
             }
 
             // desktop: single scannable row
             return (
-              <button key={l.id} className="hov-lift" onClick={() => openEdit(l)} style={{ ...cardStyle, display: "flex", alignItems: "center", gap: 12, padding: "12px 18px" }}>
+              <div key={l.id} className="hov-lift" {...cardProps(l)} style={{ ...cardStyle, display: "flex", alignItems: "center", gap: 12, padding: "12px 18px" }}>
                 <div style={{ flex: 2, minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-                    <span style={{ fontSize: 14.5, fontWeight: 600, color: "var(--ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.company || l.name}</span>
+                    <span style={{ fontSize: 14.5, fontWeight: 600, color: "var(--ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: "0 1 auto" }}>{l.company || l.name}</span>
                     {l.via && <ViaBadge via={l.via} />}
-                    {(l.website || l.email || l.contact) && (
-                      <span style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.5)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{[l.website, l.email, l.contact].filter(Boolean).join(" · ")}</span>
-                    )}
+                    <ContactLine lead={l} style={{ fontSize: 12, color: "rgba(var(--ink-rgb),.5)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} />
                   </div>
                   {l.notes && (
                     <div style={{ fontSize: 12.5, color: "rgba(var(--ink-rgb),.55)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -266,7 +331,7 @@ export function Leads() {
                 {statusPill}
                 <div style={{ minWidth: 96, textAlign: "right" }}>{followUpBadge(l)}</div>
                 <Avatar id={l.who} size={28} />
-              </button>
+              </div>
             );
           })}
         </div>

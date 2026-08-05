@@ -9,9 +9,18 @@ export const createLeadsSlice = (set: StoreSet, get: StoreGet) => ({
   fLeadStatus: "all",
   fLeadQuality: "all",
   fLeadDate: "all",
+  fLeadWho: "all",
 
-  setLeadFilter: (group: "status" | "quality" | "date", val: string) =>
-    set(group === "status" ? { fLeadStatus: val } : group === "quality" ? { fLeadQuality: val } : { fLeadDate: val }),
+  setLeadFilter: (group: "status" | "quality" | "date" | "who", val: string) =>
+    set(
+      group === "status"
+        ? { fLeadStatus: val }
+        : group === "quality"
+          ? { fLeadQuality: val }
+          : group === "date"
+            ? { fLeadDate: val }
+            : { fLeadWho: val },
+    ),
 
   addLead: (input: {
     name: string;
