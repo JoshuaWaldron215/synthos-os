@@ -50,6 +50,8 @@ export interface Dataset {
   bookings: Booking[];
   /** event type id -> title/duration/location, for resolving bookings live */
   eventTypes: Record<string, EventTypeInfo>;
+  /** active outreach console logins, so leads can be filtered by them */
+  outreachUsers: string[];
 }
 
 export interface EventTypeInfo {
@@ -389,7 +391,7 @@ export async function fetchAll(): Promise<Dataset | null> {
   const healthCutoffKey = healthDateKey(new Date(Date.now() - 14 * 86_400_000));
   // bookings: recent past + everything upcoming (a browsable window, not all history)
   const bookingCutoff = new Date(Date.now() - 60 * 86_400_000).toISOString();
-  const [projects, tasks, keys, activity, files, wins, convos, messages, content, profiles, leads, settings, tombstones, health, logins, eventTypeRows, bookingRows] = await Promise.all([
+  const [projects, tasks, keys, activity, files, wins, convos, messages, content, profiles, leads, settings, tombstones, health, logins, eventTypeRows, bookingRows, outreachUsers] = await Promise.all([
     sb.from("projects").select("*"),
     sb.from("tasks").select("*"),
     sb.rpc("vault_keys_list"),
@@ -407,6 +409,7 @@ export async function fetchAll(): Promise<Dataset | null> {
     sb.rpc("vault_logins_list"),
     sb.from("event_types").select("id, title, duration_min, location_type"),
     sb.from("bookings").select("*").gte("start_at", bookingCutoff).order("start_at", { ascending: true }),
+    sb.rpc("outreach_usernames"),
   ]);
   const eventTypes: Record<string, EventTypeInfo> = {};
   for (const t of (eventTypeRows.data ?? []) as EventTypeRow[]) {
@@ -442,6 +445,7 @@ export async function fetchAll(): Promise<Dataset | null> {
     logins: (logins.data ?? []) as VaultLogin[],
     eventTypes,
     bookings: ((bookingRows.data ?? []) as BookingRow[]).map((r) => toBooking(r, eventTypes)),
+    outreachUsers: (outreachUsers.data ?? []) as string[],
   };
 }
 

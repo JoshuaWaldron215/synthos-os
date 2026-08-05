@@ -144,6 +144,7 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
           // website-owned bookings + event types are server truth
           bookings: data.bookings,
           eventTypes: data.eventTypes,
+          outreachUsers: data.outreachUsers,
         });
         // shared kanban column labels: server copy wins; a device holding a
         // rename the server never saw (pre-sync edits) pushes it up once

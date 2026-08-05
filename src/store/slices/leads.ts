@@ -10,6 +10,9 @@ export const createLeadsSlice = (set: StoreSet, get: StoreGet) => ({
   fLeadQuality: "all",
   fLeadDate: "all",
   fLeadWho: "all",
+  // outreach console logins, from the server — lets the "added by" filter list
+  // them before they've submitted their first lead
+  outreachUsers: [] as string[],
 
   setLeadFilter: (group: "status" | "quality" | "date" | "who", val: string) =>
     set(

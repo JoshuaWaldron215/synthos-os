@@ -345,6 +345,19 @@ as $$
 $$;
 revoke all on function public.outreach_check_login(text, text) from public, anon, authenticated;
 
+-- the team app lists outreach logins in the leads "added by" filter, so a
+-- console shows up before its first lead. Usernames only — never the hashes.
+create or replace function public.outreach_usernames()
+returns setof text
+language sql
+security definer
+set search_path = public
+as $$
+  select username from public.outreach_users where active order by username
+$$;
+revoke execute on function public.outreach_usernames() from public, anon;
+grant execute on function public.outreach_usernames() to authenticated;
+
 -- add an outreach login (run once per contractor, then hand them the password):
 --   insert into public.outreach_users (id, username, pass_hash, display_name)
 --   values ('ou-name', 'name', extensions.crypt('<password>', extensions.gen_salt('bf')), 'Name');

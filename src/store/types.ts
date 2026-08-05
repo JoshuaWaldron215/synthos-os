@@ -130,6 +130,8 @@ export interface StoreState {
   fLeadDate: string;
   /** credited submitter: "all", a builder id, or an outreach username */
   fLeadWho: string;
+  /** active outreach console logins (server truth, filled on hydrate) */
+  outreachUsers: string[];
 
   // prayers (per-user salah tracker)
   prayerLog: Record<number, Record<string, Partial<Record<PrayerName, boolean>>>>;

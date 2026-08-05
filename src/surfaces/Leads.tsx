@@ -97,6 +97,7 @@ export function Leads() {
   const fQuality = useStore((s) => s.fLeadQuality);
   const fDate = useStore((s) => s.fLeadDate);
   const fWho = useStore((s) => s.fLeadWho);
+  const outreachUsers = useStore((s) => s.outreachUsers);
   const setLeadFilter = useStore((s) => s.setLeadFilter);
   const updateLead = useStore((s) => s.updateLead);
 
@@ -136,15 +137,18 @@ export function Leads() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leads, fStatus, fQuality, fDate, fWho]);
 
-  // builders always show; outreach logins appear once they've submitted something
+  // builders, then outreach logins — the server list so a console shows up
+  // before its first lead, unioned with anything already credited in the data
   const whoOptions = useMemo(() => {
-    const vias = [...new Set(leads.map((l) => l.via).filter((v): v is string => !!v))].sort();
+    const vias = [
+      ...new Set([...outreachUsers, ...leads.map((l) => l.via).filter((v): v is string => !!v)]),
+    ].sort();
     return [
       { value: "all", label: "all" },
       ...USERS.map((u) => ({ value: String(u.id), label: u.first.toLowerCase() })),
       ...vias.map((v) => ({ value: v, label: v })),
     ];
-  }, [leads]);
+  }, [leads, outreachUsers]);
 
   const openNew = () => {
     setEditing(null);
