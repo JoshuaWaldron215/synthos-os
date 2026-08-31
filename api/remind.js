@@ -2,9 +2,12 @@ import { createClient } from "@supabase/supabase-js";
 import { setupWebPush, vapidConfigured } from "./_lib.js";
 import { HYPE_MORNING, HYPE_NUDGE, hypeFor } from "./_hype.js";
 
-// 8am morning briefing (Vercel cron, see vercel.json): each builder with
-// overdue / due-today tasks or lead follow-ups gets one personal push listing
-// what's on their plate. Runs server-side so it reaches closed phones.
+// 8am morning briefing (pg_cron, see supabase/schema.sql): each builder with
+// overdue / due-today tasks or something on their calendar gets one personal
+// push listing what's on their plate. Runs server-side so it reaches closed
+// phones. Lead follow-ups are deliberately NOT in here — at a few hundred
+// leads the digest was almost entirely "+52 more"; they still show on /leads
+// and in the today widget.
 //
 // Cron runs at 12:00 and 13:00 UTC; the guard below keeps whichever hits
 // 8am America/New_York, so the briefing survives daylight-saving flips.
@@ -51,15 +54,8 @@ export default async function handler(req, res) {
   endOfToday.setHours(23, 59, 59, 999);
   const cutoff = endOfToday.getTime();
 
-  const [{ data: tasks }, { data: leads }, { data: subs }, { data: events }] = await Promise.all([
+  const [{ data: tasks }, { data: subs }, { data: events }] = await Promise.all([
     sb.from("tasks").select("who, title, due").not("due", "is", null).lte("due", cutoff).neq("col", "done").order("due", { ascending: true }),
-    sb
-      .from("leads")
-      .select("who, name, next_follow_up, status")
-      .not("next_follow_up", "is", null)
-      .lte("next_follow_up", cutoff)
-      .not("status", "in", '("won","lost")')
-      .order("next_follow_up", { ascending: true }),
     sb.from("push_subscriptions").select("who, endpoint, sub"),
     sb.from("calendar_events").select("*"),
   ]);
@@ -67,12 +63,11 @@ export default async function handler(req, res) {
   // bucket the actual work items per builder so the push can name them
   const load = new Map();
   const bucket = (who) => {
-    const b = load.get(who) ?? { tasks: [], leads: [], events: [] };
+    const b = load.get(who) ?? { tasks: [], events: [] };
     load.set(who, b);
     return b;
   };
   for (const t of tasks ?? []) bucket(t.who).tasks.push(t.title);
-  for (const l of leads ?? []) bucket(l.who).leads.push(l.name);
   for (const e of events ?? []) {
     if (occursOn(e, new Date())) bucket(e.who).events.push(e.title);
   }
@@ -91,13 +86,10 @@ export default async function handler(req, res) {
   await Promise.all(
     (subs ?? []).map(async (r) => {
       const b = load.get(r.who);
-      if (!b) return; // nothing due for this builder — no push
+      if (!b || (!b.tasks.length && !b.events.length)) return; // nothing due — no push
       const lines = [];
       if (b.tasks.length) {
         lines.push(b.tasks.length + " task" + (b.tasks.length === 1 ? "" : "s") + ": " + nameList(b.tasks, 3));
-      }
-      if (b.leads.length) {
-        lines.push("follow up: " + nameList(b.leads, 3));
       }
       if (b.events.length) {
         lines.push("📅 " + nameList(b.events, 3));
@@ -107,7 +99,7 @@ export default async function handler(req, res) {
         title: "your morning ✦",
         body: lines.join("\n"),
         tag: "daily-digest",
-        url: b.events.length && !b.tasks.length ? "/calendar" : b.tasks.length ? "/tasks" : "/leads",
+        url: b.tasks.length ? "/tasks" : "/calendar",
       });
       try {
         await webpush.sendNotification(r.sub, payload);
