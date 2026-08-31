@@ -484,7 +484,11 @@ export function Home() {
   const navigate = useNavigate();
   const me = useStore((s) => s.currentUserId);
   const user = useUser(me);
-  const layout = useStore((s) => fullLayout(s.dashboards[s.currentUserId]));
+  // select the STORED array (stable identity) and derive outside the selector —
+  // fullLayout builds a new array whenever a widget is missing, and returning
+  // that straight from a zustand selector re-renders forever
+  const savedLayout = useStore((s) => s.dashboards[s.currentUserId]);
+  const layout = useMemo(() => fullLayout(savedLayout), [savedLayout]);
   const editing = useStore((s) => s.dashEditing);
   const setDashEditing = useStore((s) => s.setDashEditing);
   const toggleWidget = useStore((s) => s.toggleWidget);

@@ -1,5 +1,8 @@
-// Original lines in the hard-nosed endurance voice (not quotations of any real
-// person). Mirrors src/lib/hype.ts so pushes and the UI speak the same way.
+// Original lines written in the hard-nosed endurance-athlete voice — not
+// quotations of any real person, so they can be used freely and there's an
+// endless supply. Picked deterministically per day+slot so everyone on the
+// team sees the same line at the same time and it changes on its own.
+
 export const HYPE_MORNING = [
   "the run doesn't care how you slept.",
   "nobody is coming. put the shoes on.",
@@ -9,6 +12,14 @@ export const HYPE_MORNING = [
   "hard now or soft later. pick one.",
   "you don't need to feel ready. you need to start.",
   "the hill is not negotiating with you today.",
+  "comfort is the whole reason you're not there yet.",
+  "you're not tired. you're just being asked to do something.",
+  "the work doesn't care if you believe in it.",
+  "every excuse you use today, you race against in november.",
+  "nobody's impressed by what you were going to do.",
+  "you get one body and one shot at this block. act like it.",
+  "the person who beats you is training right now, tired too.",
+  "you don't rise to the day. you fall to what you've repeated.",
 ];
 
 export const HYPE_NUDGE = [
@@ -22,8 +33,26 @@ export const HYPE_NUDGE = [
   "get uncomfortable on purpose.",
   "the plan already decided. you just execute.",
   "nobody's watching. that's the whole point.",
+  "quitting is a skill too. stop practicing it.",
+  "you asked for this block. it's asking back.",
+  "tired is a feeling, not an instruction.",
+  "do it bad, do it slow, but do it.",
+  "the hill doesn't get smaller. you get bigger.",
+  "you can rest when it's logged.",
+  "hard is the point. that's the entire point.",
+  "future you is watching this decision.",
+  "no one is going to carry you up that hill.",
+  "make the version of you that shows up the default one.",
 ];
 
+export const HYPE_DONE = [
+  "banked. that's one they can't take back.",
+  "that's the deposit. race day is the withdrawal.",
+  "you did the thing you didn't want to do. good.",
+  "nobody saw it. it counted anyway.",
+];
+
+/** stable per (day, slot) so the same line doesn't reshuffle on every render */
 export function hypeFor(list, day, slot = 0) {
   let h = slot * 2654435761;
   for (let i = 0; i < day.length; i++) h = (h * 31 + day.charCodeAt(i)) | 0;
