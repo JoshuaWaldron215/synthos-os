@@ -186,7 +186,7 @@ export function Calendar() {
   const shiftMonth = (d: -1 | 1) => setCursor((c) => new Date(c.getFullYear(), c.getMonth() + d, 1));
 
   return (
-    <div style={{ maxWidth: 820, margin: "0 auto" }} className="anim-sc">
+    <div style={{ maxWidth: isMobile ? 820 : 1140, margin: "0 auto" }} className="anim-sc">
       <Eyebrow index="12" label="bookings" color="#2FC197" />
       <h1 style={{ margin: isMobile ? "0 0 3px" : "0 0 4px", fontSize: isMobile ? 21 : 30, fontWeight: 700, letterSpacing: "-.025em", lineHeight: 1.1 }}>
         the <i style={{ fontWeight: 600 }}>calendar</i>
@@ -238,114 +238,163 @@ export function Calendar() {
         </div>
       )}
 
-      {/* month grid */}
-      <div style={{ ...card, padding: isMobile ? "14px 12px" : "18px 20px", marginBottom: 14 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-          <div style={{ fontSize: isMobile ? 15 : 17, fontWeight: 700, letterSpacing: "-.01em" }}>
-            {MONTHS[cursor.getMonth()]} {cursor.getFullYear()}
-            {monthCount > 0 && <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(var(--ink-rgb),.45)", marginLeft: 8 }}>{monthCount} booking{monthCount === 1 ? "" : "s"}</span>}
+      {/* grid + day panel side by side, so picking a day never scrolls the
+          detail out of view (the whole point of the redesign) */}
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "minmax(0,1fr) 372px", gap: 14, alignItems: "start" }}>
+        <div style={{ ...card, padding: isMobile ? "14px 12px" : "18px 20px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+            <div style={{ fontSize: isMobile ? 15 : 17, fontWeight: 700, letterSpacing: "-.01em" }}>
+              {MONTHS[cursor.getMonth()]} {cursor.getFullYear()}
+              {monthCount > 0 && <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(var(--ink-rgb),.45)", marginLeft: 8 }}>{monthCount}</span>}
+            </div>
+            <div style={{ display: "flex", gap: 6 }}>
+              <button className="hov-soft" onClick={() => shiftMonth(-1)} style={navBtn}><span style={{ transform: "rotate(180deg)", display: "flex" }}><Icon name="arrowr" size={15} color="rgba(var(--ink-rgb),.55)" /></span></button>
+              <button className="hov-soft" onClick={() => { setCursor(new Date()); setSelected(todayK); }} style={{ ...navBtn, width: "auto", padding: "0 12px", fontSize: 12.5, fontWeight: 600 }}>today</button>
+              <button className="hov-soft" onClick={() => shiftMonth(1)} style={navBtn}><Icon name="arrowr" size={15} color="rgba(var(--ink-rgb),.55)" /></button>
+            </div>
           </div>
-          <div style={{ display: "flex", gap: 6 }}>
-            <button className="hov-soft" onClick={() => shiftMonth(-1)} style={navBtn}><span style={{ transform: "rotate(180deg)", display: "flex" }}><Icon name="arrowr" size={15} color="rgba(var(--ink-rgb),.55)" /></span></button>
-            <button className="hov-soft" onClick={() => { setCursor(new Date()); setSelected(todayK); }} style={{ ...navBtn, width: "auto", padding: "0 12px", fontSize: 12.5, fontWeight: 600 }}>today</button>
-            <button className="hov-soft" onClick={() => shiftMonth(1)} style={navBtn}><Icon name="arrowr" size={15} color="rgba(var(--ink-rgb),.55)" /></button>
-          </div>
-        </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: isMobile ? 3 : 5 }}>
-          {WEEKDAYS.map((d, i) => (
-            <div key={i} style={{ textAlign: "center", fontSize: 10.5, fontWeight: 700, color: "rgba(var(--ink-rgb),.4)", textTransform: "uppercase", paddingBottom: 4 }}>{d}</div>
-          ))}
-          {weeks.flat().map((d) => {
-            const k = dayKey(d);
-            const dayBookings = (byDay[k] ?? []).filter((b) => b.status !== "cancelled");
-            const dayEvents = eventsByDay[k] ?? [];
-            const otherMonth = d.getMonth() !== cursor.getMonth();
-            const isToday = k === todayK;
-            const isSel = k === selected;
-            return (
-              <button
-                key={k}
-                onClick={() => setSelected(k)}
-                style={{
-                  aspectRatio: "1 / 1",
-                  border: isSel ? "1.5px solid #2FC197" : "1px solid rgba(var(--ink-rgb),.06)",
-                  background: isToday ? "rgba(47,193,151,.1)" : "transparent",
-                  borderRadius: 11,
-                  padding: isMobile ? "4px 0 0" : "6px 0 0",
-                  fontFamily: "inherit",
-                  cursor: "pointer",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 3,
-                  opacity: otherMonth ? 0.35 : 1,
-                }}
-              >
-                <span style={{ fontSize: isMobile ? 12 : 13, fontWeight: isToday ? 800 : 600, color: "var(--ink)" }}>{d.getDate()}</span>
-                <span style={{ display: "flex", gap: 2, flexWrap: "wrap", justifyContent: "center" }}>
-                  {dayBookings.slice(0, 3).map((b) => (
-                    <span key={b.id} style={{ width: 5, height: 5, borderRadius: "50%", background: BOOKING_COLORS[b.status] }} />
-                  ))}
-                  {dayEvents.slice(0, 3).map((o, i) => (
-                    <span
-                      key={o.event.id + i}
-                      style={{
-                        width: 5,
-                        height: 5,
-                        borderRadius: 1.5,
-                        background: (EVENT_TINT[o.event.kind] ?? EVENT_TINT.personal).dot,
-                      }}
-                    />
-                  ))}
-                  {dayBookings.length + dayEvents.length > 3 && (
-                    <span style={{ fontSize: 8, fontWeight: 700, color: "rgba(var(--ink-rgb),.5)" }}>+{dayBookings.length + dayEvents.length - 3}</span>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: isMobile ? 3 : 5 }}>
+            {WEEKDAYS.map((d, i) => (
+              <div key={i} style={{ textAlign: "center", fontSize: 10.5, fontWeight: 700, color: "rgba(var(--ink-rgb),.4)", textTransform: "uppercase", paddingBottom: 4 }}>{d}</div>
+            ))}
+            {weeks.flat().map((d) => {
+              const k = dayKey(d);
+              const dayBookings = (byDay[k] ?? []).filter((b) => b.status !== "cancelled");
+              const dayEvents = eventsByDay[k] ?? [];
+              const otherMonth = d.getMonth() !== cursor.getMonth();
+              const isToday = k === todayK;
+              const isSel = k === selected;
+              // desktop cells are tall enough for named chips; mobile keeps dots
+              const chips = [
+                ...dayEvents.map((o) => ({ key: o.event.id + o.at, label: o.event.title, color: (EVENT_TINT[o.event.kind] ?? EVENT_TINT.personal).dot })),
+                ...dayBookings.map((b) => ({ key: b.id, label: b.inviteeName, color: BOOKING_COLORS[b.status] })),
+              ];
+              return (
+                <button
+                  key={k}
+                  onClick={() => setSelected(k)}
+                  aria-pressed={isSel}
+                  style={{
+                    aspectRatio: isMobile ? "1 / 1" : undefined,
+                    minHeight: isMobile ? undefined : 82,
+                    border: isSel ? "1.5px solid #2FC197" : "1px solid rgba(var(--ink-rgb),.06)",
+                    background: isSel ? "rgba(47,193,151,.07)" : isToday ? "rgba(47,193,151,.1)" : "transparent",
+                    boxShadow: isSel ? "0 0 0 3px rgba(47,193,151,.12)" : "none",
+                    borderRadius: 11,
+                    padding: isMobile ? "4px 0 0" : "5px 5px 4px",
+                    fontFamily: "inherit",
+                    cursor: "pointer",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: isMobile ? "center" : "stretch",
+                    gap: 3,
+                    opacity: otherMonth ? 0.35 : 1,
+                    overflow: "hidden",
+                    transition: "background .15s, border-color .15s, box-shadow .15s",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: isMobile ? 12 : 12.5,
+                      fontWeight: isToday ? 800 : 600,
+                      color: isToday ? "#2FC197" : "var(--ink)",
+                      textAlign: isMobile ? "center" : "left",
+                      paddingLeft: isMobile ? 0 : 2,
+                      flex: "0 0 auto",
+                    }}
+                  >
+                    {d.getDate()}
+                  </span>
+
+                  {isMobile ? (
+                    <span style={{ display: "flex", gap: 2, flexWrap: "wrap", justifyContent: "center" }}>
+                      {chips.slice(0, 3).map((c) => (
+                        <span key={c.key} style={{ width: 5, height: 5, borderRadius: 1.5, background: c.color }} />
+                      ))}
+                      {chips.length > 3 && <span style={{ fontSize: 8, fontWeight: 700, color: "rgba(var(--ink-rgb),.5)" }}>+{chips.length - 3}</span>}
+                    </span>
+                  ) : (
+                    <span style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
+                      {chips.slice(0, 2).map((c) => (
+                        <span
+                          key={c.key}
+                          title={c.label}
+                          style={{
+                            display: "block",
+                            fontSize: 9.5,
+                            fontWeight: 700,
+                            lineHeight: 1.35,
+                            color: c.color,
+                            background: c.color + "1F",
+                            borderRadius: 4,
+                            padding: "1px 4px",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            textAlign: "left",
+                          }}
+                        >
+                          {c.label}
+                        </span>
+                      ))}
+                      {chips.length > 2 && (
+                        <span style={{ fontSize: 9, fontWeight: 700, color: "rgba(var(--ink-rgb),.45)", paddingLeft: 4, textAlign: "left" }}>
+                          +{chips.length - 2} more
+                        </span>
+                      )}
+                    </span>
                   )}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* selected day agenda */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "0 4px 10px", gap: 10 }}>
-        <div style={label}>
-          {selected ? fmtDayLabel(new Date(selected + "T12:00:00").getTime()).toLowerCase() : "pick a day"}
-          {selectedList.length + selectedEvents.length > 0 && (
-            <span style={{ color: "rgba(var(--ink-rgb),.4)" }}> · {selectedList.length + selectedEvents.length}</span>
-          )}
-        </div>
-        <button
-          className="hov-soft"
-          onClick={() => openEventModal(selected ? new Date(selected + "T12:00:00").getTime() : dayStart(now))}
-          style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 10, padding: "8px 13px", fontSize: 12.5, fontWeight: 600, fontFamily: "inherit" }}
-        >
-          <Icon name="plus" size={14} sw={2} color="#fff" /> add
-        </button>
-      </div>
-      {selectedList.length + selectedEvents.length === 0 ? (
-        <div style={{ ...card, border: "1px dashed rgba(var(--ink-rgb),.14)", padding: "30px 20px", textAlign: "center" }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>nothing on this day</div>
-          <div style={{ fontSize: 13, color: "rgba(var(--ink-rgb),.5)" }}>
-            site bookings land here automatically — hit <b>add</b> to put something of your own on it.
+                </button>
+              );
+            })}
           </div>
         </div>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {selectedEvents.map((o, i) => (
-            <EventCard
-              key={o.event.id + i}
-              occ={o}
-              mine={o.event.who === currentUserId}
-              onEdit={() => editEvent(o.event.id)}
-            />
-          ))}
-          {selectedList.map((b) => (
-            <BookingCard key={b.id} b={b} />
-          ))}
+
+        {/* the day itself — pinned beside the grid on desktop */}
+        <div style={{ position: isMobile ? "static" : "sticky", top: 12, display: "flex", flexDirection: "column", gap: 10, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: isMobile ? "0 4px" : "0 2px" }}>
+            <div style={label}>
+              {selected ? fmtDayLabel(new Date(selected + "T12:00:00").getTime()).toLowerCase() : "pick a day"}
+              {selectedList.length + selectedEvents.length > 0 && (
+                <span style={{ color: "rgba(var(--ink-rgb),.4)" }}> · {selectedList.length + selectedEvents.length}</span>
+              )}
+            </div>
+            <button
+              className="hov-soft"
+              onClick={() => openEventModal(selected ? new Date(selected + "T12:00:00").getTime() : dayStart(now))}
+              style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 10, padding: "8px 13px", fontSize: 12.5, fontWeight: 600, fontFamily: "inherit", flex: "0 0 auto" }}
+            >
+              <Icon name="plus" size={14} sw={2} color="#fff" /> add
+            </button>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: isMobile ? undefined : "calc(100dvh - 150px)", overflowY: isMobile ? undefined : "auto", paddingRight: isMobile ? 0 : 2 }}>
+            {selectedList.length + selectedEvents.length === 0 ? (
+              <div style={{ ...card, border: "1px dashed rgba(var(--ink-rgb),.14)", padding: "28px 20px", textAlign: "center" }}>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>nothing on this day</div>
+                <div style={{ fontSize: 13, color: "rgba(var(--ink-rgb),.5)" }}>
+                  site bookings land here automatically — hit <b>add</b> to put something of your own on it.
+                </div>
+              </div>
+            ) : (
+              <>
+                {selectedEvents.map((o, i) => (
+                  <EventCard
+                    key={o.event.id + i}
+                    occ={o}
+                    mine={o.event.who === currentUserId}
+                    onEdit={() => editEvent(o.event.id)}
+                  />
+                ))}
+                {selectedList.map((b) => (
+                  <BookingCard key={b.id} b={b} />
+                ))}
+              </>
+            )}
+          </div>
         </div>
-      )}
+      </div>
 
       <EventFormModal />
     </div>
