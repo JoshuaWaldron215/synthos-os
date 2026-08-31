@@ -14,15 +14,69 @@ import {
   untilBooking,
   WEEKDAYS,
 } from "../lib/calendar";
+import { EVENT_TINT, dayStart, expand, repeatLabel } from "../lib/calEvents";
+import { HYPE_MORNING, hypeFor } from "../lib/hype";
+import { EventFormModal } from "../components/EventFormModal";
+import { Avatar } from "../components/Avatar";
 import { useIsMobile } from "../lib/useMediaQuery";
 import { useStore } from "../store/useStore";
-import type { Booking } from "../types";
+import type { Booking, CalendarEvent } from "../types";
 
 const LOCATION_LABEL: Record<string, string> = {
   google_meet: "Google Meet",
   zoom: "Zoom",
   phone: "Phone",
 };
+
+function EventCard({ occ, mine, onEdit }: { occ: { event: CalendarEvent; at: number }; mine: boolean; onEdit: () => void }) {
+  const { event: e, at } = occ;
+  const tint = EVENT_TINT[e.kind] ?? EVENT_TINT.personal;
+  const time = e.allDay
+    ? "all day"
+    : new Date(at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }).toLowerCase();
+  const rep = repeatLabel(e);
+  return (
+    <div
+      role={mine ? "button" : undefined}
+      tabIndex={mine ? 0 : undefined}
+      onClick={mine ? onEdit : undefined}
+      onKeyDown={mine ? (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); onEdit(); } } : undefined}
+      title={mine ? "edit" : undefined}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+        background: "var(--card)",
+        border: "1px solid rgba(var(--ink-rgb),.06)",
+        borderLeft: `3px solid ${tint.dot}`,
+        borderRadius: 14,
+        boxShadow: "var(--shadow-card)",
+        padding: "12px 15px",
+        cursor: mine ? "pointer" : "default",
+      }}
+    >
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 14.5, fontWeight: 600, color: "var(--ink)" }}>{e.title}</span>
+          <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: ".07em", textTransform: "uppercase", color: tint.dot, background: tint.tint, padding: "2px 7px", borderRadius: 5 }}>
+            {e.kind}
+          </span>
+          {!e.shared && mine && (
+            <span title="only you can see this" style={{ fontSize: 11, color: "rgba(var(--ink-rgb),.35)" }}>private</span>
+          )}
+        </div>
+        <div style={{ fontSize: 12.5, color: "rgba(var(--ink-rgb),.55)", marginTop: 2 }}>
+          {time}
+          {rep && <span style={{ color: "rgba(var(--ink-rgb),.35)" }}> · {rep}</span>}
+        </div>
+        {e.notes && (
+          <div style={{ fontSize: 12.5, color: "rgba(var(--ink-rgb),.55)", marginTop: 4, lineHeight: 1.45, whiteSpace: "pre-wrap" }}>{e.notes}</div>
+        )}
+      </div>
+      {!mine && <Avatar id={e.who} size={26} />}
+    </div>
+  );
+}
 
 function StatusPill({ status }: { status: Booking["status"] }) {
   const c = BOOKING_COLORS[status];
@@ -96,7 +150,23 @@ export function Calendar() {
     return () => clearInterval(id);
   }, []);
 
+  const calEvents = useStore((s) => s.calEvents);
+  const currentUserId = useStore((s) => s.currentUserId);
+  const openEventModal = useStore((s) => s.openEventModal);
+  const editEvent = useStore((s) => s.editEvent);
+
   const byDay = useMemo(() => groupByDay(bookings), [bookings]);
+
+  // one entry per occurrence across the visible month (+/- a week of overhang)
+  const eventsByDay = useMemo(() => {
+    const from = new Date(cursor.getFullYear(), cursor.getMonth(), 1).getTime() - 7 * 86_400_000;
+    const to = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 7).getTime();
+    const out: Record<string, Array<{ event: CalendarEvent; at: number }>> = {};
+    for (const occ of expand(calEvents, from, to)) {
+      (out[dayKey(new Date(occ.at))] ??= []).push(occ);
+    }
+    return out;
+  }, [calEvents, cursor]);
   const upNext = useMemo(() => nextBooking(bookings, now), [bookings, now]);
   const weeks = useMemo(() => monthMatrix(cursor.getFullYear(), cursor.getMonth()), [cursor]);
   const monthCount = useMemo(
@@ -106,6 +176,9 @@ export function Calendar() {
 
   const todayK = dayKey(new Date(now));
   const selectedList = selected ? (byDay[selected] ?? []) : [];
+  const selectedEvents = selected ? (eventsByDay[selected] ?? []) : [];
+  // today's own workouts drive the hype line under the header
+  const myToday = (eventsByDay[todayK] ?? []).filter((o) => o.event.who === currentUserId);
 
   const card: CSSProperties = { background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.06)", borderRadius: 18, boxShadow: "var(--shadow-card)" };
   const label: CSSProperties = { fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 700 };
@@ -119,8 +192,30 @@ export function Calendar() {
         the <i style={{ fontWeight: 600 }}>calendar</i>
       </h1>
       <p style={{ margin: "0 0 16px", fontSize: isMobile ? 12.5 : 14, color: "rgba(var(--ink-rgb),.5)" }}>
-        every booking from runsynthos.com — live, the moment it's made.
+        site bookings, live — plus whatever you put on it yourself.
       </p>
+
+      {/* only shows on days you actually have something to do */}
+      {myToday.length > 0 && (
+        <div
+          style={{
+            ...card,
+            padding: isMobile ? "13px 15px" : "14px 20px",
+            marginBottom: 14,
+            borderLeft: "3px solid #2FC197",
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={label}>today · {myToday.map((o) => o.event.title).join(" · ")}</div>
+            <div style={{ fontSize: isMobile ? 14 : 15.5, fontWeight: 600, letterSpacing: "-.01em", marginTop: 5, color: "var(--ink)" }}>
+              {hypeFor(HYPE_MORNING, todayK)}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* next up */}
       {upNext && (
@@ -164,6 +259,7 @@ export function Calendar() {
           {weeks.flat().map((d) => {
             const k = dayKey(d);
             const dayBookings = (byDay[k] ?? []).filter((b) => b.status !== "cancelled");
+            const dayEvents = eventsByDay[k] ?? [];
             const otherMonth = d.getMonth() !== cursor.getMonth();
             const isToday = k === todayK;
             const isSel = k === selected;
@@ -191,7 +287,20 @@ export function Calendar() {
                   {dayBookings.slice(0, 3).map((b) => (
                     <span key={b.id} style={{ width: 5, height: 5, borderRadius: "50%", background: BOOKING_COLORS[b.status] }} />
                   ))}
-                  {dayBookings.length > 3 && <span style={{ fontSize: 8, fontWeight: 700, color: "rgba(var(--ink-rgb),.5)" }}>+{dayBookings.length - 3}</span>}
+                  {dayEvents.slice(0, 3).map((o, i) => (
+                    <span
+                      key={o.event.id + i}
+                      style={{
+                        width: 5,
+                        height: 5,
+                        borderRadius: 1.5,
+                        background: (EVENT_TINT[o.event.kind] ?? EVENT_TINT.personal).dot,
+                      }}
+                    />
+                  ))}
+                  {dayBookings.length + dayEvents.length > 3 && (
+                    <span style={{ fontSize: 8, fontWeight: 700, color: "rgba(var(--ink-rgb),.5)" }}>+{dayBookings.length + dayEvents.length - 3}</span>
+                  )}
                 </span>
               </button>
             );
@@ -200,24 +309,45 @@ export function Calendar() {
       </div>
 
       {/* selected day agenda */}
-      <div style={{ ...label, margin: "0 4px 10px" }}>
-        {selected ? fmtDayLabel(new Date(selected + "T12:00:00").getTime()).toLowerCase() : "pick a day"}
-        {selectedList.length > 0 && <span style={{ color: "rgba(var(--ink-rgb),.4)" }}> · {selectedList.length}</span>}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "0 4px 10px", gap: 10 }}>
+        <div style={label}>
+          {selected ? fmtDayLabel(new Date(selected + "T12:00:00").getTime()).toLowerCase() : "pick a day"}
+          {selectedList.length + selectedEvents.length > 0 && (
+            <span style={{ color: "rgba(var(--ink-rgb),.4)" }}> · {selectedList.length + selectedEvents.length}</span>
+          )}
+        </div>
+        <button
+          className="hov-soft"
+          onClick={() => openEventModal(selected ? new Date(selected + "T12:00:00").getTime() : dayStart(now))}
+          style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--btn-ink)", color: "#fff", border: "none", borderRadius: 10, padding: "8px 13px", fontSize: 12.5, fontWeight: 600, fontFamily: "inherit" }}
+        >
+          <Icon name="plus" size={14} sw={2} color="#fff" /> add
+        </button>
       </div>
-      {selectedList.length === 0 ? (
+      {selectedList.length + selectedEvents.length === 0 ? (
         <div style={{ ...card, border: "1px dashed rgba(var(--ink-rgb),.14)", padding: "30px 20px", textAlign: "center" }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{bookings.length === 0 ? "no bookings yet" : "nothing booked this day"}</div>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>nothing on this day</div>
           <div style={{ fontSize: 13, color: "rgba(var(--ink-rgb),.5)" }}>
-            {bookings.length === 0 ? "when someone books a call on runsynthos.com, it lands here instantly ✦" : "green = confirmed · amber = pending · red = cancelled"}
+            site bookings land here automatically — hit <b>add</b> to put something of your own on it.
           </div>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {selectedEvents.map((o, i) => (
+            <EventCard
+              key={o.event.id + i}
+              occ={o}
+              mine={o.event.who === currentUserId}
+              onEdit={() => editEvent(o.event.id)}
+            />
+          ))}
           {selectedList.map((b) => (
             <BookingCard key={b.id} b={b} />
           ))}
         </div>
       )}
+
+      <EventFormModal />
     </div>
   );
 }

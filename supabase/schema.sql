@@ -470,7 +470,7 @@ alter table public.portal_updates enable row level security;
 do $$
 declare t text;
 begin
-  foreach t in array array['profiles','projects','tasks','vault_keys','activity','wins','project_files','conversations','messages','content_items','push_subscriptions','leads','workspace_settings','health_days','portal_links','portal_updates','vault_logins']
+  foreach t in array array['profiles','projects','tasks','vault_keys','activity','wins','project_files','conversations','messages','content_items','push_subscriptions','leads','workspace_settings','health_days','portal_links','portal_updates','vault_logins','calendar_events']
   loop
     execute format('drop policy if exists %I on public.%I;', t || '_team_rw', t);
     execute format(
@@ -486,7 +486,7 @@ end $$;
 do $$
 declare t text;
 begin
-  foreach t in array array['projects','tasks','vault_keys','activity','wins','project_files','profiles','conversations','messages','content_items','leads','workspace_settings','health_days','portal_updates']
+  foreach t in array array['projects','tasks','vault_keys','activity','wins','project_files','profiles','conversations','messages','content_items','leads','workspace_settings','health_days','portal_updates','calendar_events']
   loop
     if not exists (
       select 1 from pg_publication_tables
@@ -617,3 +617,55 @@ select cron.schedule(
        )
      ) $$
 );
+
+-- ---------------------------------------------------------------------------
+-- calendar_events — personal entries alongside the website's bookings.
+-- Owned by a builder slot; private unless explicitly shared with the team.
+-- ---------------------------------------------------------------------------
+create table if not exists public.calendar_events (
+  id text primary key,
+  who int not null,
+  title text not null default '',
+  notes text not null default '',
+  kind text not null default 'personal',        -- personal | workout | work
+  start_at timestamptz not null,                -- first occurrence; also the time of day when repeating
+  duration_min int,
+  all_day boolean not null default false,
+  shared boolean not null default false,
+  repeat_days int[],                            -- 0=Sun .. 6=Sat; null/empty = one-off
+  repeat_until date,
+  remind_min int default 60,                    -- minutes before; null = no timed nudge
+  last_reminded_on date,                        -- dedupe: at most one nudge per occurrence
+  created_at timestamptz not null default now()
+);
+create index if not exists calendar_events_who_idx on public.calendar_events (who);
+create index if not exists calendar_events_start_idx on public.calendar_events (start_at);
+alter table public.calendar_events enable row level security;
+
+-- the caller's builder slot, from their profile row
+create or replace function public.my_builder_id()
+returns int language sql stable security definer set search_path = public
+as $$ select builder_id from public.profiles where id = auth.uid() $$;
+grant execute on function public.my_builder_id() to authenticated;
+
+-- read your own + anything a teammate chose to share; write only your own
+drop policy if exists calendar_events_select on public.calendar_events;
+create policy calendar_events_select on public.calendar_events
+  for select to authenticated using (shared or who = public.my_builder_id());
+drop policy if exists calendar_events_insert on public.calendar_events;
+create policy calendar_events_insert on public.calendar_events
+  for insert to authenticated with check (who = public.my_builder_id());
+drop policy if exists calendar_events_update on public.calendar_events;
+create policy calendar_events_update on public.calendar_events
+  for update to authenticated using (who = public.my_builder_id()) with check (who = public.my_builder_id());
+drop policy if exists calendar_events_delete on public.calendar_events;
+create policy calendar_events_delete on public.calendar_events
+  for delete to authenticated using (who = public.my_builder_id());
+
+-- timed nudges: every 5 minutes; the endpoint decides what is actually due
+-- and dedupes with last_reminded_on.
+--   select cron.schedule('calendar-event-nudges', '*/5 * * * *',
+--     $$ select net.http_post(
+--          url := 'https://synthos-os.vercel.app/api/remind?mode=events',
+--          headers := jsonb_build_object('x-webhook-secret',
+--            (select decrypted_secret from vault.decrypted_secrets where name = 'push_webhook_secret'))) $$);

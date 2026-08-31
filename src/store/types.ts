@@ -22,6 +22,8 @@ import type {
   ProjectFile,
   ProjectStatus,
   Booking,
+  CalendarEvent,
+  EventKind,
   Task,
   TeamMessage,
   VaultKey,
@@ -148,6 +150,12 @@ export interface StoreState {
   // calendar (website bookings — read-only mirror, live)
   bookings: Booking[];
   eventTypes: Record<string, EventTypeInfo>;
+
+  // calendar (personal events — own + teammates' shared)
+  calEvents: CalendarEvent[];
+  /** day the "add event" sheet is open for, epoch ms at local midnight */
+  eventModalDay: number | null;
+  editingEventId: string | null;
 
   // ui / shell actions
   setCurrentUser: (id: number) => void;
@@ -323,6 +331,26 @@ export interface StoreState {
 
   // booking actions
   receiveBooking: (ev: "upsert" | "delete", data: BookingRow | string) => void;
+
+  // personal calendar actions
+  openEventModal: (day?: number) => void;
+  editEvent: (id: string) => void;
+  closeEventModal: () => void;
+  addCalEvent: (input: {
+    title: string;
+    startAt: number;
+    kind?: EventKind;
+    notes?: string;
+    durationMin?: number | null;
+    allDay?: boolean;
+    shared?: boolean;
+    repeatDays?: number[];
+    repeatUntil?: number | null;
+    remindMin?: number | null;
+  }) => void;
+  updateCalEvent: (id: string, patch: Partial<CalendarEvent>) => void;
+  deleteCalEvent: (id: string) => void;
+  receiveCalEvent: (ev: "upsert" | "delete", data: CalendarEvent | string) => void;
 
   // portal actions
   loadPortal: (proj: string) => Promise<void>;

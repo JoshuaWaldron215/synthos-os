@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Avatar } from "../components/Avatar";
 import { Eyebrow } from "../components/Eyebrow";
 import { Icon } from "../lib/Icon";
+import { EVENT_TINT, dayStart, expand } from "../lib/calEvents";
+import { HYPE_MORNING, hypeFor } from "../lib/hype";
 import { LEAD_STATUSES, fmtDay, leadPill } from "../lib/leads";
 import { perMonth, sumMoney } from "../lib/money";
 import { effectiveUser } from "../lib/profile";
@@ -27,6 +29,7 @@ const WIDGET_TITLES: Record<WidgetKey, string> = {
   projects: "projects",
   team: "chat",
   wins: "momentum",
+  training: "the block",
 };
 
 const rowStyle: CSSProperties = {
@@ -205,6 +208,103 @@ function TodayWidget() {
   );
 }
 
+const WEEK_LETTERS = ["m", "t", "w", "t", "f", "s", "s"];
+
+/** this week's training at a glance — today's session, the week, one line of hype */
+function TrainingWidget() {
+  const navigate = useNavigate();
+  const me = useStore((s) => s.currentUserId);
+  const calEvents = useStore((s) => s.calEvents);
+  const mine = useMemo(() => calEvents.filter((e) => e.who === me), [calEvents, me]);
+
+  const today = startOfToday();
+  // week runs monday -> sunday
+  const monday = today - ((new Date(today).getDay() + 6) % 7) * DAY;
+
+  const week = useMemo(() => {
+    const occ = expand(mine, monday, monday + 6 * DAY + DAY - 1);
+    const byDay = new Map<number, Array<(typeof occ)[number]>>();
+    for (const o of occ) {
+      const k = dayStart(o.at);
+      byDay.set(k, (byDay.get(k) ?? []).concat(o));
+    }
+    return Array.from({ length: 7 }, (_, i) => ({ day: monday + i * DAY, items: byDay.get(monday + i * DAY) ?? [] }));
+  }, [mine, monday]);
+
+  const todays = week.find((d) => d.day === today)?.items ?? [];
+  const done = week.filter((d) => d.day < today && d.items.length).length;
+  const total = week.filter((d) => d.items.length).length;
+
+  if (!total) {
+    return (
+      <button className="hov-soft dash-row" style={{ ...rowStyle, ...emptyStyle }} onClick={() => navigate("/calendar")}>
+        nothing scheduled this week — put something on the calendar ✦
+      </button>
+    );
+  }
+
+  return (
+    <div>
+      {/* today's session, or the fact that it's a rest day */}
+      <button className="hov-soft dash-row" style={{ ...rowStyle, alignItems: "flex-start", padding: "9px 6px" }} onClick={() => navigate("/calendar")}>
+        <span style={{ width: 7, height: 7, borderRadius: 2, marginTop: 5, background: todays.length ? (EVENT_TINT[todays[0].event.kind] ?? EVENT_TINT.personal).dot : "rgba(var(--ink-rgb),.2)", flex: "0 0 auto" }} />
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ display: "block", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {todays.length ? todays.map((o) => o.event.title).join(" · ") : "rest day"}
+          </span>
+          <span style={{ display: "block", fontSize: 12, color: "rgba(var(--ink-rgb),.5)", marginTop: 2 }}>
+            {hypeFor(HYPE_MORNING, new Date(today).toDateString())}
+          </span>
+        </span>
+      </button>
+
+      {/* the week */}
+      <div style={{ display: "flex", gap: 4, padding: "8px 6px 4px" }}>
+        {week.map((d, i) => {
+          const isToday = d.day === today;
+          const past = d.day < today;
+          const has = d.items.length > 0;
+          const tint = has ? (EVENT_TINT[d.items[0].event.kind] ?? EVENT_TINT.personal).dot : null;
+          return (
+            <div
+              key={d.day}
+              title={has ? d.items.map((o) => o.event.title).join(" · ") : "rest"}
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 5,
+                padding: "6px 0",
+                borderRadius: 9,
+                background: isToday ? "rgba(47,193,151,.12)" : "transparent",
+                border: isToday ? "1px solid rgba(47,193,151,.35)" : "1px solid transparent",
+              }}
+            >
+              <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: isToday ? "#2FC197" : "rgba(var(--ink-rgb),.4)" }}>
+                {WEEK_LETTERS[i]}
+              </span>
+              <span
+                style={{
+                  width: has ? 8 : 5,
+                  height: has ? 8 : 5,
+                  borderRadius: has ? 2.5 : "50%",
+                  background: has ? (tint as string) : "rgba(var(--ink-rgb),.15)",
+                  opacity: past && has ? 0.4 : 1,
+                }}
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ fontSize: 11.5, color: "rgba(var(--ink-rgb),.4)", padding: "2px 6px 0" }}>
+        {done} of {total} sessions this week behind you
+      </div>
+    </div>
+  );
+}
+
 function TasksWidget() {
   const navigate = useNavigate();
   const me = useStore((s) => s.currentUserId);
@@ -376,6 +476,7 @@ const WIDGETS: Record<WidgetKey, { component: () => ReactNode; path: string }> =
   projects: { component: ProjectsWidget, path: "/projects" },
   team: { component: TeamWidget, path: "/team" },
   wins: { component: WinsWidget, path: "/wins" },
+  training: { component: TrainingWidget, path: "/calendar" },
 };
 
 export function Home() {

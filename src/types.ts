@@ -261,3 +261,27 @@ export interface NotifItem {
   /** in-app destination when tapped (e.g. /tasks) */
   url?: string;
 }
+
+/** a personal calendar entry (workout, reminder, block) — private unless shared */
+export type EventKind = "personal" | "workout" | "work";
+export interface CalendarEvent {
+  id: string;
+  who: number;
+  title: string;
+  notes: string;
+  kind: EventKind;
+  /** first occurrence; for repeating events this also fixes the time of day */
+  startAt: number;
+  /** minutes; null for all-day or open-ended */
+  durationMin: number | null;
+  allDay: boolean;
+  /** visible to the rest of the team */
+  shared: boolean;
+  /** 0=Sun .. 6=Sat; empty means it happens once */
+  repeatDays: number[];
+  /** last date the repeat is active, epoch ms at local midnight; null = forever */
+  repeatUntil: number | null;
+  /** minutes before the start to nudge; null = no reminder */
+  remindMin: number | null;
+  createdAt: number;
+}

@@ -2,7 +2,7 @@ import type { StoreGet, StoreSet } from "../types";
 
 // Per-user home dashboard layout: which widgets show and in what order.
 // Stored per builder id so a shared device keeps everyone's arrangement.
-export type WidgetKey = "ask" | "today" | "tasks" | "pipeline" | "projects" | "team" | "wins";
+export type WidgetKey = "ask" | "today" | "training" | "tasks" | "pipeline" | "projects" | "team" | "wins";
 
 export interface DashboardItem {
   key: WidgetKey;
@@ -11,6 +11,7 @@ export interface DashboardItem {
 
 export const DEFAULT_DASHBOARD: DashboardItem[] = [
   { key: "today", on: true },
+  { key: "training", on: true },
   { key: "ask", on: true },
   { key: "tasks", on: true },
   { key: "pipeline", on: true },
@@ -25,7 +26,24 @@ export const fullLayout = (saved?: DashboardItem[]): DashboardItem[] => {
   if (!saved) return DEFAULT_DASHBOARD;
   const have = new Set(saved.map((w) => w.key));
   const missing = DEFAULT_DASHBOARD.filter((w) => !have.has(w.key));
-  return missing.length ? saved.concat(missing) : saved;
+  if (!missing.length) return saved;
+  // Drop each new widget where it was designed to sit rather than at the very
+  // bottom: find the last saved widget that precedes it in the default order.
+  const out = [...saved];
+  for (const w of missing) {
+    const before = new Set(
+      DEFAULT_DASHBOARD.slice(0, DEFAULT_DASHBOARD.findIndex((d) => d.key === w.key)).map((d) => d.key),
+    );
+    let at = out.length;
+    for (let i = out.length - 1; i >= 0; i--) {
+      if (before.has(out[i].key)) {
+        at = i + 1;
+        break;
+      }
+    }
+    out.splice(at, 0, w);
+  }
+  return out;
 };
 
 export const createDashboardSlice = (set: StoreSet, get: StoreGet) => ({

@@ -122,6 +122,7 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
           teamMsgs: localMsgs,
           content: raw.content.filter(dead("content_items")),
           leads: raw.leads.filter(dead("leads")),
+          calEvents: raw.calEvents.filter(dead("calendar_events")),
         };
         // union everything id-keyed so a locally-stranded record (failed or
         // offline write) is never dropped; server copy wins on conflict
@@ -145,6 +146,7 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
           bookings: data.bookings,
           eventTypes: data.eventTypes,
           outreachUsers: data.outreachUsers,
+          calEvents: unionById(data.calEvents, local.calEvents),
         });
         // shared kanban column labels: server copy wins; a device holding a
         // rename the server never saw (pre-sync edits) pushes it up once
@@ -355,6 +357,7 @@ export const createDataSlice = (set: StoreSet, get: StoreGet) => ({
           set((s) => ({
             leads: ev === "delete" ? s.leads.filter((l) => l.id !== data) : upsertBy(s.leads, data as Lead),
           })),
+        calEvent: (ev, data) => get().receiveCalEvent(ev, data),
         profile: (builderId, patch) =>
           set((s) => ({
             profiles: s.profiles[builderId]

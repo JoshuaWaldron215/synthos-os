@@ -3,6 +3,8 @@ import { deleteBlob, getBlob, putBlob } from "../lib/fileStore";
 import { healthDateKey, type HealthDay, type HealthWorkout, type HypeMap } from "../lib/health";
 import type {
   AuditEntry,
+  CalendarEvent,
+  EventKind,
   ContentItem,
   Conversation,
   Lead,
@@ -52,6 +54,8 @@ export interface Dataset {
   eventTypes: Record<string, EventTypeInfo>;
   /** active outreach console logins, so leads can be filtered by them */
   outreachUsers: string[];
+  /** personal calendar events (own + teammates' shared ones, per RLS) */
+  calEvents: CalendarEvent[];
 }
 
 export interface EventTypeInfo {
@@ -356,6 +360,58 @@ const fromLead = (l: Lead): LeadRow => ({
   via: l.via ?? null,
 });
 
+interface CalEventRow {
+  id: string;
+  who: number;
+  title: string;
+  notes: string | null;
+  kind: EventKind;
+  start_at: string;
+  duration_min: number | null;
+  all_day: boolean;
+  shared: boolean;
+  repeat_days: number[] | null;
+  repeat_until: string | null;
+  remind_min: number | null;
+  created_at: string;
+}
+const toCalEvent = (r: CalEventRow): CalendarEvent => ({
+  id: r.id,
+  who: r.who,
+  title: r.title,
+  notes: r.notes ?? "",
+  kind: r.kind,
+  startAt: new Date(r.start_at).getTime(),
+  durationMin: r.duration_min,
+  allDay: r.all_day,
+  shared: r.shared,
+  repeatDays: r.repeat_days ?? [],
+  // a date column comes back as YYYY-MM-DD; read it as local midnight
+  repeatUntil: r.repeat_until ? new Date(r.repeat_until + "T00:00:00").getTime() : null,
+  remindMin: r.remind_min,
+  createdAt: new Date(r.created_at).getTime(),
+});
+const fromCalEvent = (e: CalendarEvent): Record<string, unknown> => ({
+  id: e.id,
+  who: e.who,
+  title: e.title,
+  notes: e.notes,
+  kind: e.kind,
+  start_at: new Date(e.startAt).toISOString(),
+  duration_min: e.durationMin,
+  all_day: e.allDay,
+  shared: e.shared,
+  repeat_days: e.repeatDays.length ? e.repeatDays : null,
+  repeat_until: e.repeatUntil ? localDateKey(e.repeatUntil) : null,
+  remind_min: e.remindMin,
+});
+
+/** YYYY-MM-DD in the viewer's timezone (a date column must not shift by UTC) */
+const localDateKey = (ms: number): string => {
+  const d = new Date(ms);
+  return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, "0"), String(d.getDate()).padStart(2, "0")].join("-");
+};
+
 interface ProfileRow {
   builder_id: number | null;
   name: string | null;
@@ -391,7 +447,7 @@ export async function fetchAll(): Promise<Dataset | null> {
   const healthCutoffKey = healthDateKey(new Date(Date.now() - 14 * 86_400_000));
   // bookings: recent past + everything upcoming (a browsable window, not all history)
   const bookingCutoff = new Date(Date.now() - 60 * 86_400_000).toISOString();
-  const [projects, tasks, keys, activity, files, wins, convos, messages, content, profiles, leads, settings, tombstones, health, logins, eventTypeRows, bookingRows, outreachUsers] = await Promise.all([
+  const [projects, tasks, keys, activity, files, wins, convos, messages, content, profiles, leads, settings, tombstones, health, logins, eventTypeRows, bookingRows, outreachUsers, calEvents] = await Promise.all([
     sb.from("projects").select("*"),
     sb.from("tasks").select("*"),
     sb.rpc("vault_keys_list"),
@@ -410,6 +466,7 @@ export async function fetchAll(): Promise<Dataset | null> {
     sb.from("event_types").select("id, title, duration_min, location_type"),
     sb.from("bookings").select("*").gte("start_at", bookingCutoff).order("start_at", { ascending: true }),
     sb.rpc("outreach_usernames"),
+    sb.from("calendar_events").select("*"),
   ]);
   const eventTypes: Record<string, EventTypeInfo> = {};
   for (const t of (eventTypeRows.data ?? []) as EventTypeRow[]) {
@@ -446,6 +503,7 @@ export async function fetchAll(): Promise<Dataset | null> {
     eventTypes,
     bookings: ((bookingRows.data ?? []) as BookingRow[]).map((r) => toBooking(r, eventTypes)),
     outreachUsers: (outreachUsers.data ?? []) as string[],
+    calEvents: ((calEvents.data ?? []) as CalEventRow[]).map(toCalEvent),
   };
 }
 
@@ -628,6 +686,17 @@ export async function removeLead(id: string): Promise<void> {
   await sb.from("leads").delete().eq("id", id);
 }
 
+export async function saveCalEvent(e: CalendarEvent): Promise<void> {
+  const sb = await getSupabase();
+  if (!sb) return;
+  await sb.from("calendar_events").upsert(fromCalEvent(e));
+}
+export async function removeCalEvent(id: string): Promise<void> {
+  const sb = await getSupabase();
+  if (!sb) return;
+  await sb.from("calendar_events").delete().eq("id", id);
+}
+
 export async function saveProfile(builderId: number, p: Profile): Promise<void> {
   const sb = await getSupabase();
   if (!sb) return;
@@ -737,6 +806,7 @@ export interface RealtimeHandlers {
   messageDeleted: (id: string) => void;
   content: (ev: "upsert" | "delete", data: ContentItem | string) => void;
   lead: (ev: "upsert" | "delete", data: Lead | string) => void;
+  calEvent: (ev: "upsert" | "delete", data: CalendarEvent | string) => void;
   profile: (builderId: number, patch: Partial<Profile>) => void;
   setting: (key: string, value: unknown) => void;
   health: (day: HealthDay) => void;
@@ -801,6 +871,7 @@ export async function subscribeRealtime(h: RealtimeHandlers): Promise<void> {
   });
   on<ContentRow>("content_items", crud(toContent, h.content));
   on<LeadRow>("leads", crud(toLead, h.lead));
+  on<CalEventRow>("calendar_events", crud(toCalEvent, h.calEvent));
   on<ProfileRow>("profiles", (e) => {
     if (e.eventType !== "DELETE" && e.new.builder_id !== null) h.profile(e.new.builder_id, toProfilePatch(e.new));
   });

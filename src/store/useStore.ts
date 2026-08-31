@@ -9,6 +9,7 @@ import { createDataSlice } from "./slices/data";
 import { createHealthSlice } from "./slices/health";
 import { createIntakeSlice } from "./slices/intake";
 import { createLeadsSlice } from "./slices/leads";
+import { createCalendarSlice } from "./slices/calendar";
 import { createBookingsSlice } from "./slices/bookings";
 import { createPortalSlice } from "./slices/portal";
 import { createPrayersSlice } from "./slices/prayers";
@@ -47,6 +48,7 @@ export const persistSnapshot = (s: StoreState) => ({
   prayerPlace: s.prayerPlace,
   prayerNotified: s.prayerNotified,
   health: s.health,
+  calEvents: s.calEvents,
   lastHydrateAt: s.lastHydrateAt,
 });
 
@@ -70,6 +72,7 @@ export const useStore = create<StoreState>()(
       ...createHealthSlice(set, get),
       ...createPortalSlice(set, get),
       ...createBookingsSlice(set, get),
+      ...createCalendarSlice(set, get),
     }),
     {
       name: "synthos-os-v2",
