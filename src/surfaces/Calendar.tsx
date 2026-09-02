@@ -15,6 +15,7 @@ import {
   WEEKDAYS,
 } from "../lib/calendar";
 import { EVENT_TINT, dayStart, expand, repeatLabel } from "../lib/calEvents";
+import { downloadIcs } from "../lib/calIcs";
 import { HYPE_MORNING, hypeFor } from "../lib/hype";
 import { EventFormModal } from "../components/EventFormModal";
 import { Avatar } from "../components/Avatar";
@@ -179,6 +180,7 @@ export function Calendar() {
   const selectedEvents = selected ? (eventsByDay[selected] ?? []) : [];
   // today's own workouts drive the hype line under the header
   const myToday = (eventsByDay[todayK] ?? []).filter((o) => o.event.who === currentUserId);
+  const myEventCount = calEvents.filter((e) => e.who === currentUserId).length;
 
   const card: CSSProperties = { background: "var(--card)", border: "1px solid rgba(var(--ink-rgb),.06)", borderRadius: 18, boxShadow: "var(--shadow-card)" };
   const label: CSSProperties = { fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(var(--ink-rgb),.55)", fontWeight: 700 };
@@ -360,6 +362,15 @@ export function Calendar() {
                 <span style={{ color: "rgba(var(--ink-rgb),.4)" }}> · {selectedList.length + selectedEvents.length}</span>
               )}
             </div>
+            <button
+              className="hov-soft"
+              onClick={() => downloadIcs(calEvents.filter((e) => e.who === currentUserId))}
+              disabled={myEventCount === 0}
+              title="download your events as a calendar file — import it into Apple/Google Calendar to get them on your lock screen"
+              style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "1px solid rgba(var(--ink-rgb),.12)", color: "rgba(var(--ink-rgb),.7)", borderRadius: 10, padding: "8px 12px", fontSize: 12.5, fontWeight: 600, fontFamily: "inherit", flex: "0 0 auto", opacity: myEventCount === 0 ? 0.4 : 1 }}
+            >
+              export
+            </button>
             <button
               className="hov-soft"
               onClick={() => openEventModal(selected ? new Date(selected + "T12:00:00").getTime() : dayStart(now))}
